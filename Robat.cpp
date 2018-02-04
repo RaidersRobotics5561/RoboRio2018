@@ -37,11 +37,12 @@
 #include "ctre/Phoenix.h"
 #include "const.h"
 #include "ADXRS450_Gyro.h"
+#include <Spark.h>
 
 double DesiredSpeed(double axis,double *DesiredSpeedPrev);
 double LagFilter(double FilterGain,double SpeedRaw, double SpeedFiltPrev);
 double Errors(double DesiredSpeed, double CurrentSpeed, double *intergal,
-		double kp, double ki, double kd, double upperlimit, double lowerlimit);
+              double kp, double ki, double kd, double upperlimit, double lowerlimit);
 
 class Robot: public IterativeRobot {
 
@@ -49,6 +50,8 @@ class Robot: public IterativeRobot {
 	const std::string C_AutonOpt0 = "Off";
 	const std::string C_AutonOpt1 = "On";
 	std::string V_AutonSelected;
+  frc::Spark m_motor{0};
+  frc::Spark m_motor2{1};
 
 private:
 	//left Back, SRX:left Front #1
@@ -75,6 +78,7 @@ private:
 	double TargetSpeed = 0;
 	double LY_Axis;
 	double RX_Axis;
+	bool   JoyStickBtn[4];
 	double GyroAngle;
 
 	double IntergalL = 0;
@@ -126,6 +130,7 @@ private:
 	}
 
 	void TeleopPeriodic() {
+	  double SparkMotorPwr = 0.0;
 
 //		double input1 = Prefs->GetDouble("input1",0);
 		input1 = Prefs->GetDouble("input1", 1.0);
@@ -134,8 +139,14 @@ private:
 
 
 		while (IsOperatorControl() && IsEnabled()) {
+		  SparkMotorPwr = 0.0;
+
 			LY_Axis = _joy->GetRawAxis(1) * -1;
 			RX_Axis = _joy->GetRawAxis(5);
+			JoyStickBtn[0]=_joy->GetRawButtonPressed(1);
+			JoyStickBtn[1]=_joy->GetRawButtonPressed(2);
+			JoyStickBtn[2]=_joy->GetRawButtonPressed(3);
+			JoyStickBtn[3]=_joy->GetRawButtonPressed(4);
 
 			V_AutonSelected = V_AutonOption.GetSelected();
 
@@ -171,7 +182,29 @@ private:
 					C_ErrorP_R, C_ErrorI_R, C_ErrorD_R, C_IntergalUpperLimit_R,
 					C_IntergalLowerLimit_R);
 
+      if (JoyStickBtn[0])
+        {
+        SparkMotorPwr = 0.5;
 
+        }
+      else if (JoyStickBtn[1])
+        {
+        SparkMotorPwr = -0.5;
+        }
+
+      m_motor.Set(SparkMotorPwr);
+      SparkMotorPwr = 0.0;
+
+      if (JoyStickBtn[2])
+        {
+        SparkMotorPwr = 0.5;
+
+        }
+      else if (JoyStickBtn[13])
+        {
+        SparkMotorPwr = -0.5;
+        }
+      m_motor2.Set(SparkMotorPwr);
 
 			if (V_AutonSelected == "On") {
 				_talon0->Set(ControlMode::PercentOutput, LY_Axis * -1);
