@@ -184,25 +184,26 @@ private:
 					C_ErrorP_R, C_ErrorI_R, C_ErrorD_R, C_IntergalUpperLimit_R,
 					C_IntergalLowerLimit_R);
 
-      if (JoyStickBtn[0])
+      if (JoyStickBtn[0]) // Button 1
         {
         SparkMotorPwr = 0.5;
 
         }
-      else if (JoyStickBtn[1])
+      else if (JoyStickBtn[1]) // Button 2
         {
         SparkMotorPwr = -0.5;
         }
 
       m_motor->Set(SparkMotorPwr);
+
       SparkMotorPwr = 0.0;
 
-      if (JoyStickBtn[2])
+      if (JoyStickBtn[2]) // Button 3
         {
         SparkMotorPwr = 0.5;
 
         }
-      else if (JoyStickBtn[13])
+      else if (JoyStickBtn[3]) // Button 4
         {
         SparkMotorPwr = -0.5;
         }
