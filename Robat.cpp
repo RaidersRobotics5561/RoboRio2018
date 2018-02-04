@@ -50,8 +50,10 @@ class Robot: public IterativeRobot {
 	const std::string C_AutonOpt0 = "Off";
 	const std::string C_AutonOpt1 = "On";
 	std::string V_AutonSelected;
-  frc::Spark m_motor{0};
-  frc::Spark m_motor2{1};
+//  frc::Spark m_motor{0};
+//  frc::Spark m_motor2{1};
+  Talon *m_motor = new Talon(0);
+  Talon *m_motor2 = new Talon(1);
 
 private:
 	//left Back, SRX:left Front #1
@@ -192,7 +194,7 @@ private:
         SparkMotorPwr = -0.5;
         }
 
-      m_motor.Set(SparkMotorPwr);
+      m_motor->Set(SparkMotorPwr);
       SparkMotorPwr = 0.0;
 
       if (JoyStickBtn[2])
@@ -204,7 +206,7 @@ private:
         {
         SparkMotorPwr = -0.5;
         }
-      m_motor2.Set(SparkMotorPwr);
+      m_motor2->Set(SparkMotorPwr);
 
 			if (V_AutonSelected == "On") {
 				_talon0->Set(ControlMode::PercentOutput, LY_Axis * -1);
