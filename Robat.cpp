@@ -33,7 +33,7 @@
  */
 
 #include "WPILib.h"
-#include "LiveWindow.h"
+//#include "LiveWindow.h"
 #include "ctre/Phoenix.h"
 #include "const.h"
 #include "ADXRS450_Gyro.h"
@@ -65,7 +65,7 @@ private:
 	//right Back, SRX:Right Right #4
 	TalonSRX * _talon3 = new TalonSRX(4);
 
-	LiveWindow *V_lw;
+//	LiveWindow *V_lw;
 	//_talon0->SetInverted(true);
 
 	ADXRS450_Gyro Gyro;
@@ -100,7 +100,7 @@ private:
 
 		V_AutonOption.AddDefault(C_AutonOpt0, C_AutonOpt0);
 		V_AutonOption.AddObject(C_AutonOpt1, C_AutonOpt1);
-		frc::SmartDashboard::PutData("Auto Modes", &V_AutonOption);
+//		frc::SmartDashboard::PutData("Auto Modes", &V_AutonOption);
 
 		_talon0->ConfigSelectedFeedbackSensor(
 				FeedbackDevice::CTRE_MagEncoder_Relative, 0, 10);
@@ -207,37 +207,40 @@ private:
         {
         SparkMotorPwr = -0.5;
         }
+
       m_motor2->Set(SparkMotorPwr);
 
-			if (V_AutonSelected == "On") {
+//			if (V_AutonSelected == "On") {
+      if (true) {
 				_talon0->Set(ControlMode::PercentOutput, LY_Axis * -1);
 				_talon1->Set(ControlMode::PercentOutput, LY_Axis * -1);
 
 				_talon2->Set(ControlMode::PercentOutput, RX_Axis);
 				_talon3->Set(ControlMode::PercentOutput, RX_Axis);
-			} else {
-				_talon0->Set(ControlMode::PercentOutput, output[0]);
-				_talon1->Set(ControlMode::PercentOutput, output[0]);
-
-				_talon2->Set(ControlMode::PercentOutput, output[1] * -1);
-				_talon3->Set(ControlMode::PercentOutput, output[1] * -1);
-			}
+      }
+//			} else {
+//				_talon0->Set(ControlMode::PercentOutput, output[0]);
+//				_talon1->Set(ControlMode::PercentOutput, output[0]);
+//
+//				_talon2->Set(ControlMode::PercentOutput, output[1] * -1);
+//				_talon3->Set(ControlMode::PercentOutput, output[1] * -1);
+//			}
 			Wait(0.01);
 
-			SmartDashboard::PutNumber("Velocity 0",
-					_talon0->GetSelectedSensorVelocity(kPIDLoopIdx) / 12.75);
-			SmartDashboard::PutNumber("Velocity 1",
-					_talon3->GetSelectedSensorVelocity(kPIDLoopIdx) / 12.75);
-			SmartDashboard::PutNumber("Position 0",
-					_talon3->GetSelectedSensorPosition(kPIDLoopIdx) / 12.75);
-			SmartDashboard::PutNumber("GyroAngle", GyroAngle);
-			SmartDashboard::PutNumber("LY_Axis", LY_Axis);
-			SmartDashboard::PutNumber("SpeedFilt", SpeedFilt[0]);
-			SmartDashboard::PutNumber("SpeedRaw", SpeedRaw[0]);
-			SmartDashboard::PutNumber("desiredSpeed", desiredSpeed[0]);
-			SmartDashboard::PutNumber("Error", desiredSpeed[0] - SpeedFilt[0]);
-			SmartDashboard::PutNumber("Output%", output[0]);
-			SmartDashboard::PutNumber("Output%1", output[1]);
+//			SmartDashboard::PutNumber("Velocity 0",
+//					_talon0->GetSelectedSensorVelocity(kPIDLoopIdx) / 12.75);
+//			SmartDashboard::PutNumber("Velocity 1",
+//					_talon3->GetSelectedSensorVelocity(kPIDLoopIdx) / 12.75);
+//			SmartDashboard::PutNumber("Position 0",
+//					_talon3->GetSelectedSensorPosition(kPIDLoopIdx) / 12.75);
+//			SmartDashboard::PutNumber("GyroAngle", GyroAngle);
+//			SmartDashboard::PutNumber("LY_Axis", LY_Axis);
+//			SmartDashboard::PutNumber("SpeedFilt", SpeedFilt[0]);
+//			SmartDashboard::PutNumber("SpeedRaw", SpeedRaw[0]);
+//			SmartDashboard::PutNumber("desiredSpeed", desiredSpeed[0]);
+//			SmartDashboard::PutNumber("Error", desiredSpeed[0] - SpeedFilt[0]);
+//			SmartDashboard::PutNumber("Output%", output[0]);
+//			SmartDashboard::PutNumber("Output%1", output[1]);
 		}
 
 	}
