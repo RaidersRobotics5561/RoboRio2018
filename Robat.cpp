@@ -33,11 +33,11 @@
  */
 
 #include "WPILib.h"
+#include "Joystick.h"
 //#include "LiveWindow.h"
 #include "ctre/Phoenix.h"
 #include "const.h"
 #include "ADXRS450_Gyro.h"
-#include <Spark.h>
 
 double DesiredSpeed(double axis,double *DesiredSpeedPrev);
 double LagFilter(double FilterGain,double SpeedRaw, double SpeedFiltPrev);
@@ -50,11 +50,6 @@ class Robot: public IterativeRobot {
 	const std::string C_AutonOpt0 = "Off";
 	const std::string C_AutonOpt1 = "On";
 	std::string V_AutonSelected;
-//  frc::Spark m_motor{0};
-//  frc::Spark m_motor2{1};
-  Talon *m_motor = new Talon(0);
-  Talon *m_motor2 = new Talon(1);
-
 private:
 	//left Back, SRX:left Front #1
 	TalonSRX * _talon0 = new TalonSRX(1);
@@ -65,7 +60,11 @@ private:
 	//right Back, SRX:Right Right #4
 	TalonSRX * _talon3 = new TalonSRX(4);
 
-//	LiveWindow *V_lw;
+	//intake motor one
+	Talon *Talon_PWM0 = new Talon(8);
+	//intake motor two
+	Talon *Talon_PWM1 = new Talon(9);
+	LiveWindow *V_lw;
 	//_talon0->SetInverted(true);
 
 	ADXRS450_Gyro Gyro;
@@ -80,8 +79,10 @@ private:
 	double TargetSpeed = 0;
 	double LY_Axis;
 	double RX_Axis;
-	bool   JoyStickBtn[4];
 	double GyroAngle;
+
+	double Rt;
+	double Lt;
 
 	double IntergalL = 0;
 	double IntergalR = 0;
@@ -100,7 +101,7 @@ private:
 
 		V_AutonOption.AddDefault(C_AutonOpt0, C_AutonOpt0);
 		V_AutonOption.AddObject(C_AutonOpt1, C_AutonOpt1);
-//		frc::SmartDashboard::PutData("Auto Modes", &V_AutonOption);
+		frc::SmartDashboard::PutData("Auto Modes", &V_AutonOption);
 
 		_talon0->ConfigSelectedFeedbackSensor(
 				FeedbackDevice::CTRE_MagEncoder_Relative, 0, 10);
@@ -132,7 +133,6 @@ private:
 	}
 
 	void TeleopPeriodic() {
-	  double SparkMotorPwr = 0.0;
 
 //		double input1 = Prefs->GetDouble("input1",0);
 		input1 = Prefs->GetDouble("input1", 1.0);
@@ -141,14 +141,10 @@ private:
 
 
 		while (IsOperatorControl() && IsEnabled()) {
-		  SparkMotorPwr = 0.0;
-
 			LY_Axis = _joy->GetRawAxis(1) * -1;
 			RX_Axis = _joy->GetRawAxis(5);
-			JoyStickBtn[0]=_joy->GetRawButtonPressed(1);
-			JoyStickBtn[1]=_joy->GetRawButtonPressed(2);
-			JoyStickBtn[2]=_joy->GetRawButtonPressed(3);
-			JoyStickBtn[3]=_joy->GetRawButtonPressed(4);
+			Rt = _joy->GetRawAxis(3);
+			Lt = _joy->GetRawAxis(2);
 
 			V_AutonSelected = V_AutonOption.GetSelected();
 
@@ -184,63 +180,47 @@ private:
 					C_ErrorP_R, C_ErrorI_R, C_ErrorD_R, C_IntergalUpperLimit_R,
 					C_IntergalLowerLimit_R);
 
-      if (JoyStickBtn[0]) // Button 1
-        {
-        SparkMotorPwr = 0.5;
+	if(Rt > 0.25){
+		//Talon_PWM0->Set(ControlMode::PercentOutput, Rt);
+		Talon_PWM0->Set(Rt);
+		//Talon_PWM1->Set(ControlMode::PercentOutput, -1 * Rt);
+		Talon_PWM1->Set(Rt * -1);
+	} else if(Lt > .025){
+		//Talon_PWM0->Set(ControlMode::PercentOutput, -1 * Lt);
+		Talon_PWM0->Set(Lt * -1);
+		//Talon_PWM1->Set(ControlMode::PercentOutput, Lt);
+		Talon_PWM1->Set(Lt);
+	}
 
-        }
-      else if (JoyStickBtn[1]) // Button 2
-        {
-        SparkMotorPwr = -0.5;
-        }
-
-      m_motor->Set(SparkMotorPwr);
-
-      SparkMotorPwr = 0.0;
-
-      if (JoyStickBtn[2]) // Button 3
-        {
-        SparkMotorPwr = 0.5;
-
-        }
-      else if (JoyStickBtn[3]) // Button 4
-        {
-        SparkMotorPwr = -0.5;
-        }
-
-      m_motor2->Set(SparkMotorPwr);
-
-//			if (V_AutonSelected == "On") {
-      if (true) {
+			if (V_AutonSelected == "On") {
 				_talon0->Set(ControlMode::PercentOutput, LY_Axis * -1);
 				_talon1->Set(ControlMode::PercentOutput, LY_Axis * -1);
 
 				_talon2->Set(ControlMode::PercentOutput, RX_Axis);
 				_talon3->Set(ControlMode::PercentOutput, RX_Axis);
-      }
-//			} else {
-//				_talon0->Set(ControlMode::PercentOutput, output[0]);
-//				_talon1->Set(ControlMode::PercentOutput, output[0]);
-//
-//				_talon2->Set(ControlMode::PercentOutput, output[1] * -1);
-//				_talon3->Set(ControlMode::PercentOutput, output[1] * -1);
-//			}
+			} else {
+				_talon0->Set(ControlMode::PercentOutput, output[0]);
+				_talon1->Set(ControlMode::PercentOutput, output[0]);
+
+				_talon2->Set(ControlMode::PercentOutput, output[1] * -1);
+				_talon3->Set(ControlMode::PercentOutput, output[1] * -1);
+			}
 			Wait(0.01);
 
-//			SmartDashboard::PutNumber("Velocity 0",
-//					_talon0->GetSelectedSensorVelocity(kPIDLoopIdx) / 12.75);
-//			SmartDashboard::PutNumber("Velocity 1",
-//					_talon3->GetSelectedSensorVelocity(kPIDLoopIdx) / 12.75);
-//			SmartDashboard::PutNumber("Position 0",
-//					_talon3->GetSelectedSensorPosition(kPIDLoopIdx) / 12.75);
-//			SmartDashboard::PutNumber("GyroAngle", GyroAngle);
-//			SmartDashboard::PutNumber("LY_Axis", LY_Axis);
-//			SmartDashboard::PutNumber("SpeedFilt", SpeedFilt[0]);
-//			SmartDashboard::PutNumber("SpeedRaw", SpeedRaw[0]);
-//			SmartDashboard::PutNumber("desiredSpeed", desiredSpeed[0]);
-//			SmartDashboard::PutNumber("Error", desiredSpeed[0] - SpeedFilt[0]);
-//			SmartDashboard::PutNumber("Output%", output[0]);
-//			SmartDashboard::PutNumber("Output%1", output[1]);
+			SmartDashboard::PutNumber("Velocity 0",
+					_talon0->GetSelectedSensorVelocity(kPIDLoopIdx) / 12.75);
+			SmartDashboard::PutNumber("Velocity 1",
+					_talon3->GetSelectedSensorVelocity(kPIDLoopIdx) / 12.75);
+			SmartDashboard::PutNumber("Position 0",
+					_talon3->GetSelectedSensorPosition(kPIDLoopIdx) / 12.75);
+			SmartDashboard::PutNumber("GyroAngle", GyroAngle);
+			SmartDashboard::PutNumber("LY_Axis", LY_Axis);
+			SmartDashboard::PutNumber("SpeedFilt", SpeedFilt[0]);
+			SmartDashboard::PutNumber("SpeedRaw", SpeedRaw[0]);
+			SmartDashboard::PutNumber("desiredSpeed", desiredSpeed[0]);
+			SmartDashboard::PutNumber("Error", desiredSpeed[0] - SpeedFilt[0]);
+			SmartDashboard::PutNumber("Output%", output[0]);
+			SmartDashboard::PutNumber("Output%1", output[1]);
 		}
 
 	}
