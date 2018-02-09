@@ -34,15 +34,16 @@
 
 #include "WPILib.h"
 #include "Joystick.h"
-//#include "LiveWindow.h"
+#include "LiveWindow.h"
 #include "ctre/Phoenix.h"
 #include "const.h"
 #include "ADXRS450_Gyro.h"
 
-double DesiredSpeed(double axis,double *DesiredSpeedPrev);
-double LagFilter(double FilterGain,double SpeedRaw, double SpeedFiltPrev);
-double Errors(double DesiredSpeed, double CurrentSpeed, double *intergal,
-              double kp, double ki, double kd, double upperlimit, double lowerlimit);
+double DesiredSpeed(double axis, double *DesiredSpeedPrev);
+double LagFilter(double FilterGain, double SpeedRaw, double SpeedFiltPrev);
+double Errors(double DesiredSpeed, double CurrentSpeed, double *ErrorPrev,
+		double *intergal, double kp, double ki, double kd, double upperlimit,
+		double lowerlimit);
 
 class Robot: public IterativeRobot {
 
@@ -50,6 +51,13 @@ class Robot: public IterativeRobot {
 	const std::string C_AutonOpt0 = "Off";
 	const std::string C_AutonOpt1 = "On";
 	std::string V_AutonSelected;
+
+	frc::SendableChooser<std::string> V_StartingPosition;
+	const std::string C_StartOpt0 = "Left";
+	const std::string C_StartOpt1 = "Middle";
+	const std::string C_StartOpt2 = "Right";
+	std::string V_StartOptSelected;
+
 private:
 	//left Back, SRX:left Front #1
 	TalonSRX * _talon0 = new TalonSRX(1);
@@ -88,6 +96,10 @@ private:
 	double IntergalR = 0;
 	double input1 = 0;
 	double DesiredSpeedPrev = 0;
+	double ErrorPrev_L = 0;
+	double ErrorPrev_R = 0;
+
+	std::string gameData;
 
 	double SpeedRaw[2], SpeedFilt[2], SpeedFiltPrev[2], desiredSpeed[2],
 			output[2];
@@ -103,7 +115,15 @@ private:
 		V_AutonOption.AddObject(C_AutonOpt1, C_AutonOpt1);
 		frc::SmartDashboard::PutData("Auto Modes", &V_AutonOption);
 
+		V_AutonOption.AddDefault(C_StartOpt0, C_StartOpt0);
+		V_AutonOption.AddObject(C_StartOpt1, C_StartOpt1);
+		V_AutonOption.AddObject(C_StartOpt2, C_StartOpt2);
+		frc::SmartDashboard::PutData("Starting Position", &V_StartingPosition);
+
 		_talon0->ConfigSelectedFeedbackSensor(
+				FeedbackDevice::CTRE_MagEncoder_Relative, 0, 10);
+
+		_talon3->ConfigSelectedFeedbackSensor(
 				FeedbackDevice::CTRE_MagEncoder_Relative, 0, 10);
 
 		_talon0->SetSensorPhase(true);
@@ -137,8 +157,8 @@ private:
 //		double input1 = Prefs->GetDouble("input1",0);
 		input1 = Prefs->GetDouble("input1", 1.0);
 
-		_talon0->SetSelectedSensorPosition(0,kSlotIdx,kTimeoutMs);
-
+		//Tried to set Position Counter
+		_talon0->SetSelectedSensorPosition(0, kSlotIdx, kTimeoutMs);
 
 		while (IsOperatorControl() && IsEnabled()) {
 			LY_Axis = _joy->GetRawAxis(1) * -1;
@@ -147,6 +167,7 @@ private:
 			Lt = _joy->GetRawAxis(2);
 
 			V_AutonSelected = V_AutonOption.GetSelected();
+			V_StartOptSelected = V_StartingPosition.GetSelected();
 
 			if (LY_Axis > 0.01 && LY_Axis < -0.01) {
 				LY_Axis = 0;
@@ -156,6 +177,15 @@ private:
 				RX_Axis = 0;
 			}
 
+			gameData = frc::DriverStation::GetInstance().GetGameSpecificMessage();
+
+			if(gameData.length > 0){
+				if(gameData[0] > 'L')
+				{
+
+				}
+			}
+
 			GyroAngle = Gyro.GetAngle();
 
 			SpeedRaw[0] = _talon0->GetSelectedSensorVelocity(kPIDLoopIdx)
@@ -163,34 +193,47 @@ private:
 			SpeedRaw[1] = _talon3->GetSelectedSensorVelocity(kPIDLoopIdx)
 					/ 12.75;
 
-			SpeedFilt[0] = LagFilter(C_FiltGain_L,SpeedRaw[0],SpeedFiltPrev[0]);
-			SpeedFilt[1] = LagFilter(C_FiltGain_R,SpeedRaw[1],SpeedFiltPrev[1]);
+			SpeedFilt[0] = LagFilter(C_WheelSpeedLagFilterGain[E_RobotSideLeft],
+					SpeedRaw[0], SpeedFiltPrev[0]);
+			SpeedFilt[1] = LagFilter(
+					C_WheelSpeedLagFilterGain[E_RobotSideRight], SpeedRaw[1],
+					SpeedFiltPrev[1]);
 
 			SpeedFiltPrev[0] = SpeedFilt[0];
 			SpeedFiltPrev[1] = SpeedFilt[1];
 
-			desiredSpeed[0] = DesiredSpeed(input1,&DesiredSpeedPrev);
-			desiredSpeed[1] = DesiredSpeed(input1,&DesiredSpeedPrev);
+			desiredSpeed[0] = DesiredSpeed(input1, &DesiredSpeedPrev);
+			desiredSpeed[1] = DesiredSpeed(input1, &DesiredSpeedPrev);
 
-			output[0] = Errors(desiredSpeed[0], SpeedFilt[0], &IntergalL,
-					C_ErrorP_L, C_ErrorI_L, C_ErrorD_L, C_IntergalUpperLimit_L,
-					C_IntergalLowerLimit_L);
+			output[0] =
+					Errors(desiredSpeed[0], SpeedFilt[0], &ErrorPrev_L,
+							&IntergalL,
+							C_WheelSpeedPID_Gain[E_RobotSideLeft][E_PID_Proportional],
+							C_WheelSpeedPID_Gain[E_RobotSideLeft][E_PID_Integral],
+							C_WheelSpeedPID_Gain[E_RobotSideLeft][E_PID_Derivative],
+							C_WheelspeedIntergalLimit[E_RobotSideLeft][E_IntergalUpperLimit],
+							C_WheelspeedIntergalLimit[E_RobotSideLeft][E_IntergalLowerLimit]);
 
-			output[1] = Errors(desiredSpeed[1], SpeedFilt[1], &IntergalR,
-					C_ErrorP_R, C_ErrorI_R, C_ErrorD_R, C_IntergalUpperLimit_R,
-					C_IntergalLowerLimit_R);
+			output[1] =
+					Errors(desiredSpeed[1], SpeedFilt[1], &ErrorPrev_R,
+							&IntergalR,
+							C_WheelSpeedPID_Gain[E_RobotSideRight][E_PID_Proportional],
+							C_WheelSpeedPID_Gain[E_RobotSideRight][E_PID_Integral],
+							C_WheelSpeedPID_Gain[E_RobotSideRight][E_PID_Derivative],
+							C_WheelspeedIntergalLimit[E_RobotSideRight][E_IntergalUpperLimit],
+							C_WheelspeedIntergalLimit[E_RobotSideRight][E_IntergalLowerLimit]);
 
-	if(Rt > 0.25){
-		//Talon_PWM0->Set(ControlMode::PercentOutput, Rt);
-		Talon_PWM0->Set(Rt);
-		//Talon_PWM1->Set(ControlMode::PercentOutput, -1 * Rt);
-		Talon_PWM1->Set(Rt * -1);
-	} else if(Lt > .025){
-		//Talon_PWM0->Set(ControlMode::PercentOutput, -1 * Lt);
-		Talon_PWM0->Set(Lt * -1);
-		//Talon_PWM1->Set(ControlMode::PercentOutput, Lt);
-		Talon_PWM1->Set(Lt);
-	}
+			if (Rt > 0.25) {
+				//Talon_PWM0->Set(ControlMode::PercentOutput, Rt);
+				Talon_PWM0->Set(Rt);
+				//Talon_PWM1->Set(ControlMode::PercentOutput, -1 * Rt);
+				Talon_PWM1->Set(Rt * -1);
+			} else if (Lt > .025) {
+				//Talon_PWM0->Set(ControlMode::PercentOutput, -1 * Lt);
+				Talon_PWM0->Set(Lt * -1);
+				//Talon_PWM1->Set(ControlMode::PercentOutput, Lt);
+				Talon_PWM1->Set(Lt);
+			}
 
 			if (V_AutonSelected == "On") {
 				_talon0->Set(ControlMode::PercentOutput, LY_Axis * -1);
@@ -205,7 +248,7 @@ private:
 				_talon2->Set(ControlMode::PercentOutput, output[1] * -1);
 				_talon3->Set(ControlMode::PercentOutput, output[1] * -1);
 			}
-			Wait(0.01);
+			Wait(C_ExeTime);
 
 			SmartDashboard::PutNumber("Velocity 0",
 					_talon0->GetSelectedSensorVelocity(kPIDLoopIdx) / 12.75);
@@ -226,18 +269,24 @@ private:
 	}
 };
 
-double DesiredSpeed(double axis,double *DesiredSpeedPrev) {
+double DesiredSpeed(double axis, double *DesiredSpeedPrev) {
 	double a = axis * C_speedGain;
-	double b = LagFilter(C_SpeedFilterGain,a,*DesiredSpeedPrev);
-    *DesiredSpeedPrev = b;
+	double b = LagFilter(C_SpeedFilterGain, a, *DesiredSpeedPrev);
+	*DesiredSpeedPrev = b;
 	return b;
 }
 
-double Errors(double DesiredSpeed, double CurrentSpeed, double *intergal,
-		double kp, double ki, double kd, double upperlimit, double lowerlimit) {
+double Errors(double DesiredSpeed, double CurrentSpeed, double *ErrorPrev,
+		double *intergal, double kp, double ki, double kd, double upperlimit,
+		double lowerlimit) {
 	double Error = DesiredSpeed - CurrentSpeed;
+	double der = Error - *ErrorPrev;
+	//PID
 	double P = Error * kp;
 	double I = *intergal + Error * ki;
+	double D = kd * *ErrorPrev / C_ExeTime;
+
+	*ErrorPrev = Error;
 
 	if (I > upperlimit) {
 		I = upperlimit;
@@ -247,7 +296,7 @@ double Errors(double DesiredSpeed, double CurrentSpeed, double *intergal,
 
 	*intergal = I;
 
-	double output = P + I;
+	double output = P + I + D;
 	if (output > 0.5) {
 		output = 0.5;
 	} else if (output < -0.5) {
@@ -257,7 +306,7 @@ double Errors(double DesiredSpeed, double CurrentSpeed, double *intergal,
 	return output;
 }
 
-double LagFilter(double FilterGain,double SpeedRaw, double SpeedFiltPrev){
+double LagFilter(double FilterGain, double SpeedRaw, double SpeedFiltPrev) {
 	return FilterGain * SpeedRaw + (1 - FilterGain) * SpeedFiltPrev;
 }
 
