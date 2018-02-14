@@ -3,6 +3,8 @@
 
    Created on: Feb 11, 2018
        Author: sdbig
+
+       This file contains the functions necessary for lookup tables.
  */
 #include "const.h"
 
@@ -22,7 +24,6 @@ double LookUp1D_Table(const double *L_X_Axis,
   double L_LookupY_Diff = 0.0;
   double L_LookupDiv    = 0.0;
   bool L_LookupPt1Found = false;
-  bool L_LookupPt2Found = false;
   double L_Output       = 0.0;
 
   /* Table length MUST equal axis length. */

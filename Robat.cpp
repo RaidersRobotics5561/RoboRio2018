@@ -36,14 +36,37 @@
 
 double DesiredSpeed(double axis, double *DesiredSpeedPrev);
 double LagFilter(double FilterGain, double SpeedRaw, double SpeedFiltPrev);
-//double Errors(double DesiredSpeed, double CurrentSpeed, double *ErrorPrev,
-//		double *intergal, double kp, double ki, double kd, double upperlimit,
-//		double lowerlimit);
+
 
 double        V_EndGameWinchTime;
 bool          V_LED_RainbowLatch;
 int           V_AutonState;
 bool          V_LED_CmndState[4];
+double V_WheelSpeedErrorPrev[E_RobotSideSz];
+double V_WheelSpeedErrorIntegral[E_RobotSideSz];
+double V_WheelRPM_Raw[E_RobotSideSz];
+double V_WheelRPM_Filt[E_RobotSideSz];
+double V_WheelRPM_FiltPrev[E_RobotSideSz];
+double V_WheelRPM_Desired[E_RobotSideSz];
+double V_WheelMotorCmndPct[E_RobotSideSz];
+double V_ProportionalGain[E_RobotSideSz];
+double V_IntegralGain[E_RobotSideSz];
+double V_DerivativeGain[E_RobotSideSz];
+int kSlotIdx = 0;
+int kPIDLoopIdx = 0;
+int kTimeoutMs = 10;
+double TargetSpeed = 0;
+double LY_Axis;
+double RX_Axis;
+double GyroAngle;
+
+double Rt;
+double Lt;
+
+double IntergalR = 0;
+double input1 = 0;
+double DesiredSpeedPrev = 0;
+double V_WinchSpeed = 0.0;
 
 class Robot: public IterativeRobot {
 
@@ -86,42 +109,19 @@ private:
 
 	Joystick * _joy = new Joystick(0);
 
-	int kSlotIdx = 0;
-	int kPIDLoopIdx = 0;
-	int kTimeoutMs = 10;
-	double TargetSpeed = 0;
-	double LY_Axis;
-	double RX_Axis;
-	double GyroAngle;
-
-	double Rt;
-	double Lt;
-
-	double IntergalR = 0;
-	double input1 = 0;
-	double DesiredSpeedPrev = 0;
-	double V_WinchSpeed = 0.0;
-
-
-
-
 	std::string gameData;
 
-	double V_WheelSpeedErrorPrev[E_RobotSideSz];
-  double V_WheelSpeedErrorIntegral[E_RobotSideSz];
-	double V_WheelRPM_Raw[E_RobotSideSz];
-  double V_WheelRPM_Filt[E_RobotSideSz];
-  double V_WheelRPM_FiltPrev[E_RobotSideSz];
-  double V_WheelRPM_Desired[E_RobotSideSz];
-  double V_WheelMotorCmndPct[E_RobotSideSz];
-  double V_ProportionalGain[E_RobotSideSz];
-  double V_IntegralGain[E_RobotSideSz];
-  double V_DerivativeGain[E_RobotSideSz];
+
 
 	void RobotInit() {
 
 //		Prefs->PutDouble("input1");
 		Prefs = Preferences::GetInstance();
+
+    V_LED_State0->Set(false);
+    V_LED_State1->Set(false);
+    V_LED_State2->Set(false);
+    V_LED_State3->Set(false);
 
 		Gyro.Calibrate();
 
@@ -181,26 +181,13 @@ private:
 	  V_IntegralGain[E_RobotSideRight] = Prefs->GetDouble("I_L", C_WheelSpeedPID_Gain[E_RobotSideRight][E_PID_Integral]);
 	  V_DerivativeGain[E_RobotSideRight] = Prefs->GetDouble("D_L", C_WheelSpeedPID_Gain[E_RobotSideRight][E_PID_Derivative]);
 
-	  V_LED_State0->Set(false);
-	  V_LED_State1->Set(false);
-	  V_LED_State2->Set(false);
-	  V_LED_State3->Set(false);
 
-		//Tried to set Position Counter
-//		_talon0->SetSelectedSensorPosition(0, kSlotIdx, kTimeoutMs);
 
-    for (L_RobotSide = E_RobotSideLeft;
-         L_RobotSide < E_RobotSideSz;
-         L_RobotSide = T_RobotSide(int(L_RobotSide) + 1))
-      {
-      V_WheelSpeedErrorPrev[L_RobotSide] = 0.0;
-      V_WheelSpeedErrorIntegral[L_RobotSide] = 0.0;
-      V_WheelRPM_Raw[L_RobotSide] = 0.0;
-      V_WheelRPM_Filt[L_RobotSide] = 0.0;
-      V_WheelRPM_FiltPrev[L_RobotSide] = 0.0;
-      V_WheelRPM_Desired[L_RobotSide] = 0.0;
-      V_WheelMotorCmndPct[L_RobotSide] = 0.0;
-      }
+    //Reset Sensor Position
+    _talon0->SetSelectedSensorPosition(0, kSlotIdx, kTimeoutMs);
+    _talon3->SetSelectedSensorPosition(0, kSlotIdx, kTimeoutMs);
+
+
 
 
 
@@ -370,8 +357,6 @@ double DesiredSpeed(double L_JoystickAxis,
 
 
 
-double LagFilter(double FilterGain, double SpeedRaw, double SpeedFiltPrev) {
-	return FilterGain * SpeedRaw + (1 - FilterGain) * SpeedFiltPrev;
-}
+
 
 START_ROBOT_CLASS(Robot)

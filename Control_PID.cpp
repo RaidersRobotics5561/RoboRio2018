@@ -2,7 +2,9 @@
   Control_PID.cpp
 
    Created on: Feb 11, 2018
-       Author: sdbig
+       Author: 5561
+
+       This file contains all of the necessary functions for PID control.
  */
 
 #include "const.h"

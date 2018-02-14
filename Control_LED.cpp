@@ -53,7 +53,7 @@ LED_Mode UpdateLED_Output(RoboState L_RobotState,
     {
     /* Accumulate time that the winch has been on while in the end game time.  Once the winch has been on long enough,
      * trigger the final LED effect. */
-    V_EndGameWinchTime += C_ControllerUpdateRate;
+    V_EndGameWinchTime += C_ExeTime;
     if (V_EndGameWinchTime >= K_LED_WinchOnTime)
       {
       V_LED_RainbowLatch = true;
