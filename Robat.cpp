@@ -33,15 +33,20 @@
  */
 
 #include "const.h"
+#include "LookUp.hpp"
+#include "Calibrations.hpp"
+#include "Control_PID.hpp"
+#include "VariableInit.hpp"
+#include "Output_SmartDashboard.hpp"
+#include "SignalFilter.hpp"
 
-double DesiredSpeed(double axis, double *DesiredSpeedPrev);
-double LagFilter(double FilterGain, double SpeedRaw, double SpeedFiltPrev);
+double DesiredSpeed(double axis);
 
 
-double        V_EndGameWinchTime;
-bool          V_LED_RainbowLatch;
-int           V_AutonState;
-bool          V_LED_CmndState[4];
+double V_EndGameWinchTime;
+bool   V_LED_RainbowLatch;
+int    V_AutonState;
+bool   V_LED_CmndState[4];
 double V_WheelSpeedErrorPrev[E_RobotSideSz];
 double V_WheelSpeedErrorIntegral[E_RobotSideSz];
 double V_WheelRPM_Raw[E_RobotSideSz];
@@ -52,10 +57,6 @@ double V_WheelMotorCmndPct[E_RobotSideSz];
 double V_ProportionalGain[E_RobotSideSz];
 double V_IntegralGain[E_RobotSideSz];
 double V_DerivativeGain[E_RobotSideSz];
-int kSlotIdx = 0;
-int kPIDLoopIdx = 0;
-int kTimeoutMs = 10;
-double TargetSpeed = 0;
 double LY_Axis;
 double RX_Axis;
 double GyroAngle;
@@ -63,10 +64,8 @@ double GyroAngle;
 double Rt;
 double Lt;
 
-double IntergalR = 0;
-double input1 = 0;
-double DesiredSpeedPrev = 0;
-double V_WinchSpeed = 0.0;
+double input1;
+double V_WinchSpeed;
 
 class Robot: public IterativeRobot {
 
@@ -115,8 +114,9 @@ private:
 
 	void RobotInit() {
 
-//		Prefs->PutDouble("input1");
-		Prefs = Preferences::GetInstance();
+    Prefs = Preferences::GetInstance();
+
+    VariableInit(Prefs);
 
     V_LED_State0->Set(false);
     V_LED_State1->Set(false);
@@ -141,55 +141,43 @@ private:
 				FeedbackDevice::CTRE_MagEncoder_Relative, 0, 10);
 
 		_talon0->SetSensorPhase(true);
+		_talon3->SetSensorPhase(true);
 
 		/* set the peak and nominal outputs, 12V means full */
 
-		_talon0->ConfigNominalOutputForward(0, kTimeoutMs);
-		_talon1->ConfigNominalOutputForward(0, kTimeoutMs);
-		_talon2->ConfigNominalOutputForward(0, kTimeoutMs);
-		_talon3->ConfigNominalOutputForward(0, kTimeoutMs);
-//		_talon4->ConfigNominalOutputForward(0, kTimeoutMs);
+		_talon0->ConfigNominalOutputForward(0, K_TimeoutMs);
+		_talon1->ConfigNominalOutputForward(0, K_TimeoutMs);
+		_talon2->ConfigNominalOutputForward(0, K_TimeoutMs);
+		_talon3->ConfigNominalOutputForward(0, K_TimeoutMs);
+//		_talon4->ConfigNominalOutputForward(0, K_TimeoutMs);
 
-		_talon0->ConfigNominalOutputReverse(0, kTimeoutMs);
-		_talon1->ConfigNominalOutputReverse(0, kTimeoutMs);
-		_talon2->ConfigNominalOutputReverse(0, kTimeoutMs);
-		_talon3->ConfigNominalOutputReverse(0, kTimeoutMs);
-//		_talon4->ConfigNominalOutputReverse(0, kTimeoutMs);
+		_talon0->ConfigNominalOutputReverse(0, K_TimeoutMs);
+		_talon1->ConfigNominalOutputReverse(0, K_TimeoutMs);
+		_talon2->ConfigNominalOutputReverse(0, K_TimeoutMs);
+		_talon3->ConfigNominalOutputReverse(0, K_TimeoutMs);
+//		_talon4->ConfigNominalOutputReverse(0, K_TimeoutMs);
 
-		_talon0->ConfigPeakOutputForward(1, kTimeoutMs);
-		_talon1->ConfigPeakOutputForward(1, kTimeoutMs);
-		_talon2->ConfigPeakOutputForward(1, kTimeoutMs);
-		_talon3->ConfigPeakOutputForward(1, kTimeoutMs);
-//		_talon4->ConfigPeakOutputForward(1, kTimeoutMs);
+		_talon0->ConfigPeakOutputForward(1, K_TimeoutMs);
+		_talon1->ConfigPeakOutputForward(1, K_TimeoutMs);
+		_talon2->ConfigPeakOutputForward(1, K_TimeoutMs);
+		_talon3->ConfigPeakOutputForward(1, K_TimeoutMs);
+//		_talon4->ConfigPeakOutputForward(1, K_TimeoutMs);
 
-		_talon0->ConfigPeakOutputReverse(-1, kTimeoutMs);
-		_talon1->ConfigPeakOutputReverse(-1, kTimeoutMs);
-		_talon2->ConfigPeakOutputReverse(-1, kTimeoutMs);
-		_talon3->ConfigPeakOutputReverse(-1, kTimeoutMs);
-//		_talon4->ConfigPeakOutputReverse(-1, kTimeoutMs);
+		_talon0->ConfigPeakOutputReverse(-1, K_TimeoutMs);
+		_talon1->ConfigPeakOutputReverse(-1, K_TimeoutMs);
+		_talon2->ConfigPeakOutputReverse(-1, K_TimeoutMs);
+		_talon3->ConfigPeakOutputReverse(-1, K_TimeoutMs);
+//		_talon4->ConfigPeakOutputReverse(-1, K_TimeoutMs);
   }
 
 	void TeleopPeriodic() {
 	  T_RobotSide L_RobotSide;
 
-//		double input1 = Prefs->GetDouble("input1",0);
-		input1 = Prefs->GetDouble("SetSpeed", 0.0);
-	  V_ProportionalGain[E_RobotSideLeft] = Prefs->GetDouble("P_R", C_WheelSpeedPID_Gain[E_RobotSideLeft][E_PID_Proportional]);
-	  V_IntegralGain[E_RobotSideLeft] = Prefs->GetDouble("I_R", C_WheelSpeedPID_Gain[E_RobotSideLeft][E_PID_Integral]);
-	  V_DerivativeGain[E_RobotSideLeft] = Prefs->GetDouble("D_R", C_WheelSpeedPID_Gain[E_RobotSideLeft][E_PID_Derivative]);
-	  V_ProportionalGain[E_RobotSideRight] = Prefs->GetDouble("P_L", C_WheelSpeedPID_Gain[E_RobotSideRight][E_PID_Proportional]);
-	  V_IntegralGain[E_RobotSideRight] = Prefs->GetDouble("I_L", C_WheelSpeedPID_Gain[E_RobotSideRight][E_PID_Integral]);
-	  V_DerivativeGain[E_RobotSideRight] = Prefs->GetDouble("D_L", C_WheelSpeedPID_Gain[E_RobotSideRight][E_PID_Derivative]);
-
-
+	  VariableInit(Prefs);
 
     //Reset Sensor Position
-    _talon0->SetSelectedSensorPosition(0, kSlotIdx, kTimeoutMs);
-    _talon3->SetSelectedSensorPosition(0, kSlotIdx, kTimeoutMs);
-
-
-
-
+    _talon0->SetSelectedSensorPosition(0, K_SlotIdx, K_TimeoutMs);
+    _talon3->SetSelectedSensorPosition(0, K_SlotIdx, K_TimeoutMs);
 
 		while (IsOperatorControl() && IsEnabled()) {
 			LY_Axis = _joy->GetRawAxis(1);
@@ -199,14 +187,6 @@ private:
 
 			V_AutonSelected = V_AutonOption.GetSelected();
 			V_StartOptSelected = V_StartingPosition.GetSelected();
-
-			if (LY_Axis > -0.01 && LY_Axis < 0.01) {
-				LY_Axis = 0;
-			}
-
-			if (RX_Axis > -0.01 && RX_Axis < 0.01) {
-				RX_Axis = 0;
-			}
 
 			gameData = frc::DriverStation::GetInstance().GetGameSpecificMessage();
 
@@ -219,30 +199,25 @@ private:
 
 			GyroAngle = Gyro.GetAngle();
 
-			V_WheelRPM_Raw[E_RobotSideLeft] = _talon0->GetSelectedSensorVelocity(kPIDLoopIdx)
-					/ 12.75;
-			V_WheelRPM_Raw[E_RobotSideRight] = _talon3->GetSelectedSensorVelocity(kPIDLoopIdx)
-					/ 12.75;
+
 
 //			V_WinchSpeed = _talon4->GetSelectedSensorVelocity(kPIDLoopIdx);
+      V_WheelRPM_Raw[E_RobotSideLeft]  = _talon0->GetSelectedSensorVelocity(K_PIDLoopIdx) / 12.75;
+      V_WheelRPM_Raw[E_RobotSideRight] = _talon3->GetSelectedSensorVelocity(K_PIDLoopIdx) / 12.75;
 
-			V_WheelRPM_Filt[E_RobotSideLeft] = LagFilter(C_WheelSpeedLagFilterGain[E_RobotSideLeft],
-			                                             V_WheelRPM_Raw[E_RobotSideLeft], V_WheelRPM_FiltPrev[E_RobotSideLeft]);
-
-			V_WheelRPM_Filt[E_RobotSideRight] = LagFilter(
-					C_WheelSpeedLagFilterGain[E_RobotSideRight], V_WheelRPM_Raw[E_RobotSideRight],
-					V_WheelRPM_FiltPrev[E_RobotSideRight]);
-
-			V_WheelRPM_FiltPrev[E_RobotSideLeft]  = V_WheelRPM_Filt[E_RobotSideLeft];
-			V_WheelRPM_FiltPrev[E_RobotSideRight] = V_WheelRPM_Filt[E_RobotSideRight];
-
-			V_WheelRPM_Desired[E_RobotSideLeft]  = DesiredSpeed(LY_Axis, &DesiredSpeedPrev);
-			V_WheelRPM_Desired[E_RobotSideRight] = DesiredSpeed(RX_Axis, &DesiredSpeedPrev);
+			V_WheelRPM_Desired[E_RobotSideLeft]  = DesiredSpeed(LY_Axis);
+			V_WheelRPM_Desired[E_RobotSideRight] = DesiredSpeed(RX_Axis);
 
       for (L_RobotSide = E_RobotSideLeft;
            L_RobotSide < E_RobotSideSz;
            L_RobotSide = T_RobotSide(int(L_RobotSide) + 1))
         {
+        V_WheelRPM_Filt[L_RobotSide] = LagFilter(C_WheelSpeedLagFilterGain[L_RobotSide],
+                                                 V_WheelRPM_Raw[L_RobotSide],
+                                                 V_WheelRPM_FiltPrev[L_RobotSide]);
+
+        V_WheelRPM_FiltPrev[L_RobotSide]  = V_WheelRPM_Filt[L_RobotSide];
+
 //        V_WheelRPM_Desired[L_RobotSide] = input1;
 
         V_WheelMotorCmndPct[L_RobotSide] =  Control_PID(V_WheelRPM_Desired[L_RobotSide],
@@ -304,40 +279,15 @@ private:
 
 //      _talon4->Set(ControlMode::PercentOutput, RX_Axis);
 
-			SmartDashboard::PutNumber("Velocity 0",
-					_talon0->GetSelectedSensorVelocity(kPIDLoopIdx) / 12.75);
-			SmartDashboard::PutNumber("Velocity 1",
-					_talon3->GetSelectedSensorVelocity(kPIDLoopIdx) / 12.75);
-			SmartDashboard::PutNumber("Position 0",
-					_talon3->GetSelectedSensorPosition(kPIDLoopIdx) / 12.75);
-			SmartDashboard::PutNumber("GyroAngle", GyroAngle);
-			SmartDashboard::PutNumber("LY_Axis", LY_Axis);
-			SmartDashboard::PutNumber("RX_Axis", RX_Axis);
-      SmartDashboard::PutNumber("SpeedFiltLeft", V_WheelRPM_Filt[E_RobotSideLeft]);
-      SmartDashboard::PutNumber("SpeedRawLeft", V_WheelRPM_Raw[E_RobotSideLeft]);
-      SmartDashboard::PutNumber("ErrorLeft", V_WheelRPM_Desired[E_RobotSideLeft] - V_WheelRPM_Filt[E_RobotSideLeft]);
-			SmartDashboard::PutNumber("SpeedFiltRight", V_WheelRPM_Filt[E_RobotSideRight]);
-			SmartDashboard::PutNumber("SpeedRawRight", V_WheelRPM_Raw[E_RobotSideRight]);
-			SmartDashboard::PutNumber("ErrorRight", V_WheelRPM_Desired[E_RobotSideRight] - V_WheelRPM_Filt[E_RobotSideRight]);
-			SmartDashboard::PutNumber("OutputLeftPct", V_WheelMotorCmndPct[E_RobotSideLeft]);
-			SmartDashboard::PutNumber("OutputRightPct", V_WheelMotorCmndPct[E_RobotSideRight]);
+      UpdateSmartDashboad();
 
-			SmartDashboard::PutNumber("V_WheelSpeedErrorIntegralR", V_WheelSpeedErrorIntegral[E_RobotSideRight]);
-			SmartDashboard::PutNumber("V_WheelSpeedErrorIntegralL", V_WheelSpeedErrorIntegral[E_RobotSideLeft]);
-
-//			SmartDashboard::PutNumber("WinchSpeed", V_WinchSpeed);
-
-
-			SmartDashboard::PutNumber("DesiredSpeedLeft", V_WheelRPM_Desired[E_RobotSideLeft]);
-			SmartDashboard::PutNumber("DesiredSpeedRight", V_WheelRPM_Desired[E_RobotSideRight]);
 			Wait(C_ExeTime);
 		}
 
 	}
 };
 
-double DesiredSpeed(double L_JoystickAxis,
-                    double *DesiredSpeedPrev)
+double DesiredSpeed(double L_JoystickAxis)
   {
   double L_DesiredDriveSpeed = 0.0;
   int    L_AxisSize = sizeof(K_DesiredDriveSpeedAxis) / sizeof(K_DesiredDriveSpeedAxis[0]);
@@ -349,9 +299,6 @@ double DesiredSpeed(double L_JoystickAxis,
                                        L_CalArraySize,
                                        L_JoystickAxis);
 
-//	double a = axis * C_speedGain;
-//	double b = LagFilter(C_SpeedFilterGain, a, *DesiredSpeedPrev);
-//	*DesiredSpeedPrev = b;
 	return L_DesiredDriveSpeed;
   }
 

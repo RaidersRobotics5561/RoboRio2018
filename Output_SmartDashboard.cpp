@@ -5,16 +5,15 @@
        Author: 5561
  */
 
-#include "const.h"
+#include "Output_SmartDashboard.hpp"
+
 
 /******************************************************************************
  * Function:     UpdateSmartDashboad
  *
  * Description:  Report data back to the smart dashboard.
  ******************************************************************************/
-void UpdateSmartDashboad(double    L_GyroAngle,
-                         LED_Mode  L_LED_Mode,
-                         RoboState L_RobotState)
+void UpdateSmartDashboad(void)
   {
 //    double L_MatchTime = DriverStation::GetInstance().GetMatchTime();
 ////    int    L_Location = DriverStation::GetInstance().GetLocation();
@@ -41,10 +40,6 @@ void UpdateSmartDashboad(double    L_GyroAngle,
 //    SmartDashboard::PutNumber("Match Time",L_MatchTime);
 //    SmartDashboard::PutNumber("LED Mode", double(L_LED_Mode));
 //
-////    SmartDashboard::PutBoolean( "IMU_Connected",        ahrs->IsConnected());
-//#ifdef GYRO2
-//    SmartDashboard::PutNumber(  "IMU_Yaw",              ahrs->GetYaw());
-//#endif
 //
 //    SmartDashboard::PutNumber( "Distance1",       V_Distance1);
 //    SmartDashboard::PutNumber( "Distance2",       V_Distance2);
@@ -63,14 +58,42 @@ void UpdateSmartDashboad(double    L_GyroAngle,
 //
 //
 //
+
+//  SmartDashboard::PutNumber("Velocity 0",
+//      _talon0->GetSelectedSensorVelocity(K_PIDLoopIdx) / 12.75);
+//  SmartDashboard::PutNumber("Velocity 1",
+//      _talon3->GetSelectedSensorVelocity(K_PIDLoopIdx) / 12.75);
+//  SmartDashboard::PutNumber("Position 0",
+//      _talon3->GetSelectedSensorPosition(K_PIDLoopIdx) / 12.75);
+//  SmartDashboard::PutNumber("GyroAngle", GyroAngle);
+//  SmartDashboard::PutNumber("LY_Axis", LY_Axis);
+//  SmartDashboard::PutNumber("RX_Axis", RX_Axis);
+//  SmartDashboard::PutNumber("SpeedFiltLeft", V_WheelRPM_Filt[E_RobotSideLeft]);
+//  SmartDashboard::PutNumber("SpeedRawLeft", V_WheelRPM_Raw[E_RobotSideLeft]);
+//  SmartDashboard::PutNumber("ErrorLeft", V_WheelRPM_Desired[E_RobotSideLeft] - V_WheelRPM_Filt[E_RobotSideLeft]);
+//  SmartDashboard::PutNumber("SpeedFiltRight", V_WheelRPM_Filt[E_RobotSideRight]);
+//  SmartDashboard::PutNumber("SpeedRawRight", V_WheelRPM_Raw[E_RobotSideRight]);
+//  SmartDashboard::PutNumber("ErrorRight", V_WheelRPM_Desired[E_RobotSideRight] - V_WheelRPM_Filt[E_RobotSideRight]);
+//  SmartDashboard::PutNumber("OutputLeftPct", V_WheelMotorCmndPct[E_RobotSideLeft]);
+//  SmartDashboard::PutNumber("OutputRightPct", V_WheelMotorCmndPct[E_RobotSideRight]);
+//
+//  SmartDashboard::PutNumber("V_WheelSpeedErrorIntegralR", V_WheelSpeedErrorIntegral[E_RobotSideRight]);
+//  SmartDashboard::PutNumber("V_WheelSpeedErrorIntegralL", V_WheelSpeedErrorIntegral[E_RobotSideLeft]);
+//
+////      SmartDashboard::PutNumber("WinchSpeed", V_WinchSpeed);
+//
+//
+//  SmartDashboard::PutNumber("DesiredSpeedLeft", V_WheelRPM_Desired[E_RobotSideLeft]);
+//  SmartDashboard::PutNumber("DesiredSpeedRight", V_WheelRPM_Desired[E_RobotSideRight]);
+
 //
 //
 //    SmartDashboard::PutNumber("Velocity 0",
-//        _talon0->GetSelectedSensorVelocity(kPIDLoopIdx) / 12.75);
+//        _talon0->GetSelectedSensorVelocity(K_PIDLoopIdx) / 12.75);
 //    SmartDashboard::PutNumber("Velocity 1",
-//        _talon3->GetSelectedSensorVelocity(kPIDLoopIdx) / 12.75);
+//        _talon3->GetSelectedSensorVelocity(K_PIDLoopIdx) / 12.75);
 //    SmartDashboard::PutNumber("Position 0",
-//        _talon3->GetSelectedSensorPosition(kPIDLoopIdx) / 12.75);
+//        _talon3->GetSelectedSensorPosition(K_PIDLoopIdx) / 12.75);
 //    SmartDashboard::PutNumber("GyroAngle", GyroAngle);
 //    SmartDashboard::PutNumber("LY_Axis", LY_Axis);
 //    SmartDashboard::PutNumber("SpeedFilt", SpeedFilt[0]);

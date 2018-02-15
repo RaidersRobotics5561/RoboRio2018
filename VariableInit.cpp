@@ -5,9 +5,7 @@
        Author: 5561
  */
 
-#include "const.h"
-#include "Vars.hpp"
-
+#include "VariableInit.hpp"
 
 
 /******************************************************************************
@@ -16,19 +14,20 @@
  * Description:  Initialize the necessary variables when the robot switches
  *               modes (i.e. from auton to teleop).
  ******************************************************************************/
-void VariableInit(double    L_GyroAngle,
-                  LED_Mode  L_LED_Mode,
-                  RoboState L_RobotState)
+void VariableInit(Preferences *L_DriverPreferences)
   {
   T_RobotSide L_RobotSide;
 
-  input1 = Prefs->GetDouble("SetSpeed", 0.0);
-  V_ProportionalGain[E_RobotSideLeft] = Prefs->GetDouble("P_R", C_WheelSpeedPID_Gain[E_RobotSideLeft][E_PID_Proportional]);
-  V_IntegralGain[E_RobotSideLeft] = Prefs->GetDouble("I_R", C_WheelSpeedPID_Gain[E_RobotSideLeft][E_PID_Integral]);
-  V_DerivativeGain[E_RobotSideLeft] = Prefs->GetDouble("D_R", C_WheelSpeedPID_Gain[E_RobotSideLeft][E_PID_Derivative]);
-  V_ProportionalGain[E_RobotSideRight] = Prefs->GetDouble("P_L", C_WheelSpeedPID_Gain[E_RobotSideRight][E_PID_Proportional]);
-  V_IntegralGain[E_RobotSideRight] = Prefs->GetDouble("I_L", C_WheelSpeedPID_Gain[E_RobotSideRight][E_PID_Integral]);
-  V_DerivativeGain[E_RobotSideRight] = Prefs->GetDouble("D_L", C_WheelSpeedPID_Gain[E_RobotSideRight][E_PID_Derivative]);
+  input1 = 0;
+  V_WinchSpeed = 0.0;
+
+  input1 = L_DriverPreferences->GetDouble("SetSpeed", 0.0);
+  V_ProportionalGain[E_RobotSideLeft] = L_DriverPreferences->GetDouble("P_R", C_WheelSpeedPID_Gain[E_RobotSideLeft][E_PID_Proportional]);
+  V_IntegralGain[E_RobotSideLeft] = L_DriverPreferences->GetDouble("I_R", C_WheelSpeedPID_Gain[E_RobotSideLeft][E_PID_Integral]);
+  V_DerivativeGain[E_RobotSideLeft] = L_DriverPreferences->GetDouble("D_R", C_WheelSpeedPID_Gain[E_RobotSideLeft][E_PID_Derivative]);
+  V_ProportionalGain[E_RobotSideRight] = L_DriverPreferences->GetDouble("P_L", C_WheelSpeedPID_Gain[E_RobotSideRight][E_PID_Proportional]);
+  V_IntegralGain[E_RobotSideRight] = L_DriverPreferences->GetDouble("I_L", C_WheelSpeedPID_Gain[E_RobotSideRight][E_PID_Integral]);
+  V_DerivativeGain[E_RobotSideRight] = L_DriverPreferences->GetDouble("D_L", C_WheelSpeedPID_Gain[E_RobotSideRight][E_PID_Derivative]);
 
   for (L_RobotSide = E_RobotSideLeft;
        L_RobotSide < E_RobotSideSz;
