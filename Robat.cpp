@@ -41,6 +41,8 @@
 #include "SignalFilter.hpp"
 
 double DesiredSpeed(double axis);
+double DesiredSpeedSlow(double axis);
+
 
 double V_EndGameWinchTime;
 bool V_LED_RainbowLatch;
@@ -319,6 +321,8 @@ private:
 		double L_Rotate = 0;
 		bool   L_Tank = false;
     bool   L_PressBtn = false;
+    bool   L_Slow = false;
+    bool   L_PressBtn2 = false;
 
 		VariableInit(Prefs);
 
@@ -364,9 +368,6 @@ private:
 
 			V_Revolutions[E_RobotSideRight] = V_WheelRPM_Raw[E_RobotSideRight] / C_WheelPulsetoRev[1];
 
-	    L_Forward = DesiredSpeed(RX_Axis);
-	    L_Rotate  = DesiredSpeed(LY_Axis);
-
       if (_joy1->GetRawButtonPressed(1) == true && L_PressBtn == false)
         {
         L_Tank = !L_Tank;
@@ -377,12 +378,32 @@ private:
         L_PressBtn = false;
         }
 
+      if (_joy1->GetRawButtonPressed(2) == true && L_PressBtn2 == false)
+        {
+        L_Slow = !L_Slow;
+        L_PressBtn2 = true;
+        }
+      else if (_joy1->GetRawButtonPressed(1) == false)
+        {
+        L_PressBtn2 = false;
+        }
+
 
 
       if (L_Tank == true)
         {
         LY_Axis = _joy1->GetRawAxis(4);
         RX_Axis = _joy1->GetRawAxis(1);
+        if (L_Slow == true)
+          {
+          L_Forward = DesiredSpeedSlow(RX_Axis);
+          L_Rotate  = DesiredSpeedSlow(LY_Axis);
+          }
+        else
+          {
+          L_Forward = DesiredSpeed(RX_Axis);
+          L_Rotate  = DesiredSpeed(LY_Axis);
+          }
         V_WheelRPM_Desired[E_RobotSideLeft] = L_Forward + L_Rotate;
         V_WheelRPM_Desired[E_RobotSideRight] = L_Forward - L_Rotate;
         }
@@ -390,8 +411,16 @@ private:
         {
         LY_Axis = _joy1->GetRawAxis(5);
         RX_Axis = _joy1->GetRawAxis(1);
-        V_WheelRPM_Desired[E_RobotSideLeft] = DesiredSpeed(LY_Axis);
-        V_WheelRPM_Desired[E_RobotSideRight] = DesiredSpeed(RX_Axis);
+        if (L_Slow == true)
+          {
+          V_WheelRPM_Desired[E_RobotSideLeft] = DesiredSpeedSlow(LY_Axis);
+          V_WheelRPM_Desired[E_RobotSideRight] = DesiredSpeedSlow(RX_Axis);
+          }
+        else
+          {
+          V_WheelRPM_Desired[E_RobotSideLeft] = DesiredSpeed(LY_Axis);
+          V_WheelRPM_Desired[E_RobotSideRight] = DesiredSpeed(RX_Axis);
+          }
         }
 
 
@@ -506,6 +535,23 @@ private:
 
 	}
 };
+
+
+
+double DesiredSpeedSlow(double L_JoystickAxis) {
+  double L_DesiredDriveSpeed = 0.0;
+  int L_AxisSize = (int)(sizeof(K_DesiredDriveSpeedAxis) / sizeof(K_DesiredDriveSpeedAxis[0]));
+  int L_CalArraySize = (int)(sizeof(K_DesiredDriveSpeedSlow) / sizeof(K_DesiredDriveSpeedSlow[0]));
+
+  L_DesiredDriveSpeed = LookUp1D_Table(&K_DesiredDriveSpeedAxis[0],
+                                       &K_DesiredDriveSpeedSlow[0],
+                                       L_AxisSize,
+                                       L_CalArraySize,
+                                       L_JoystickAxis);
+
+  return L_DesiredDriveSpeed;
+}
+
 
 double DesiredSpeed(double L_JoystickAxis) {
 	double L_DesiredDriveSpeed = 0.0;
