@@ -85,6 +85,7 @@ public:
 	double distanceTraveled = 0;
 	double gyroStart = 0;
 	double gyroEnd = 0;
+	int rotateDirection = 1;
 	Act(T_State cmd, double target){
 
 		Command = cmd;
@@ -249,71 +250,106 @@ private:
 			}
 		}
 
+//	void Act_Rotate(Act *a) {
+//				if (a->initialized == false) {
+//					a->gyroStart = GyroAngle;
+//					a->initialized = true;
+//				}
+//
+//				double L_speed = 0.25;
+//
+////				a->distanceToTravel =
+//				//Starting 12
+//				double angleOffset = 15;
+//				double angleTarget = 0;
+//				bool RotatePositive;
+//
+//				double angleDiff = 180-abs(abs(GyroAngle - a->gyroEnd)-180); //Find diff and wrap
+//				double angleDiffPlus = 180-abs(abs(GyroAngle + L_speed - a->gyroEnd) - 180); //Calc the effect of adding
+//				double angleDiffMinus = 180-abs(abs(GyroAngle - L_speed - a->gyroEnd) - 180);  //Calc the effect of subtracting
+//
+//				if(angleDiffPlus < angleDiff){
+//					//Rotate Pos
+//					angleTarget = a->gyroEnd + angleOffset;
+//					RotatePositive = true;
+//				} else if(angleDiffMinus < angleDiff) {
+//					//Rotate Negative
+//					angleTarget = a->gyroEnd - angleOffset;
+//					L_speed *= -1;
+//					RotatePositive = false;
+//				}
+//
+//				bool flippedAngle = false;
+//				if(angleTarget > 180)
+//				{
+//					flippedAngle = true;
+//					angleTarget -= 360;
+//				}
+//				else if(angleTarget < -180)
+//				{
+//					flippedAngle = true;
+//					angleTarget += 360;
+//				}
+//
+//				if((RotatePositive and flippedAngle == false) or (RotatePositive == false and flippedAngle == true))
+//				{
+//					if((GyroAngle >= a->gyroEnd and flippedAngle == false) or (GyroAngle <= angleTarget and flippedAngle == true))
+//					{
+//						L_speed = 0;
+//						a->complete = true;
+//					}
+//				}
+//				else
+//				{
+//					if((GyroAngle <= a->gyroEnd and flippedAngle == false) or (GyroAngle >= angleTarget and flippedAngle == true))
+//					{
+//						L_speed = 0;
+//						a->complete = true;
+//					}
+//				}
+//
+//				_talon0->Set(ControlMode::PercentOutput, L_speed);
+//				_talon1->Set(ControlMode::PercentOutput, L_speed);
+//
+//				_talon2->Set(ControlMode::PercentOutput, L_speed);
+//				_talon3->Set(ControlMode::PercentOutput, L_speed);
+//
+//			}
+
 	void Act_Rotate(Act *a) {
-				if (a->initialized == false) {
-					a->gyroStart = GyroAngle;
-					a->initialized = true;
+			double modAngle = 360;
+			if (a->initialized == false) {
+				//a->gyroStart = GyroAngle % 360;
+				a->gyroStart = modf(GyroAngle, &modAngle);
+				if (a->gyroStart < a->gyroEnd) {
+					a->rotateDirection = -1;
 				}
 
-				double L_speed = 0.25;
+				a->initialized = true;
+			}
 
-//				a->distanceToTravel =
-				//Starting 12
-				double angleOffset = 15;
-				double angleTarget = 0;
-				bool RotatePositive;
+			double L_speed = 0.25 * a->rotateDirection;
 
-				double angleDiff = 180-abs(abs(GyroAngle - a->gyroEnd)-180); //Find diff and wrap
-				double angleDiffPlus = 180-abs(abs(GyroAngle + L_speed - a->gyroEnd) - 180); //Calc the effect of adding
-				double angleDiffMinus = 180-abs(abs(GyroAngle - L_speed - a->gyroEnd) - 180);  //Calc the effect of subtracting
+			double CurrentAngle = modf(GyroAngle, &modAngle);
 
-				if(angleDiffPlus < angleDiff){
-					//Rotate Pos
-					angleTarget = a->gyroEnd + angleOffset;
-					RotatePositive = true;
-				} else if(angleDiffMinus < angleDiff) {
-					//Rotate Negative
-					angleTarget = a->gyroEnd - angleOffset;
-					L_speed *= -1;
-					RotatePositive = false;
-				}
+			if (a->rotateDirection == 1 && CurrentAngle >= a->gyroEnd) {
+				a->complete = true;
+				L_speed = 0;
+			}
 
-				bool flippedAngle = false;
-				if(angleTarget > 180)
-				{
-					flippedAngle = true;
-					angleTarget -= 360;
-				}
-				else if(angleTarget < -180)
-				{
-					flippedAngle = true;
-					angleTarget += 360;
-				}
-
-				if((RotatePositive and flippedAngle == false) or (RotatePositive == false and flippedAngle == true))
-				{
-					if((GyroAngle >= a->gyroEnd and flippedAngle == false) or (GyroAngle <= angleTarget and flippedAngle == true))
-					{
-						L_speed = 0;
-						a->complete = true;
-					}
-				}
-				else
-				{
-					if((GyroAngle <= a->gyroEnd and flippedAngle == false) or (GyroAngle >= angleTarget and flippedAngle == true))
-					{
-						L_speed = 0;
-						a->complete = true;
-					}
-				}
-
-				_talon0->Set(ControlMode::PercentOutput, L_speed);
-				_talon1->Set(ControlMode::PercentOutput, L_speed);
-
-				_talon2->Set(ControlMode::PercentOutput, L_speed);
-				_talon3->Set(ControlMode::PercentOutput, L_speed);
+			if (a->rotateDirection == -1 && CurrentAngle <= a->gyroEnd) {
+				a->complete = true;
+				L_speed = 0;
 
 			}
+
+			_talon0->Set(ControlMode::PercentOutput, L_speed);
+			_talon1->Set(ControlMode::PercentOutput, L_speed);
+
+			_talon2->Set(ControlMode::PercentOutput, L_speed);
+			_talon3->Set(ControlMode::PercentOutput, L_speed);
+
+		}
 
 	void TeleopPeriodic() {
 		T_RobotSide L_RobotSide;
