@@ -57,6 +57,7 @@ double V_WheelMotorCmndPct[E_RobotSideSz];
 double V_ProportionalGain[E_RobotSideSz];
 double V_IntegralGain[E_RobotSideSz];
 double V_DerivativeGain[E_RobotSideSz];
+double V_Actuators[C_ActuatorsSz];
 double LY_Axis;
 double RX_Axis;
 double GyroAngle;
@@ -89,13 +90,25 @@ private:
 	TalonSRX * _talon2 = new TalonSRX(3);
 	//right Back, SRX:Right Right #4
 	TalonSRX * _talon3 = new TalonSRX(4);
+	//Intake #5
+	TalonSRX * _talon4 = new TalonSRX(5);
+	//Hook delivery #6
+	TalonSRX * _talon5 = new TalonSRX(6);
+
+
   //Winch, SRX:
 //  TalonSRX * _talon4 = new TalonSRX(5);
 
-	//intake motor one
-	Talon *Talon_PWM0 = new Talon(8);
-	//intake motor two
-	Talon *Talon_PWM1 = new Talon(9);
+	// Left articulation
+	frc::Spark Spark1{0};
+	// Left intake
+	frc::Spark Spark2{1};
+  //Right intake
+  Talon *Talon_PWM0 = new Talon(2);
+  //Right articulation
+  Talon *Talon_PWM1 = new Talon(3);
+  //Winch
+  Talon *Talon_PWM2 = new Talon(4);
 
 	DigitalOutput *V_LED_State0 = new DigitalOutput(0);
 	DigitalOutput *V_LED_State1 = new DigitalOutput(1);
@@ -106,7 +119,8 @@ private:
 
 	Preferences *Prefs;
 
-	Joystick * _joy = new Joystick(0);
+	Joystick * _joy1 = new Joystick(0);
+	Joystick * _joy2 = new Joystick(1);
 
 	std::string gameData;
 
@@ -180,10 +194,10 @@ private:
     _talon3->SetSelectedSensorPosition(0, K_SlotIdx, K_TimeoutMs);
 
 		while (IsOperatorControl() && IsEnabled()) {
-			LY_Axis = _joy->GetRawAxis(1);
-			RX_Axis = _joy->GetRawAxis(5);
-			Rt = _joy->GetRawAxis(3);
-			Lt = _joy->GetRawAxis(2);
+			LY_Axis = _joy1->GetRawAxis(1);
+			RX_Axis = _joy1->GetRawAxis(5);
+			Rt = _joy1->GetRawAxis(3);
+			Lt = _joy1->GetRawAxis(2);
 
 			V_AutonSelected = V_AutonOption.GetSelected();
 			V_StartOptSelected = V_StartingPosition.GetSelected();
@@ -218,7 +232,7 @@ private:
 
         V_WheelRPM_FiltPrev[L_RobotSide]  = V_WheelRPM_Filt[L_RobotSide];
 
-//        V_WheelRPM_Desired[L_RobotSide] = input1;
+        V_WheelRPM_Desired[L_RobotSide] = 20;
 
         V_WheelMotorCmndPct[L_RobotSide] =  Control_PID(V_WheelRPM_Desired[L_RobotSide],
                                                         V_WheelRPM_Filt[L_RobotSide],
@@ -237,17 +251,17 @@ private:
                                                         C_WheelspeedCmndLimit[L_RobotSide][E_IntergalLowerLimit]);
         }
 
-			if (Rt > 0.25) {
-				//Talon_PWM0->Set(ControlMode::PercentOutput, Rt);
-				Talon_PWM0->Set(Rt);
-				//Talon_PWM1->Set(ControlMode::PercentOutput, -1 * Rt);
-				Talon_PWM1->Set(Rt * -1);
-			} else if (Lt > .025) {
-				//Talon_PWM0->Set(ControlMode::PercentOutput, -1 * Lt);
-				Talon_PWM0->Set(Lt * -1);
-				//Talon_PWM1->Set(ControlMode::PercentOutput, Lt);
-				Talon_PWM1->Set(Lt);
-			}
+//			if (Rt > 0.25) {
+//				//Talon_PWM0->Set(ControlMode::PercentOutput, Rt);
+//				Talon_PWM0->Set(Rt);
+//				//Talon_PWM1->Set(ControlMode::PercentOutput, -1 * Rt);
+//				Talon_PWM1->Set(Rt * -1);
+//			} else if (Lt > .025) {
+//				//Talon_PWM0->Set(ControlMode::PercentOutput, -1 * Lt);
+//				Talon_PWM0->Set(Lt * -1);
+//				//Talon_PWM1->Set(ControlMode::PercentOutput, Lt);
+//				Talon_PWM1->Set(Lt);
+//			}
 
 //			if (V_AutonSelected == "On") {
 //				_talon0->Set(ControlMode::PercentOutput, LY_Axis * -1);

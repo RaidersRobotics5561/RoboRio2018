@@ -59,6 +59,20 @@
    C_Null
  }RoboState;
 
+
+
+ typedef enum
+ {
+   C_DriveMotorL,
+   C_DriveMotorR,
+   C_IntakeArmAngle,
+   C_IntakeRollers,
+   C_IntakeLift,
+   C_Winch,
+   C_Hook,
+   C_ActuatorsSz
+ }Actuators;
+
 typedef enum {
   E_RobotSideLeft, E_RobotSideRight, E_RobotSideSz
 } T_RobotSide;

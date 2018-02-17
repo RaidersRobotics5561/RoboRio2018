@@ -45,6 +45,7 @@ const double C_WheelspeedCmndLimit[E_RobotSideSz][E_IntergalLimitSz] = {
 const double C_WheelSpeedLagFilterGain[E_RobotSideSz] =
     { 0.6, 0.6};
 
+const double K_IntakeRollers        =  0.6;
 const double K_EndMatchWarningTime  =  30;    // This is the expected time remaining that the robot will warn the
 const double K_WinchOnThreshold     =   0.1; // Threshold above which the winch is considered to be on.
 const double K_LED_WinchOnTime      =   3.0;  // This is the amount of accumulated time that the winch needs to be commanded on at the end of the game in order to trigger the rainbow effect
