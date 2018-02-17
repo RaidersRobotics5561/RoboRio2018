@@ -100,7 +100,24 @@ void UpdateSmartDashboad(void)
 //    SmartDashboard::PutNumber("SpeedRaw", SpeedRaw[0]);
 //    SmartDashboard::PutNumber("desiredSpeed", desiredSpeed[0]);
 //    SmartDashboard::PutNumber("Error", desiredSpeed[0] - SpeedFilt[0]);
-//    SmartDashboard::PutNumber("Output%", output[0]);
-//    SmartDashboard::PutNumber("Output%1", output[1]);
-
+  SmartDashboard::PutNumber("SpeedRawLeft", V_WheelRPM_Raw[E_RobotSideLeft]);
+  SmartDashboard::PutNumber("SpeedRawRight", V_WheelRPM_Raw[E_RobotSideRight]);
+    SmartDashboard::PutNumber("RightSide", V_WheelMotorCmndPct[E_RobotSideRight]);
+    SmartDashboard::PutNumber("LeftSide", V_WheelMotorCmndPct[E_RobotSideLeft]);
+    SmartDashboard::PutNumber("LeftDesired", V_WheelRPM_Desired[E_RobotSideLeft]);
+    SmartDashboard::PutNumber("RightDesired", V_WheelRPM_Desired[E_RobotSideRight]);
+    SmartDashboard::PutNumber("LeftFilt", V_WheelRPM_Filt[E_RobotSideLeft]);
+    SmartDashboard::PutNumber("RightFilt", V_WheelRPM_Filt[E_RobotSideRight]);
+    SmartDashboard::PutNumber("LeftSEV", V_WheelSpeedErrorPrev[E_RobotSideLeft]);
+    SmartDashboard::PutNumber("RightSEV", V_WheelSpeedErrorPrev[E_RobotSideRight]);
+    SmartDashboard::PutNumber("LeftSEI", V_WheelSpeedErrorIntegral[E_RobotSideLeft]);
+    SmartDashboard::PutNumber("RightSEI", V_WheelSpeedErrorIntegral[E_RobotSideRight]);
+    SmartDashboard::PutNumber("LeftPropGain", V_ProportionalGain[E_RobotSideLeft]);
+    SmartDashboard::PutNumber("RightPropGain", V_ProportionalGain[E_RobotSideRight]);
+    SmartDashboard::PutNumber("RightIntegGain", V_IntegralGain[E_RobotSideLeft]);
+    SmartDashboard::PutNumber("LeftIntegGain", V_IntegralGain[E_RobotSideRight]);
+    SmartDashboard::PutNumber("LeftDerivGain", V_DerivativeGain[E_RobotSideLeft]);
+    SmartDashboard::PutNumber("RightDerivGain", V_DerivativeGain[E_RobotSideRight]);
+    SmartDashboard::PutNumber("RightOutput", RX_Axis);
+    SmartDashboard::PutNumber("LeftOutput", LY_Axis);
   };

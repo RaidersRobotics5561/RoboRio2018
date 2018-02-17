@@ -23,6 +23,7 @@ extern double V_ProportionalGain[E_RobotSideSz];
 extern double V_IntegralGain[E_RobotSideSz];
 extern double V_DerivativeGain[E_RobotSideSz];
 extern double V_Actuators[C_ActuatorsSz];
+extern double V_WheelSpeedLagFiltGain[E_RobotSideSz];
 extern double LY_Axis;
 extern double RX_Axis;
 extern double GyroAngle;

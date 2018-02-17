@@ -20,14 +20,17 @@ void VariableInit(Preferences *L_DriverPreferences)
 
   input1 = 0;
   V_WinchSpeed = 0.0;
-
+  RX_Axis = 0.0;
+  LY_Axis = 0.0;
   input1 = L_DriverPreferences->GetDouble("SetSpeed", 0.0);
-  V_ProportionalGain[E_RobotSideLeft] = L_DriverPreferences->GetDouble("P_R", C_WheelSpeedPID_Gain[E_RobotSideLeft][E_PID_Proportional]);
-  V_IntegralGain[E_RobotSideLeft] = L_DriverPreferences->GetDouble("I_R", C_WheelSpeedPID_Gain[E_RobotSideLeft][E_PID_Integral]);
-  V_DerivativeGain[E_RobotSideLeft] = L_DriverPreferences->GetDouble("D_R", C_WheelSpeedPID_Gain[E_RobotSideLeft][E_PID_Derivative]);
-  V_ProportionalGain[E_RobotSideRight] = L_DriverPreferences->GetDouble("P_L", C_WheelSpeedPID_Gain[E_RobotSideRight][E_PID_Proportional]);
-  V_IntegralGain[E_RobotSideRight] = L_DriverPreferences->GetDouble("I_L", C_WheelSpeedPID_Gain[E_RobotSideRight][E_PID_Integral]);
-  V_DerivativeGain[E_RobotSideRight] = L_DriverPreferences->GetDouble("D_L", C_WheelSpeedPID_Gain[E_RobotSideRight][E_PID_Derivative]);
+  V_ProportionalGain[E_RobotSideLeft] = L_DriverPreferences->GetDouble("P_L", C_WheelSpeedPID_Gain[E_RobotSideLeft][E_PID_Proportional]);
+  V_IntegralGain[E_RobotSideLeft] = L_DriverPreferences->GetDouble("I_L", C_WheelSpeedPID_Gain[E_RobotSideLeft][E_PID_Integral]);
+  V_DerivativeGain[E_RobotSideLeft] = L_DriverPreferences->GetDouble("D_L", C_WheelSpeedPID_Gain[E_RobotSideLeft][E_PID_Derivative]);
+  V_ProportionalGain[E_RobotSideRight] = L_DriverPreferences->GetDouble("P_R", C_WheelSpeedPID_Gain[E_RobotSideRight][E_PID_Proportional]);
+  V_IntegralGain[E_RobotSideRight] = L_DriverPreferences->GetDouble("I_R", C_WheelSpeedPID_Gain[E_RobotSideRight][E_PID_Integral]);
+  V_DerivativeGain[E_RobotSideRight] = L_DriverPreferences->GetDouble("D_R", C_WheelSpeedPID_Gain[E_RobotSideRight][E_PID_Derivative]);
+  V_WheelSpeedLagFiltGain[E_RobotSideRight] = L_DriverPreferences->GetDouble("Lag_R", C_WheelSpeedLagFilterGain[E_RobotSideRight]);
+  V_WheelSpeedLagFiltGain[E_RobotSideLeft] = L_DriverPreferences->GetDouble("Lag_L", C_WheelSpeedLagFilterGain[E_RobotSideLeft]);
 
   for (L_RobotSide = E_RobotSideLeft;
        L_RobotSide < E_RobotSideSz;
