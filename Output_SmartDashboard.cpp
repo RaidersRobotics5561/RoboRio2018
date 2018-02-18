@@ -120,4 +120,5 @@ void UpdateSmartDashboad(void)
     SmartDashboard::PutNumber("RightDerivGain", V_DerivativeGain[E_RobotSideRight]);
     SmartDashboard::PutNumber("RightOutput", RX_Axis);
     SmartDashboard::PutNumber("LeftOutput", LY_Axis);
+    SmartDashboard::PutNumber("DriveMode",(double)DriveMode);
   };

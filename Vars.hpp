@@ -7,6 +7,7 @@
 #ifndef SRC_ROBORIO2018_VARS_HPP_
 #define SRC_ROBORIO2018_VARS_HPP_
 
+#include "enums.hpp"
 
 extern double   V_EndGameWinchTime;
 extern bool     V_LED_RainbowLatch;
@@ -31,6 +32,7 @@ extern double Rt;
 extern double Lt;
 extern double input1;
 extern double V_WinchSpeed;
+extern E_DriveMode DriveMode;
 
 
 #endif /* SRC_ROBORIO2018_VARS_HPP_ */

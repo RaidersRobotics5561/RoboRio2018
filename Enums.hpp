@@ -16,6 +16,13 @@
 
  typedef enum
  {
+	 C_TankDrive,
+	 C_ArcadeDrive,
+	 C_ArdadeDriveSimple
+ } E_DriveMode;
+
+ typedef enum
+ {
    LED_Color_Red,
    LED_Color_Blue,
    LED_Color_Green,
