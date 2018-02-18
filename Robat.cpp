@@ -152,7 +152,7 @@ private:
 
 	std::string gameData;
 
-	std::vector<Act> ActList;
+	std::vector<Act> ActList, CurrentList, List_StartLeft, List_StartRight, List_StartMiddle;
 
 	void RobotInit() {
 
@@ -176,9 +176,9 @@ private:
 		V_AutonOption.AddObject(C_AutonOpt1, C_AutonOpt1);
 		frc::SmartDashboard::PutData("Auto Modes", &V_AutonOption);
 
-		V_AutonOption.AddDefault(C_StartOpt0, C_StartOpt0);
-		V_AutonOption.AddObject(C_StartOpt1, C_StartOpt1);
-		V_AutonOption.AddObject(C_StartOpt2, C_StartOpt2);
+		V_StartingPosition.AddDefault(C_StartOpt0, C_StartOpt0);
+		V_StartingPosition.AddObject(C_StartOpt1, C_StartOpt1);
+		V_StartingPosition.AddObject(C_StartOpt2, C_StartOpt2);
 		frc::SmartDashboard::PutData("Starting Position", &V_StartingPosition);
 
 		_talon0->ConfigSelectedFeedbackSensor(
@@ -216,10 +216,6 @@ private:
 		_talon3->ConfigPeakOutputReverse(-1, K_TimeoutMs);
 //		_talon4->ConfigPeakOutputReverse(-1, K_TimeoutMs);
 
-		ActList.clear();
-		ActList.push_back(Act(Act::T_State::E_StateForward, 10));
-		ActList.push_back(Act(Act::T_State::E_StateForward, 100));
-		ActList.push_back(Act(Act::T_State::E_StateRotate, 180));
 	}
 
 	void Act_Forward(Act *a) {
@@ -568,23 +564,6 @@ private:
 
 //      _talon4->Set(ControlMode::PercentOutput, RX_Axis);
 
-			if (V_AutonSelected == C_AutonOpt1) {
-				for (int index = 0; (unsigned) index < ActList.size();
-						++index) {
-					if (ActList[index].complete == false) {
-						//call the appropriate action function here
-						if (ActList[index].Command
-								== Act::T_State::E_StateForward) {
-							Act_Forward(&ActList[index]);
-						} else if (ActList[index].Command
-								== Act::T_State::E_StateRotate) {
-							Act_Rotate(&ActList[index]);
-						}
-						break;
-					}
-				}
-			}
-
 			UpdateSmartDashboad();
 
 			Wait(C_ExeTime);
@@ -592,18 +571,54 @@ private:
 
 	}
 
-
-void AutonomousInit() //This method is called once each time the robot enters Autonomous
-{
-	//autoLoopCounter = 0;
-}
-
-void AutonomousPeriodic()
+	void AutonomousInit() //This method is called once each time the robot enters Autonomous
 	{
-		while(IsAutonomous() && IsEnabled()){
+		ActList.clear();
+		ActList.push_back(Act(Act::T_State::E_StateForward, 24));
+		ActList.push_back(Act(Act::T_State::E_StateRotate, 180));
+		ActList.push_back(Act(Act::T_State::E_StateForward, 24));
+		ActList.push_back(Act(Act::T_State::E_StateRotate, 0));
 
+		List_StartLeft.clear();
+		List_StartLeft.push_back(Act(Act::T_State::E_StateForward, 24));
+		List_StartLeft.push_back(Act(Act::T_State::E_StateRotate, 180));
+
+		List_StartRight.clear();
+		List_StartRight.push_back(Act(Act::T_State::E_StateForward, 24));
+		List_StartRight.push_back(Act(Act::T_State::E_StateRotate, 180));
+	}
+
+	void AutonomousPeriodic() {
+		while (IsAutonomous() && IsEnabled()) {
+
+			switch (V_StartingPosition) {
+			case C_StartOpt0: //Left
+				CurrentList = List_StartLeft;
+				break;
+			case C_StartOpt1: //Middle
+				CurrentList = List_StartMiddle;
+				break;
+			case C_StartOpt2: //Right
+				CurrentList = List_StartRight;
+				break;
+			default:
+				CurrentList = ActList;
+		}
+
+		for (int index = 0; (unsigned) index < CurrentList.size(); ++index) {
+			if (CurrentList[index].complete == false) {
+				//call the appropriate action function here
+				if (CurrentList[index].Command == Act::T_State::E_StateForward) {
+					Act_Forward(&CurrentList[index]);
+				} else if (CurrentList[index].Command
+						== Act::T_State::E_StateRotate) {
+					Act_Rotate(&CurrentList[index]);
+				}
+				break;
+			}
 		}
 	}
+}
 };
 
 double DesiredSpeedSlow(double L_JoystickAxis) {
