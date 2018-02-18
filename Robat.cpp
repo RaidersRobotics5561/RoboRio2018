@@ -133,32 +133,10 @@ private:
 	//Winch
 	Talon *Talon_PWM2 = new Talon(4);
 
-	AnalogTrigger mAnalogTrigger; // create an encoder pulse trigger
+	AnalogTrigger * mAnalogTrigger = new AnalogTrigger(0); // create an encoder pulse trigger
 	Counter* mCounter; // count the encoder pulse triggers in current direction
 	float mSpeedPrevious; // to remember previous direction
 	int mPosition;
-
-	float CheckDirectionChange(float NewSpeed)
-	  {
-	    // update position accumulator if changing direction
-	    // encoder doesn't know the direction so we have to remember the direction for it
-	    if ((mSpeedPrevious < 0 && NewSpeed >= 0) || (mSpeedPrevious >= 0 && NewSpeed < 0))
-	    {
-	      mPosition = GetPosition(); // changing directions so save what we have
-	      mCounter->Reset(); // and start counting in the new direction
-	      mSpeedPrevious = NewSpeed; // return input speed for ease of use (may include it in the Set() argument => Set(CheckDirectionChange(speed)))
-	    }
-	      return NewSpeed;
-	  }
-
-	  int GetPosition(void)
-	  {
-	    // position from previous direction change plus what's been accumulated so far in this direction
-	    if (mSpeedPrevious >= 0)
-	      return mPosition + mCounter->Get(); // been going forward so add counter
-
-	    return mPosition - mCounter->Get(); // been going backward so subtract counter
-	  }
 
 	DigitalOutput *V_LED_State0 = new DigitalOutput(0);
 	DigitalOutput *V_LED_State1 = new DigitalOutput(1);
@@ -182,7 +160,7 @@ private:
 
 		VariableInit(Prefs);
 
-		mAnalogTrigger.SetLimitsVoltage(3.5, 3.8); // values higher than the highest minimum (pulse floor), lower than the lowest maximum (pulse ceiling)
+		mAnalogTrigger->SetLimitsVoltage(3.5, 3.8); // values higher than the highest minimum (pulse floor), lower than the lowest maximum (pulse ceiling)
 		mCounter = new Counter(0);
 		mSpeedPrevious = 0.;
 		mPosition = 0;
@@ -612,6 +590,19 @@ private:
 			Wait(C_ExeTime);
 		}
 
+	}
+
+
+void AutonomousInit() //This method is called once each time the robot enters Autonomous
+{
+	//autoLoopCounter = 0;
+}
+
+void AutonomousPeriodic()
+	{
+		while(IsAutonomous() && IsEnabled()){
+
+		}
 	}
 };
 
