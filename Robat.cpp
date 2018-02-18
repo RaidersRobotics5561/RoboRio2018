@@ -43,7 +43,6 @@
 double DesiredSpeed(double axis);
 double DesiredSpeedSlow(double axis);
 
-
 double V_EndGameWinchTime;
 bool V_LED_RainbowLatch;
 int V_AutonState;
@@ -74,7 +73,7 @@ double V_WinchSpeed;
 
 class Act {
 public:
-	typedef enum{
+	typedef enum {
 		E_StateOff, E_StateForward, E_StateRotate, E_StateEnd
 	} T_State;
 
@@ -86,15 +85,12 @@ public:
 	double gyroStart = 0;
 	double gyroEnd = 0;
 	int rotateDirection = 1;
-	Act(T_State cmd, double target){
+	Act(T_State cmd, double target) {
 
 		Command = cmd;
-		if(cmd == Act::T_State::E_StateForward)
-		{
+		if (cmd == Act::T_State::E_StateForward) {
 			distanceToTravel = target;
-		}
-		else if(cmd == Act::T_State::E_StateRotate)
-		{
+		} else if (cmd == Act::T_State::E_StateRotate) {
 			gyroEnd = target;
 		}
 	}
@@ -127,18 +123,42 @@ private:
 	//Hook delivery #6
 	TalonSRX * _talon5 = new TalonSRX(6);
 	// Left articulation
-	frc::Spark Spark1{0};
+	frc::Spark Spark1 { 0 };
 	// Left intake
-	frc::Spark Spark2{1};
-  //Right intake
-  Talon *Talon_PWM0 = new Talon(2);
-  //Right articulation
-  Talon *Talon_PWM1 = new Talon(3);
-  //Winch
-  Talon *Talon_PWM2 = new Talon(4);
+	frc::Spark Spark2 { 1 };
+	//Right intake
+	Talon *Talon_PWM0 = new Talon(2);
+	//Right articulation
+	Talon *Talon_PWM1 = new Talon(3);
+	//Winch
+	Talon *Talon_PWM2 = new Talon(4);
 
+	AnalogTrigger mAnalogTrigger; // create an encoder pulse trigger
+	Counter* mCounter; // count the encoder pulse triggers in current direction
+	float mSpeedPrevious; // to remember previous direction
+	int mPosition;
 
+	float CheckDirectionChange(float NewSpeed)
+	  {
+	    // update position accumulator if changing direction
+	    // encoder doesn't know the direction so we have to remember the direction for it
+	    if ((mSpeedPrevious < 0 && NewSpeed >= 0) || (mSpeedPrevious >= 0 && NewSpeed < 0))
+	    {
+	      mPosition = GetPosition(); // changing directions so save what we have
+	      mCounter->Reset(); // and start counting in the new direction
+	      mSpeedPrevious = NewSpeed; // return input speed for ease of use (may include it in the Set() argument => Set(CheckDirectionChange(speed)))
+	    }
+	      return NewSpeed;
+	  }
 
+	  int GetPosition(void)
+	  {
+	    // position from previous direction change plus what's been accumulated so far in this direction
+	    if (mSpeedPrevious >= 0)
+	      return mPosition + mCounter->Get(); // been going forward so add counter
+
+	    return mPosition - mCounter->Get(); // been going backward so subtract counter
+	  }
 
 	DigitalOutput *V_LED_State0 = new DigitalOutput(0);
 	DigitalOutput *V_LED_State1 = new DigitalOutput(1);
@@ -161,6 +181,11 @@ private:
 		Prefs = Preferences::GetInstance();
 
 		VariableInit(Prefs);
+
+		mAnalogTrigger.SetLimitsVoltage(3.5, 3.8); // values higher than the highest minimum (pulse floor), lower than the lowest maximum (pulse ceiling)
+		mCounter = new Counter(0);
+		mSpeedPrevious = 0.;
+		mPosition = 0;
 
 		V_LED_State0->Set(false);
 		V_LED_State1->Set(false);
@@ -220,35 +245,35 @@ private:
 	}
 
 	void Act_Forward(Act *a) {
-			if (a->initialized == false) {
-				V_DistanceTraveled[E_RobotSideLeft] = 0;
-				a->initialized = true;
-			}
-			//do forward command
-			double L_speed = 0.25;
+		if (a->initialized == false) {
+			V_DistanceTraveled[E_RobotSideLeft] = 0;
+			a->initialized = true;
+		}
+		//do forward command
+		double L_speed = 0.25;
 
+		_talon0->Set(ControlMode::PercentOutput, L_speed);
+		_talon1->Set(ControlMode::PercentOutput, L_speed);
+
+		_talon2->Set(ControlMode::PercentOutput, L_speed * -1);
+		_talon3->Set(ControlMode::PercentOutput, L_speed * -1);
+
+		//log how much is complete
+		a->distanceTraveled = V_DistanceTraveled[E_RobotSideLeft];
+
+		//a->distanceToTravel = 60;
+		//mark movement as complete
+
+		if (a->distanceToTravel <= a->distanceTraveled) {
+			a->complete = true;
+			L_speed = 0;
 			_talon0->Set(ControlMode::PercentOutput, L_speed);
 			_talon1->Set(ControlMode::PercentOutput, L_speed);
 
 			_talon2->Set(ControlMode::PercentOutput, L_speed * -1);
 			_talon3->Set(ControlMode::PercentOutput, L_speed * -1);
-
-			//log how much is complete
-			a->distanceTraveled = V_DistanceTraveled[E_RobotSideLeft];
-
-			//a->distanceToTravel = 60;
-			//mark movement as complete
-
-			if (a->distanceToTravel <= a->distanceTraveled) {
-				a->complete = true;
-				L_speed = 0;
-				_talon0->Set(ControlMode::PercentOutput, L_speed);
-				_talon1->Set(ControlMode::PercentOutput, L_speed);
-
-				_talon2->Set(ControlMode::PercentOutput, L_speed * -1);
-				_talon3->Set(ControlMode::PercentOutput, L_speed * -1);
-			}
 		}
+	}
 
 //	void Act_Rotate(Act *a) {
 //				if (a->initialized == false) {
@@ -317,54 +342,58 @@ private:
 //			}
 
 	void Act_Rotate(Act *a) {
-			double modAngle = 360;
-			if (a->initialized == false) {
-				//a->gyroStart = GyroAngle % 360;
-				a->gyroStart = modf(GyroAngle, &modAngle);
-				if (a->gyroStart < a->gyroEnd) {
-					a->rotateDirection = -1;
-				}
-
-				a->initialized = true;
+		double modAngle = 360;
+		if (a->initialized == false) {
+			//a->gyroStart = GyroAngle % 360;
+			a->gyroStart = modf(GyroAngle, &modAngle);
+			if (a->gyroStart < a->gyroEnd) {
+				a->rotateDirection = -1;
 			}
 
-			double L_speed = 0.25 * a->rotateDirection;
+			a->initialized = true;
+		}
 
-			double CurrentAngle = modf(GyroAngle, &modAngle);
+		double L_speed = 0.25 * a->rotateDirection;
 
-			if (a->rotateDirection == 1 && CurrentAngle >= a->gyroEnd) {
-				a->complete = true;
-				L_speed = 0;
-			}
+		double CurrentAngle = modf(GyroAngle, &modAngle);
 
-			if (a->rotateDirection == -1 && CurrentAngle <= a->gyroEnd) {
-				a->complete = true;
-				L_speed = 0;
+		if (a->rotateDirection == 1 && CurrentAngle >= a->gyroEnd) {
+			a->complete = true;
+			L_speed = 0;
+		}
 
-			}
-
-			_talon0->Set(ControlMode::PercentOutput, L_speed);
-			_talon1->Set(ControlMode::PercentOutput, L_speed);
-
-			_talon2->Set(ControlMode::PercentOutput, L_speed);
-			_talon3->Set(ControlMode::PercentOutput, L_speed);
+		if (a->rotateDirection == -1 && CurrentAngle <= a->gyroEnd) {
+			a->complete = true;
+			L_speed = 0;
 
 		}
+
+		_talon0->Set(ControlMode::PercentOutput, L_speed);
+		_talon1->Set(ControlMode::PercentOutput, L_speed);
+
+		_talon2->Set(ControlMode::PercentOutput, L_speed);
+		_talon3->Set(ControlMode::PercentOutput, L_speed);
+
+	}
 
 	void TeleopPeriodic() {
 		T_RobotSide L_RobotSide;
 		double L_Forward = 0;
 		double L_Rotate = 0;
-		bool   L_Tank = false;
-    bool   L_PressBtn = false;
-    bool   L_Slow = false;
-    bool   L_PressBtn2 = false;
+		bool L_Tank = false;
+		bool L_PressBtn = false;
+		bool L_Slow = false;
+		bool L_PressBtn2 = false;
 
 		VariableInit(Prefs);
 
 		//Reset Sensor Position
 		_talon0->SetSelectedSensorPosition(0, K_SlotIdx, K_TimeoutMs);
 		_talon3->SetSelectedSensorPosition(0, K_SlotIdx, K_TimeoutMs);
+
+		int liftAng = 0.0;
+		int mPos = 0;
+		mCounter->Reset();
 
 		while (IsOperatorControl() && IsEnabled()) {
 //#ifdef PracticeBot
@@ -376,8 +405,6 @@ private:
 //#endif
 			Rt = _joy1->GetRawAxis(3);
 			Lt = _joy1->GetRawAxis(2);
-
-
 
 			V_AutonSelected = V_AutonOption.GetSelected();
 			V_StartOptSelected = V_StartingPosition.GetSelected();
@@ -392,112 +419,130 @@ private:
 //				}
 			}
 
+			liftAng = mCounter->Get();
+
+			Spark1.Set(LY_Axis);
+			Spark2.Set(LY_Axis);
+
+			Talon_PWM0->Set(RX_Axis);
+			Talon_PWM1->Set(-RX_Axis);
+			double Lift = 0.0;
+
+			if (_joy1->GetRawAxis(3) > 0.1) {
+				Lift = _joy1->GetRawAxis(3);
+			} else if (_joy1->GetRawAxis(2) > 0.1) {
+				Lift = -_joy1->GetRawAxis(2);
+			}
+
+			double winch = 0.0;
+			if (_joy1->GetRawButton(1) == true) {
+				winch = 0.5; // climb direction
+			} else if (_joy1->GetRawButton(2) == true) {
+				winch = -0.5;
+			}
+
+			double hook = 0.0;
+			if (_joy1->GetRawButton(3) == true) {
+				hook = 0.3; // climb direction
+			} else if (_joy1->GetRawButton(4) == true) {
+				hook = -0.3;
+			}
+
+			Talon_PWM2->Set(winch);
+
 			GyroAngle = Gyro.GetAngle();
 
 //			V_WinchSpeed = _talon4->GetSelectedSensorVelocity(kPIDLoopIdx);
 			V_WheelRPM_Raw[E_RobotSideLeft] =
 					_talon0->GetSelectedSensorVelocity(K_PIDLoopIdx) / 12.75;
 			V_WheelRPM_Raw[E_RobotSideRight] =
-					(_talon3->GetSelectedSensorVelocity(K_PIDLoopIdx) / 12.75) * -1;
+					(_talon3->GetSelectedSensorVelocity(K_PIDLoopIdx) / 12.75)
+							* -1;
 
-			V_Revolutions[E_RobotSideLeft] = V_WheelRPM_Raw[E_RobotSideLeft] / C_WheelPulsetoRev[0];
+			V_Revolutions[E_RobotSideLeft] = V_WheelRPM_Raw[E_RobotSideLeft]
+					/ C_WheelPulsetoRev[0];
 
-			V_Revolutions[E_RobotSideRight] = V_WheelRPM_Raw[E_RobotSideRight] / C_WheelPulsetoRev[1];
+			V_Revolutions[E_RobotSideRight] = V_WheelRPM_Raw[E_RobotSideRight]
+					/ C_WheelPulsetoRev[1];
 
-      if (_joy1->GetRawButtonPressed(1) == true && L_PressBtn == false)
-        {
-        L_Tank = !L_Tank;
-        L_PressBtn = true;
-        }
-      else if (_joy1->GetRawButtonPressed(1) == false)
-        {
-        L_PressBtn = false;
-        }
+			if (_joy1->GetRawButtonPressed(1) == true && L_PressBtn == false) {
+				L_Tank = !L_Tank;
+				L_PressBtn = true;
+			} else if (_joy1->GetRawButtonPressed(1) == false) {
+				L_PressBtn = false;
+			}
 
-      if (_joy1->GetRawButtonPressed(2) == true && L_PressBtn2 == false)
-        {
-        L_Slow = !L_Slow;
-        L_PressBtn2 = true;
-        }
-      else if (_joy1->GetRawButtonPressed(1) == false)
-        {
-        L_PressBtn2 = false;
-        }
+			if (_joy1->GetRawButtonPressed(2) == true && L_PressBtn2 == false) {
+				L_Slow = !L_Slow;
+				L_PressBtn2 = true;
+			} else if (_joy1->GetRawButtonPressed(1) == false) {
+				L_PressBtn2 = false;
+			}
 
+			if (L_Tank == true) {
+				LY_Axis = _joy1->GetRawAxis(4);
+				RX_Axis = _joy1->GetRawAxis(1);
+				if (L_Slow == true) {
+					L_Forward = DesiredSpeedSlow(RX_Axis);
+					L_Rotate = DesiredSpeedSlow(LY_Axis);
+				} else {
+					L_Forward = DesiredSpeed(RX_Axis);
+					L_Rotate = DesiredSpeed(LY_Axis);
+				}
+				V_WheelRPM_Desired[E_RobotSideLeft] = L_Forward + L_Rotate;
+				V_WheelRPM_Desired[E_RobotSideRight] = L_Forward - L_Rotate;
+			} else {
+				LY_Axis = _joy1->GetRawAxis(5);
+				RX_Axis = _joy1->GetRawAxis(1);
+				if (L_Slow == true) {
+					V_WheelRPM_Desired[E_RobotSideLeft] = DesiredSpeedSlow(
+							LY_Axis);
+					V_WheelRPM_Desired[E_RobotSideRight] = DesiredSpeedSlow(
+							RX_Axis);
+				} else {
+					V_WheelRPM_Desired[E_RobotSideLeft] = DesiredSpeed(LY_Axis);
+					V_WheelRPM_Desired[E_RobotSideRight] = DesiredSpeed(
+							RX_Axis);
+				}
+			}
 
-
-      if (L_Tank == true)
-        {
-        LY_Axis = _joy1->GetRawAxis(4);
-        RX_Axis = _joy1->GetRawAxis(1);
-        if (L_Slow == true)
-          {
-          L_Forward = DesiredSpeedSlow(RX_Axis);
-          L_Rotate  = DesiredSpeedSlow(LY_Axis);
-          }
-        else
-          {
-          L_Forward = DesiredSpeed(RX_Axis);
-          L_Rotate  = DesiredSpeed(LY_Axis);
-          }
-        V_WheelRPM_Desired[E_RobotSideLeft] = L_Forward + L_Rotate;
-        V_WheelRPM_Desired[E_RobotSideRight] = L_Forward - L_Rotate;
-        }
-      else
-        {
-        LY_Axis = _joy1->GetRawAxis(5);
-        RX_Axis = _joy1->GetRawAxis(1);
-        if (L_Slow == true)
-          {
-          V_WheelRPM_Desired[E_RobotSideLeft] = DesiredSpeedSlow(LY_Axis);
-          V_WheelRPM_Desired[E_RobotSideRight] = DesiredSpeedSlow(RX_Axis);
-          }
-        else
-          {
-          V_WheelRPM_Desired[E_RobotSideLeft] = DesiredSpeed(LY_Axis);
-          V_WheelRPM_Desired[E_RobotSideRight] = DesiredSpeed(RX_Axis);
-          }
-        }
-
-
-
-
-
-			V_DistanceTraveled[E_RobotSideLeft] = V_Revolutions[E_RobotSideLeft] * C_PI * C_WheelDiameter[E_RobotSideLeft];
-			V_DistanceTraveled[E_RobotSideRight] = V_Revolutions[E_RobotSideRight] * C_PI * C_WheelDiameter[E_RobotSideRight];
+			V_DistanceTraveled[E_RobotSideLeft] = V_Revolutions[E_RobotSideLeft]
+					* C_PI * C_WheelDiameter[E_RobotSideLeft];
+			V_DistanceTraveled[E_RobotSideRight] =
+					V_Revolutions[E_RobotSideRight] * C_PI
+							* C_WheelDiameter[E_RobotSideRight];
 
 //			L_RobotSide = E_RobotSideLeft;
 
-	     for (L_RobotSide = E_RobotSideLeft; L_RobotSide < E_RobotSideSz;
-	          L_RobotSide = T_RobotSide(int(L_RobotSide) + 1))
-	       {
-	       V_WheelRPM_Filt[L_RobotSide] = LagFilter(V_WheelSpeedLagFiltGain[L_RobotSide],
-	                                                V_WheelRPM_Raw[L_RobotSide],
-	                                                V_WheelRPM_FiltPrev[L_RobotSide]);
+			for (L_RobotSide = E_RobotSideLeft; L_RobotSide < E_RobotSideSz;
+					L_RobotSide = T_RobotSide(int(L_RobotSide) + 1)) {
+				V_WheelRPM_Filt[L_RobotSide] = LagFilter(
+						V_WheelSpeedLagFiltGain[L_RobotSide],
+						V_WheelRPM_Raw[L_RobotSide],
+						V_WheelRPM_FiltPrev[L_RobotSide]);
 
-	               V_WheelRPM_FiltPrev[L_RobotSide] = V_WheelRPM_Filt[L_RobotSide];
+				V_WheelRPM_FiltPrev[L_RobotSide] = V_WheelRPM_Filt[L_RobotSide];
 
 //	               V_WheelRPM_Desired[L_RobotSide] = input1;
 
-	               V_WheelMotorCmndPct[L_RobotSide] =
-	                   Control_PID(V_WheelRPM_Desired[L_RobotSide],
-	                       V_WheelRPM_Filt[L_RobotSide],
-	                       &V_WheelSpeedErrorPrev[L_RobotSide],
-	                       &V_WheelSpeedErrorIntegral[L_RobotSide],
-	                       V_ProportionalGain[L_RobotSide],
-	                       V_IntegralGain[L_RobotSide],
-	                       V_DerivativeGain[L_RobotSide],
-	                       C_WheelspeedProportionalLimit[L_RobotSide][E_IntergalUpperLimit],
-	                       C_WheelspeedProportionalLimit[L_RobotSide][E_IntergalLowerLimit],
-	                       C_WheelspeedIntergalLimit[L_RobotSide][E_IntergalUpperLimit],
-	                       C_WheelspeedIntergalLimit[L_RobotSide][E_IntergalLowerLimit],
-	                       C_WheelspeedDerivativeLimit[L_RobotSide][E_IntergalUpperLimit],
-	                       C_WheelspeedDerivativeLimit[L_RobotSide][E_IntergalLowerLimit],
-	                       C_WheelspeedCmndLimit[L_RobotSide][E_IntergalUpperLimit],
-	                       C_WheelspeedCmndLimit[L_RobotSide][E_IntergalLowerLimit]);
+				V_WheelMotorCmndPct[L_RobotSide] =
+						Control_PID(V_WheelRPM_Desired[L_RobotSide],
+								V_WheelRPM_Filt[L_RobotSide],
+								&V_WheelSpeedErrorPrev[L_RobotSide],
+								&V_WheelSpeedErrorIntegral[L_RobotSide],
+								V_ProportionalGain[L_RobotSide],
+								V_IntegralGain[L_RobotSide],
+								V_DerivativeGain[L_RobotSide],
+								C_WheelspeedProportionalLimit[L_RobotSide][E_IntergalUpperLimit],
+								C_WheelspeedProportionalLimit[L_RobotSide][E_IntergalLowerLimit],
+								C_WheelspeedIntergalLimit[L_RobotSide][E_IntergalUpperLimit],
+								C_WheelspeedIntergalLimit[L_RobotSide][E_IntergalLowerLimit],
+								C_WheelspeedDerivativeLimit[L_RobotSide][E_IntergalUpperLimit],
+								C_WheelspeedDerivativeLimit[L_RobotSide][E_IntergalLowerLimit],
+								C_WheelspeedCmndLimit[L_RobotSide][E_IntergalUpperLimit],
+								C_WheelspeedCmndLimit[L_RobotSide][E_IntergalLowerLimit]);
 
-	       }
-
+			}
 
 //			if (Rt > 0.25) {
 //				//Talon_PWM0->Set(ControlMode::PercentOutput, Rt);
@@ -545,18 +590,16 @@ private:
 
 //      _talon4->Set(ControlMode::PercentOutput, RX_Axis);
 
-			if(V_AutonSelected == C_AutonOpt1)
-			{
-				for (int index = 0; (unsigned) index < ActList.size(); ++index)
-				{
+			if (V_AutonSelected == C_AutonOpt1) {
+				for (int index = 0; (unsigned) index < ActList.size();
+						++index) {
 					if (ActList[index].complete == false) {
 						//call the appropriate action function here
-						if (ActList[index].Command == Act::T_State::E_StateForward)
-						{
+						if (ActList[index].Command
+								== Act::T_State::E_StateForward) {
 							Act_Forward(&ActList[index]);
-						}
-						else if (ActList[index].Command == Act::T_State::E_StateRotate)
-						{
+						} else if (ActList[index].Command
+								== Act::T_State::E_StateRotate) {
 							Act_Rotate(&ActList[index]);
 						}
 						break;
@@ -572,33 +615,30 @@ private:
 	}
 };
 
-
-
 double DesiredSpeedSlow(double L_JoystickAxis) {
-  double L_DesiredDriveSpeed = 0.0;
-  int L_AxisSize = (int)(sizeof(K_DesiredDriveSpeedAxis) / sizeof(K_DesiredDriveSpeedAxis[0]));
-  int L_CalArraySize = (int)(sizeof(K_DesiredDriveSpeedSlow) / sizeof(K_DesiredDriveSpeedSlow[0]));
+	double L_DesiredDriveSpeed = 0.0;
+	int L_AxisSize = (int) (sizeof(K_DesiredDriveSpeedAxis)
+			/ sizeof(K_DesiredDriveSpeedAxis[0]));
+	int L_CalArraySize = (int) (sizeof(K_DesiredDriveSpeedSlow)
+			/ sizeof(K_DesiredDriveSpeedSlow[0]));
 
-  L_DesiredDriveSpeed = LookUp1D_Table(&K_DesiredDriveSpeedAxis[0],
-                                       &K_DesiredDriveSpeedSlow[0],
-                                       L_AxisSize,
-                                       L_CalArraySize,
-                                       L_JoystickAxis);
+	L_DesiredDriveSpeed = LookUp1D_Table(&K_DesiredDriveSpeedAxis[0],
+			&K_DesiredDriveSpeedSlow[0], L_AxisSize, L_CalArraySize,
+			L_JoystickAxis);
 
-  return L_DesiredDriveSpeed;
+	return L_DesiredDriveSpeed;
 }
-
 
 double DesiredSpeed(double L_JoystickAxis) {
 	double L_DesiredDriveSpeed = 0.0;
-	int L_AxisSize = (int)(sizeof(K_DesiredDriveSpeedAxis) / sizeof(K_DesiredDriveSpeedAxis[0]));
-	int L_CalArraySize = (int)(sizeof(K_DesiredDriveSpeed) / sizeof(K_DesiredDriveSpeed[0]));
+	int L_AxisSize = (int) (sizeof(K_DesiredDriveSpeedAxis)
+			/ sizeof(K_DesiredDriveSpeedAxis[0]));
+	int L_CalArraySize = (int) (sizeof(K_DesiredDriveSpeed)
+			/ sizeof(K_DesiredDriveSpeed[0]));
 
 	L_DesiredDriveSpeed = LookUp1D_Table(&K_DesiredDriveSpeedAxis[0],
-	                                     &K_DesiredDriveSpeed[0],
-	                                     L_AxisSize,
-	                                     L_CalArraySize,
-	                                     L_JoystickAxis);
+			&K_DesiredDriveSpeed[0], L_AxisSize, L_CalArraySize,
+			L_JoystickAxis);
 
 	return L_DesiredDriveSpeed;
 }

@@ -10,6 +10,7 @@
 
 #include "WPILib.h"
 #include "Joystick.h"
+#include <Spark.h>
 #include "ctre/Phoenix.h"
 #include "ADXRS450_Gyro.h"
 #include "DigitalOutput.h"
