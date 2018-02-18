@@ -16,6 +16,7 @@
 #include "DigitalOutput.h"
 #include "Enums.hpp"
 
+const T_BotType C_BotType = E_BotComp; // Robot type
 
 const double C_ExeTime = 0.01; // Execution rate of the Roborio controller
 
@@ -27,4 +28,9 @@ const double C_WheelDiameter[E_RobotSideSz] =
 
 const double C_PI = 3.14159265358979;
 
+void Read_Sensors(TalonSRX  *L_DriveMortorCtrlLeft,
+                  TalonSRX  *L_DriveMortorCtrlRight,
+                  Counter   *L_ArmEncoder,
+                  double    *L_ArmAngleDeg,
+                  T_ArmCmnd  L_ArmCmndPrev);
 #endif /* SRC_CONST_H_ */

@@ -73,6 +73,10 @@
    C_ActuatorsSz
  }Actuators;
 
+ typedef enum {
+   E_BotComp, E_BotPractice, E_BotTestBoard, E_BotSz
+ } T_BotType;
+
 typedef enum {
   E_RobotSideLeft, E_RobotSideRight, E_RobotSideSz
 } T_RobotSide;
@@ -85,6 +89,8 @@ typedef enum {
   E_IntergalUpperLimit, E_IntergalLowerLimit, E_IntergalLimitSz
 } T_IntergalLimit;
 
-
+typedef enum {
+  E_ArmCmndOff, E_ArmCmndUp, E_ArmCmndDwn
+} T_ArmCmnd;
 
 #endif /* SRC_ROBORIO2018_ENUMS_HPP_ */
