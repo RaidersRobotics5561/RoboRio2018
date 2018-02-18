@@ -2,7 +2,7 @@
   SignalFilter.hpp
 
    Created on: Feb 15, 2018
-       Author: sdbig
+       Author: 5561
  */
 #ifndef SRC_ROBORIO2018_SIGNALFILTER_HPP_
 #define SRC_ROBORIO2018_SIGNALFILTER_HPP_

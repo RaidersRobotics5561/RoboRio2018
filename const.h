@@ -32,5 +32,6 @@ void Read_Sensors(TalonSRX  *L_DriveMortorCtrlLeft,
                   TalonSRX  *L_DriveMortorCtrlRight,
                   Counter   *L_ArmEncoder,
                   double    *L_ArmAngleDeg,
-                  T_ArmCmnd  L_ArmCmndPrev);
+                  T_ArmCmnd  L_ArmCmndPrev,
+                  T_ArmCmnd  L_ArmCmndPrevPrev);
 #endif /* SRC_CONST_H_ */

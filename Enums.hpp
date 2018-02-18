@@ -96,8 +96,12 @@ typedef enum {
   E_IntergalUpperLimit, E_IntergalLowerLimit, E_IntergalLimitSz
 } T_IntergalLimit;
 
-typedef enum {
-  E_ArmCmndOff, E_ArmCmndUp, E_ArmCmndDwn
+typedef enum
+{
+  E_ArmCmndOff,
+  E_ArmCmndUp,
+  E_ArmCmndDwn,
+  E_ArmCmndSz
 } T_ArmCmnd;
 
 #endif /* SRC_ROBORIO2018_ENUMS_HPP_ */

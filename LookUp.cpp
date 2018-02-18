@@ -26,10 +26,6 @@ double LookUp1D_Table(const double *L_X_Axis,
   bool L_LookupPt1Found = false;
   double L_Output       = 0.0;
 
-  SmartDashboard::PutNumber("Index1", (double)L_Index);
-  SmartDashboard::PutNumber("CalArraySize", (double)L_CalArraySize);
-  SmartDashboard::PutNumber("AxisSize", (double)L_AxisSize);
-  SmartDashboard::PutNumber("InputFnl", L_Input);
   /* Table length MUST equal axis length. */
   if (L_CalArraySize == L_AxisSize)
     {
@@ -61,7 +57,6 @@ double LookUp1D_Table(const double *L_X_Axis,
           }
         }
 
-      SmartDashboard::PutNumber("Index", (double)L_Index);
       if ((L_LookupPt1Found == true))
         {
         L_LookupX_Diff = L_LookupX2 - L_LookupX1;
