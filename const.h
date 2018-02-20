@@ -30,7 +30,10 @@ const double C_PI = 3.14159265358979;
 
 void Read_Sensors(TalonSRX  *L_DriveMortorCtrlLeft,
                   TalonSRX  *L_DriveMortorCtrlRight,
+                  TalonSRX  *L_Intake,
+                  TalonSRX  *L_Hook,
                   Counter   *L_ArmEncoder,
+                  ADXRS450_Gyro *Gyro,
                   double    *L_ArmAngleDeg,
                   T_ArmCmnd  L_ArmCmndPrev,
                   T_ArmCmnd  L_ArmCmndPrevPrev);

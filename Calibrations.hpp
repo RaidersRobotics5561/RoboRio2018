@@ -13,6 +13,10 @@ const int K_SlotIdx = 0;
 const int K_PIDLoopIdx = 0;
 const int K_TimeoutMs = 10;
 const double K_WheelPulseToRev = 12.75;
+const double K_HookPulseToRev  =  1.0;
+const double K_HookRevToDistance = 0.1;
+const double K_IntakePulseToRev  =  1.0;
+const double K_IntakeRevToDistance = 0.1;
 
 const double C_WheelSpeedPID_Gain[E_RobotSideSz][E_PID_Sz] = {
     // P    I    D
@@ -54,9 +58,9 @@ const double K_WinchOnThreshold     =   0.1; // Threshold above which the winch 
 const double K_LED_WinchOnTime      =   3.0;  // This is the amount of accumulated time that the winch needs to be commanded on at the end of the game in order to trigger the rainbow effect
 
 const double K_IntakeArmPulseToRev[E_ArmCmndSz] =
-    {   0,    //   E_ArmCmndOff
-      200,   //   E_ArmCmndUp
-     3000}; //   E_ArmCmndDwn
+    {   0.0,                                 //   E_ArmCmndOff
+        0.00557103064066852367688022284123,  //   E_ArmCmndUp
+        0.00557103064066852367688022284123}; //   E_ArmCmndDwn
 
 const double K_DesiredDriveSpeedAxis[20] = {-0.95,
                                             -0.85,

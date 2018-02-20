@@ -18,13 +18,16 @@
  ******************************************************************************/
 void Read_Sensors(TalonSRX  *L_DriveMortorCtrlLeft,
                   TalonSRX  *L_DriveMortorCtrlRight,
+                  TalonSRX  *L_Intake,
+                  TalonSRX  *L_Hook,
                   Counter   *L_ArmEncoder,
+                  ADXRS450_Gyro *Gyro,
                   double    *L_ArmAngleDeg,
                   T_ArmCmnd  L_ArmCmndPrev,
                   T_ArmCmnd  L_ArmCmndPrevPrev)
   {
   T_RobotSide L_RobotSide;
-  double      L_ArmEncoderCount;
+  double      L_ArmEncoderCount = 0.0;
   double      L_ArmAngle;
 
   /* Ok, let's first read the wheel speeds: */
@@ -43,6 +46,8 @@ void Read_Sensors(TalonSRX  *L_DriveMortorCtrlLeft,
     V_WheelRPM_FiltPrev[L_RobotSide] = V_WheelRPM_Filt[L_RobotSide];
 
     V_Revolutions[L_RobotSide] = V_WheelRPM_Raw[L_RobotSide] / C_WheelPulsetoRev[L_RobotSide];
+
+    V_DistanceTraveled[L_RobotSide] = V_Revolutions[L_RobotSide] * C_PI * C_WheelDiameter[L_RobotSide];
     }
 
   /* Great, now lets read the counts from the arm encoder.  Remember, the encoder will change the rate at which it
@@ -57,7 +62,30 @@ void Read_Sensors(TalonSRX  *L_DriveMortorCtrlLeft,
     {
     /* Just check to make sure we are within bounds (i.e. not size) */
     L_ArmEncoderCount = (double)L_ArmEncoder->Get();
-    L_ArmAngle        = L_ArmEncoderCount * K_IntakeArmPulseToRev[L_ArmCmndPrev];
+    L_ArmAngle        = L_ArmEncoderCount * V_IntakeArmPulseToRev[L_ArmCmndPrev];
+    if (L_ArmCmndPrev == E_ArmCmndUp)
+      {
+      *L_ArmAngleDeg += L_ArmAngle;
+      }
+    else
+      {
+      *L_ArmAngleDeg -= L_ArmAngle;
+      }
+    L_ArmEncoder->Reset();
     }
 
+  /* Now let's figure out the position of the hook (arrgh!!!) */
+  /* First, convert the encoder pulses to revolutions of the gear: */
+  V_HookRevolutions = L_Hook->GetSelectedSensorPosition(K_PIDLoopIdx) / K_HookPulseToRev;
+
+  /* Next, convert the revolutions to hook distance traveled: */
+  V_HookPosition = V_HookRevolutions * K_HookRevToDistance;
+
+
+  /* Great, let's finally figure out the intace vertical position: */
+  /* First, convert the encoder pulses to revolutions of the gear: */
+  V_IntakeRevolutions = L_Intake->GetSelectedSensorPosition(K_PIDLoopIdx) / K_IntakePulseToRev;
+
+  /* Next, convert the revolutions to hook distance traveled: */
+  V_IntakePosition = V_IntakeRevolutions * K_IntakeRevToDistance;
   }

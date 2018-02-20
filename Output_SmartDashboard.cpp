@@ -100,10 +100,10 @@ void UpdateSmartDashboad(void)
 //    SmartDashboard::PutNumber("SpeedRaw", SpeedRaw[0]);
 //    SmartDashboard::PutNumber("desiredSpeed", desiredSpeed[0]);
 //    SmartDashboard::PutNumber("Error", desiredSpeed[0] - SpeedFilt[0]);
-  SmartDashboard::PutNumber("SpeedRawLeft", V_WheelRPM_Raw[E_RobotSideLeft]);
-  SmartDashboard::PutNumber("SpeedRawRight", V_WheelRPM_Raw[E_RobotSideRight]);
-    SmartDashboard::PutNumber("RightSide", V_WheelMotorCmndPct[E_RobotSideRight]);
-    SmartDashboard::PutNumber("LeftSide", V_WheelMotorCmndPct[E_RobotSideLeft]);
+    SmartDashboard::PutNumber("SpeedRawLeft", V_WheelRPM_Raw[E_RobotSideLeft]);
+    SmartDashboard::PutNumber("SpeedRawRight", V_WheelRPM_Raw[E_RobotSideRight]);
+    SmartDashboard::PutNumber("RightSide", V_RobotMotorCmndPct[E_RobotMotorRightWheel]);
+    SmartDashboard::PutNumber("LeftSide", V_RobotMotorCmndPct[E_RobotMotorLeftWheel]);
     SmartDashboard::PutNumber("LeftDesired", V_WheelRPM_Desired[E_RobotSideLeft]);
     SmartDashboard::PutNumber("RightDesired", V_WheelRPM_Desired[E_RobotSideRight]);
     SmartDashboard::PutNumber("LeftFilt", V_WheelRPM_Filt[E_RobotSideLeft]);
@@ -121,4 +121,11 @@ void UpdateSmartDashboad(void)
     SmartDashboard::PutNumber("RightOutput", RX_Axis);
     SmartDashboard::PutNumber("LeftOutput", LY_Axis);
     SmartDashboard::PutNumber("DriveMode",(double)DriveMode);
+
+    SmartDashboard::PutNumber("Arm Angle",     V_ArmAngleDeg);
+
+    SmartDashboard::PutNumber("Hook Position",     V_HookPosition);
+    SmartDashboard::PutNumber("Hook Revolutions",  V_HookRevolutions);
+    SmartDashboard::PutNumber("Intake Position",   V_IntakePosition);
+    SmartDashboard::PutNumber("Intake Revolutions", V_IntakeRevolutions);
   };

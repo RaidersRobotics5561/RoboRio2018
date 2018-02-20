@@ -11,7 +11,8 @@
 #include "Vars.hpp"
 #include "Calibrations.hpp"
 
-extern void VariableInit(Preferences *L_DriverPreferences);
+extern void VariableInit(Preferences *L_DriverPreferences,
+                         Counter     *mCounter);
 
 
 #endif /* SRC_ROBORIO2018_VARIABLEINIT_HPP_ */

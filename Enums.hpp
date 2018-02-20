@@ -89,6 +89,17 @@ typedef enum {
 } T_RobotSide;
 
 typedef enum {
+  E_RobotMotorLeftWheel,
+  E_RobotMotorRightWheel,
+  E_RobotMotorLift,
+  E_RobotMotorIntakeArmAng,
+  E_RobotMotorIntakeRoller,
+  E_RobotMotorHook,
+  E_RobotMotorWinch,
+  E_RobotMotorSz
+} T_RobotMotor;
+
+typedef enum {
   E_PID_Proportional, E_PID_Integral, E_PID_Derivative, E_PID_Sz
 } T_PID;
 
