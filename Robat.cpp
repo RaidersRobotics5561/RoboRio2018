@@ -12,46 +12,63 @@
 #include "Vars.hpp"
 #include "AnalogTriggerType.h"
 #include "Output_Actuators.hpp"
+#include "Input_Controller.hpp"
 
 double DesiredSpeed(double axis);
-double DesiredSpeedSlow(double axis);
+
+double DesiredLiftHeight(double L_JoystickAxis,
+                         double L_DesiredLiftHeightPrev,
+                         double L_MaxHeight);
+
+double LukeStoppers(double L_DesiredSpeed,
+                    double L_CurrentSpeed,
+                    double L_RampRate);
+
+double TestCal1;
+double TestCal2;
+
+double V_LukeStopperRamp;
 
 double V_EndGameWinchTime;
-bool V_LED_RainbowLatch;
-int V_AutonState;
-bool V_LED_CmndState[4];
-double V_WheelSpeedErrorPrev[E_RobotSideSz];
-double V_WheelSpeedErrorIntegral[E_RobotSideSz];
-double V_WheelRPM_Raw[E_RobotSideSz];
+bool   V_LED_RainbowLatch;
+int    V_AutonState;
+bool   V_LED_CmndState[4];
+
 double V_HookPosition;
-double V_HookRevolutions;
-double V_IntakeRevolutions;
+double V_HookPositionErrorPrev;
+double V_HookPositionErrorIntegral;
+double V_HookLiftHeightDesired;
+double V_HookPID_Gain[E_PID_Sz];
+
 double V_IntakePosition;
+double V_IntakePositionErrorPrev;
+double V_IntakePositionErrorIntegral;
+double V_IntakeLiftHeightDesired;
+double V_IntakePID_Gain[E_PID_Sz];
+
 double V_WheelRPM_Filt[E_RobotSideSz];
 double V_WheelRPM_FiltPrev[E_RobotSideSz];
 double V_WheelRPM_Desired[E_RobotSideSz];
+double V_WheelSpeedErrorPrev[E_RobotSideSz];
+double V_WheelSpeedErrorIntegral[E_RobotSideSz];
+double V_WheelRPM_Raw[E_RobotSideSz];
+double V_WheelProportionalGain[E_RobotSideSz];
+double V_WheelIntegralGain[E_RobotSideSz];
+double V_WheelDerivativeGain[E_RobotSideSz];
 
-double V_WheelMotorCmndPct[E_RobotSideSz];
+
 
 double V_RobotMotorCmndPct[E_RobotMotorSz];
 
+double V_RobotUserCmndPct[E_RobotUserCmndSz]; // This is the requested value from the driver for the various motors/functions
 
-
-double V_ProportionalGain[E_RobotSideSz];
-double V_IntegralGain[E_RobotSideSz];
-double V_DerivativeGain[E_RobotSideSz];
 double V_Actuators[C_ActuatorsSz];
 double V_DistanceTraveled[E_RobotSideSz];
 double V_Revolutions[E_RobotSideSz];
 double V_WheelSpeedLagFiltGain[E_RobotSideSz];
 double V_IntakeArmPulseToRev[E_ArmCmndSz];
-double LY_Axis;
-double RX_Axis;
 double GyroAngle;
-E_DriveMode DriveMode;
-
-double Rt;
-double Lt;
+T_DriveMode DriveMode;
 
 double input1;
 double V_WinchSpeed;
@@ -389,23 +406,15 @@ private:
 
 	}
 
-	void TeleopPeriodic() {
-		T_RobotSide L_RobotSide;
-		T_RobotMotor L_RobotMotor;
-		double L_Forward = 0;
-		double L_Rotate = 0;
-		bool L_Tank = false;
-		bool L_PressBtn = false;
-		bool L_Slow = false;
-		bool L_PressBtn2 = false;
-    int  liftAng = 0.0;
-    bool Pov;
-    double Lift = 0.0;
+/******************************************************************************
+ * Function:     TeleopPeriodic
+ *
+ * Description:  RoboRio call during the teleop periodic period.
+ ******************************************************************************/
+	void TeleopPeriodic()
+	  {
     T_ArmCmnd L_ArmAnglePrev = E_ArmCmndOff;
     T_ArmCmnd L_ArmAnglePrevPrev = E_ArmCmndOff;
-    double L_IntakeRoller = 0;
-    double L_IntakeAngleRaw = 0;
-    double L_IntakeAngle = 0;
 
 		VariableInit(Prefs, mCounter);
 
@@ -417,20 +426,13 @@ private:
 		_talon5->SetSelectedSensorPosition(0, K_SlotIdx, K_TimeoutMs);
 
 		while (IsOperatorControl() && IsEnabled()) {
-			Rt = _joy1->GetRawAxis(3);
-			Lt = _joy1->GetRawAxis(2);
-			Pov = _joy1->GetPOV(0);
-
-			for (L_RobotMotor = E_RobotMotorLeftWheel;
-			     L_RobotMotor < E_RobotMotorSz;
-			     T_RobotMotor(int(L_RobotMotor) + 1))
-			  {
-			  V_RobotMotorCmndPct[L_RobotMotor];
-			  }
-
 		  V_AutonSelected = V_AutonOption.GetSelected();
 			V_StartOptSelected = V_StartingPosition.GetSelected();
 
+			DtrmnControllerMapping(_joy1,
+			                       _joy2);
+
+			/* Read all of the available sensors */
 			Read_Sensors(_talon0,
 			             _talon2,
 			             _talon4,
@@ -444,85 +446,31 @@ private:
 			gameData = frc::DriverStation::GetInstance().GetGameSpecificMessage();
 
 			if (gameData.length() > 0) {
-//				if(gameData[0] > 'L')
-//				{
-//
-//				}
-			}
+				if(gameData[0] > 'L')
+				{
 
-			if (_joy1->GetRawButtonPressed(1) == true && L_PressBtn == false) {
-				L_Tank = !L_Tank;
-				L_PressBtn = true;
-			} else if (_joy1->GetRawButtonPressed(1) == false) {
-				L_PressBtn = false;
-			}
-
-			if (_joy1->GetRawButtonPressed(2) == true && L_PressBtn2 == false) {
-				L_Slow = !L_Slow;
-				L_PressBtn2 = true;
-			} else if (_joy1->GetRawButtonPressed(2) == false) {
-				L_PressBtn2 = false;
-			}
-
-			if (_joy1->GetPOV(1)) {
-				DriveMode = C_TankDrive;
-			} else if (_joy1->GetPOV(2)) {
-				DriveMode = C_ArcadeDrive;
-			} else if (_joy1->GetPOV(3)) {
-				DriveMode = C_ArdadeDriveSimple;
-			}
-
-			//Code for different DriveModes
-			switch (DriveMode) {
-			case C_TankDrive: //Tank Drive
-				LY_Axis = _joy1->GetRawAxis(1);
-				RX_Axis = _joy1->GetRawAxis(5);
-				if (L_Slow == true) {
-					V_WheelRPM_Desired[E_RobotSideLeft] = DesiredSpeedSlow(
-							LY_Axis);
-					V_WheelRPM_Desired[E_RobotSideRight] = DesiredSpeedSlow(
-							RX_Axis);
-				} else {
-					V_WheelRPM_Desired[E_RobotSideLeft] = DesiredSpeed(LY_Axis);
-					V_WheelRPM_Desired[E_RobotSideRight] = DesiredSpeed(
-							RX_Axis);
 				}
-				break;
-			case C_ArcadeDrive: //Arcade Drive
-				LY_Axis = _joy1->GetRawAxis(1);
-				RX_Axis = _joy1->GetRawAxis(4);
-				if (L_Slow == true) {
-					L_Forward = DesiredSpeedSlow(RX_Axis);
-					L_Rotate = DesiredSpeedSlow(LY_Axis);
-				} else {
-					L_Forward = DesiredSpeed(RX_Axis);
-					L_Rotate = DesiredSpeed(LY_Axis);
-				}
-				V_WheelRPM_Desired[E_RobotSideLeft] = L_Forward + L_Rotate;
-				V_WheelRPM_Desired[E_RobotSideRight] = L_Forward - L_Rotate;
-				break;
-			case C_ArdadeDriveSimple: //Arcade Drive Simple
-				LY_Axis = _joy1->GetRawAxis(1);
-				RX_Axis = _joy1->GetRawAxis(0);
-				if (L_Slow == true) {
-					L_Forward = DesiredSpeedSlow(RX_Axis);
-					L_Rotate = DesiredSpeedSlow(LY_Axis);
-				} else {
-					L_Forward = DesiredSpeed(RX_Axis);
-					L_Rotate = DesiredSpeed(LY_Axis);
-				}
-				V_WheelRPM_Desired[E_RobotSideLeft] = L_Forward + L_Rotate;
-				V_WheelRPM_Desired[E_RobotSideRight] = L_Forward - L_Rotate;
-				break;
 			}
+
+    V_WheelRPM_Desired[E_RobotSideLeft]  = DesiredSpeed(V_RobotUserCmndPct[E_RobotUserCmndLeftWheel]);
+
+    V_WheelRPM_Desired[E_RobotSideLeft] = LukeStoppers(V_WheelRPM_Desired[E_RobotSideLeft],
+                                                       V_WheelRPM_Filt[E_RobotSideLeft],
+                                                       V_LukeStopperRamp);
+
+    V_WheelRPM_Desired[E_RobotSideRight] = DesiredSpeed(V_RobotUserCmndPct[E_RobotUserCmndRightWheel]);
+
+    V_WheelRPM_Desired[E_RobotSideRight] = LukeStoppers(V_WheelRPM_Desired[E_RobotSideRight],
+                                                        V_WheelRPM_Filt[E_RobotSideRight],
+                                                        V_LukeStopperRamp);
 
     V_RobotMotorCmndPct[E_RobotMotorLeftWheel]  = Control_PID(V_WheelRPM_Desired[E_RobotSideLeft],
                                                               V_WheelRPM_Filt[E_RobotSideLeft],
                                                               &V_WheelSpeedErrorPrev[E_RobotSideLeft],
                                                               &V_WheelSpeedErrorIntegral[E_RobotSideLeft],
-                                                              V_ProportionalGain[E_RobotSideLeft],
-                                                              V_IntegralGain[E_RobotSideLeft],
-                                                              V_DerivativeGain[E_RobotSideLeft],
+                                                              V_WheelProportionalGain[E_RobotSideLeft],
+                                                              V_WheelIntegralGain[E_RobotSideLeft],
+                                                              V_WheelDerivativeGain[E_RobotSideLeft],
                                                               C_WheelspeedProportionalLimit[E_RobotSideLeft][E_IntergalUpperLimit],
                                                               C_WheelspeedProportionalLimit[E_RobotSideLeft][E_IntergalLowerLimit],
                                                               C_WheelspeedIntergalLimit[E_RobotSideLeft][E_IntergalUpperLimit],
@@ -536,9 +484,9 @@ private:
                                                               V_WheelRPM_Filt[E_RobotSideRight],
                                                               &V_WheelSpeedErrorPrev[E_RobotSideRight],
                                                               &V_WheelSpeedErrorIntegral[E_RobotSideRight],
-                                                              V_ProportionalGain[E_RobotSideRight],
-                                                              V_IntegralGain[E_RobotSideRight],
-                                                              V_DerivativeGain[E_RobotSideRight],
+                                                              V_WheelProportionalGain[E_RobotSideRight],
+                                                              V_WheelIntegralGain[E_RobotSideRight],
+                                                              V_WheelDerivativeGain[E_RobotSideRight],
                                                               C_WheelspeedProportionalLimit[E_RobotSideRight][E_IntergalUpperLimit],
                                                               C_WheelspeedProportionalLimit[E_RobotSideRight][E_IntergalLowerLimit],
                                                               C_WheelspeedIntergalLimit[E_RobotSideRight][E_IntergalUpperLimit],
@@ -548,58 +496,68 @@ private:
                                                               C_WheelspeedCmndLimit[E_RobotSideRight][E_IntergalUpperLimit],
                                                               C_WheelspeedCmndLimit[E_RobotSideRight][E_IntergalLowerLimit]);
 
+    V_IntakeLiftHeightDesired =  DesiredLiftHeight(V_RobotUserCmndPct[E_RobotUserCmndLift],
+                                                   V_IntakeLiftHeightDesired,
+                                                   K_MaxIntakeLiftHeight);
 
-	      if (_joy2->GetRawAxis(3) > 0.1)
-	        {
-	        V_RobotMotorCmndPct[E_RobotMotorLift] = _joy2->GetRawAxis(3);
-	        }
-	      else if (_joy2->GetRawAxis(2) > 0.1)
-	        {
-	        V_RobotMotorCmndPct[E_RobotMotorLift] = -_joy2->GetRawAxis(2);
-	        }
+//    V_RobotMotorCmndPct[E_RobotMotorLift]  = Control_PID( V_IntakeLiftHeightDesired,
+//                                                          V_IntakePosition,
+//                                                         &V_IntakePositionErrorPrev,
+//                                                         &V_IntakePositionErrorIntegral,
+//                                                          V_IntakePID_Gain[E_PID_Proportional],
+//                                                          V_IntakePID_Gain[E_PID_Integral],
+//                                                          V_IntakePID_Gain[E_PID_Derivative],
+//                                                          K_Intake_PID_Limit[E_PID_Proportional],
+//                                                         -K_Intake_PID_Limit[E_PID_Proportional],
+//                                                          K_Intake_PID_Limit[E_PID_Integral],
+//                                                         -K_Intake_PID_Limit[E_PID_Integral],
+//                                                          K_Intake_PID_Limit[E_PID_Derivative],
+//                                                         -K_Intake_PID_Limit[E_PID_Derivative],
+//                                                          K_IntakeCmndLimit,
+//                                                         -K_IntakeCmndLimit);
 
-	      if (_joy2->GetRawButton(1) == true)
-	        {
-	        V_RobotMotorCmndPct[E_RobotMotorWinch] = 0.5; // climb direction
-	        }
-	      else if (_joy2->GetRawButton(2) == true)
-	        {
-	        V_RobotMotorCmndPct[E_RobotMotorWinch] = -0.5;
-	        }
+    V_RobotMotorCmndPct[E_RobotMotorLift] = V_RobotUserCmndPct[E_RobotUserCmndLift];
 
-	      if (_joy2->GetRawButton(3) == true)
-	        {
-	        V_RobotMotorCmndPct[E_RobotMotorHook] = 0.3; // climb direction
-	        }
-	      else if (_joy2->GetRawButton(4) == true)
-	        {
-	        V_RobotMotorCmndPct[E_RobotMotorHook] = -0.3;
-	        }
+    V_RobotMotorCmndPct[E_RobotMotorWinch] = V_RobotUserCmndPct[E_RobotUserCmndWinch]; // climb direction
 
-	      L_IntakeRoller = 0;
-	      L_IntakeAngle  = 0;
+    V_HookLiftHeightDesired =  DesiredLiftHeight(V_RobotUserCmndPct[E_RobotUserCmndHook],
+                                                 V_HookLiftHeightDesired,
+                                                 K_MaxHookLiftHeight);
 
-	      if (_joy2->GetRawAxis(5) > 0.2 || _joy2->GetRawAxis(5) < -0.2)
-	        {
-	        V_RobotMotorCmndPct[E_RobotMotorIntakeArmAng] = _joy2->GetRawAxis(5);
-	        }
+    V_RobotMotorCmndPct[E_RobotMotorHook]  = Control_PID( V_HookLiftHeightDesired,
+                                                          V_HookPosition,
+                                                         &V_HookPositionErrorPrev,
+                                                         &V_HookPositionErrorIntegral,
+                                                          V_HookPID_Gain[E_PID_Proportional],
+                                                          V_HookPID_Gain[E_PID_Integral],
+                                                          V_HookPID_Gain[E_PID_Derivative],
+                                                          K_Hook_PID_Limit[E_PID_Proportional],
+                                                         -K_Hook_PID_Limit[E_PID_Proportional],
+                                                          K_Hook_PID_Limit[E_PID_Integral],
+                                                         -K_Hook_PID_Limit[E_PID_Integral],
+                                                          K_Hook_PID_Limit[E_PID_Derivative],
+                                                         -K_Hook_PID_Limit[E_PID_Derivative],
+                                                          K_HookCmndLimit,
+                                                         -K_HookCmndLimit);
 
-	      L_ArmAnglePrevPrev = L_ArmAnglePrev;
-	      L_ArmAnglePrev = E_ArmCmndOff;
+//    V_RobotMotorCmndPct[E_RobotMotorHook] = V_RobotUserCmndPct[E_RobotUserCmndHook]; // climb direction
+//    V_RobotMotorCmndPct[E_RobotMotorHook] = V_RobotMotorCmndPct[E_RobotMotorHook]; // climb direction
 
-	      if (V_RobotMotorCmndPct[E_RobotMotorIntakeArmAng] > 0)
-	        {
-	        L_ArmAnglePrev = E_ArmCmndUp;
-	        }
-	      else if (V_RobotMotorCmndPct[E_RobotMotorIntakeArmAng] < 0)
-	        {
-	        L_ArmAnglePrev = E_ArmCmndDwn;
-	        }
+    V_RobotMotorCmndPct[E_RobotMotorIntakeArmAng] = V_RobotUserCmndPct[E_RobotUserCmndIntakeArmAng];
 
-	      if (_joy2->GetRawAxis(1) > 0.1 || _joy2->GetRawAxis(1) < -0.1)
-	        {
-	        V_RobotMotorCmndPct[E_RobotMotorIntakeRoller] = _joy2->GetRawAxis(1);
-	        }
+	  V_RobotMotorCmndPct[E_RobotMotorIntakeRoller] = V_RobotUserCmndPct[E_RobotUserCmndIntakeRoller];
+
+    L_ArmAnglePrevPrev = L_ArmAnglePrev;
+    L_ArmAnglePrev = E_ArmCmndOff;
+
+    if (V_RobotMotorCmndPct[E_RobotMotorIntakeArmAng] > 0)
+      {
+      L_ArmAnglePrev = E_ArmCmndUp;
+      }
+    else if (V_RobotMotorCmndPct[E_RobotMotorIntakeArmAng] < 0)
+      {
+      L_ArmAnglePrev = E_ArmCmndDwn;
+      }
 
 	  UpdateActuatorCmnds(_talon0,
 	                      _talon1,
@@ -692,21 +650,38 @@ private:
 	}
 };
 
-double DesiredSpeedSlow(double L_JoystickAxis) {
-	double L_DesiredDriveSpeed = 0.0;
-  int L_AxisSize = (int)(sizeof(K_DesiredDriveSpeedAxis) / sizeof(K_DesiredDriveSpeedAxis[0]));
-  int L_CalArraySize = (int)(sizeof(K_DesiredDriveSpeedSlow) / sizeof(K_DesiredDriveSpeedSlow[0]));
+double LukeStoppers(double L_DesiredSpeed,
+                    double L_CurrentSpeed,
+                    double L_RampRate)
+  {
+  double L_FinalDesiredSpeed = L_DesiredSpeed;
 
-  L_DesiredDriveSpeed = LookUp1D_Table(&K_DesiredDriveSpeedAxis[0],
-                                       &K_DesiredDriveSpeedSlow[0],
-                                       L_AxisSize,
-                                       L_CalArraySize,
-                                       L_JoystickAxis);
+  if ((fabs(L_DesiredSpeed) < 1.0) &&
+      (fabs(L_CurrentSpeed) > 1.0))
+    {
+    if (L_CurrentSpeed > 0.0)
+      {
+      L_FinalDesiredSpeed = L_CurrentSpeed - L_RampRate;
+      if (L_FinalDesiredSpeed < 0.0)
+        {
+        L_FinalDesiredSpeed = 0.0;
+        }
+      }
+    else
+      {
+      L_FinalDesiredSpeed = L_CurrentSpeed + L_RampRate;
+      if (L_FinalDesiredSpeed > 0.0)
+        {
+        L_FinalDesiredSpeed = 0.0;
+        }
+      }
+    }
 
-	return L_DesiredDriveSpeed;
-}
+  return (L_FinalDesiredSpeed);
+  }
 
-double DesiredSpeed(double L_JoystickAxis) {
+double DesiredSpeed(double L_JoystickAxis)
+  {
 	double L_DesiredDriveSpeed = 0.0;
 	int L_AxisSize = (int)(sizeof(K_DesiredDriveSpeedAxis) / sizeof(K_DesiredDriveSpeedAxis[0]));
 	int L_CalArraySize = (int)(sizeof(K_DesiredDriveSpeed) / sizeof(K_DesiredDriveSpeed[0]));
@@ -716,8 +691,37 @@ double DesiredSpeed(double L_JoystickAxis) {
 	                                     L_AxisSize,
 	                                     L_CalArraySize,
 	                                     L_JoystickAxis);
-
 	return L_DesiredDriveSpeed;
-}
+  }
+
+double DesiredLiftHeight(double L_JoystickAxis,
+                         double L_DesiredLiftHeightPrev,
+                         double L_MaxHeight)
+  {
+  double L_DesiredLiftHeightSpeed = 0.0;
+  double L_DesiredLiftHeight = 0.0;
+
+  int L_AxisSize = (int)(sizeof(K_DesiredVerticalSpeedAxis) / sizeof(K_DesiredVerticalSpeedAxis[0]));
+  int L_CalArraySize = (int)(sizeof(K_DesiredVerticalSpeed) / sizeof(K_DesiredVerticalSpeed[0]));
+
+  L_DesiredLiftHeightSpeed = LookUp1D_Table(&K_DesiredVerticalSpeedAxis[0],
+                                            &K_DesiredVerticalSpeed[0],
+                                            L_AxisSize,
+                                            L_CalArraySize,
+                                            L_JoystickAxis);
+
+  L_DesiredLiftHeight = L_DesiredLiftHeightPrev + L_DesiredLiftHeightSpeed * C_ExeTime;
+
+  if (L_DesiredLiftHeight < 0)
+    {
+    L_DesiredLiftHeight = 0.0;
+    }
+  else if (L_DesiredLiftHeight > L_MaxHeight)
+    {
+    L_DesiredLiftHeight = L_MaxHeight;
+    }
+
+  return L_DesiredLiftHeight;
+  }
 
 START_ROBOT_CLASS(Robot)

@@ -7,26 +7,59 @@
 
 #include "const.h"
 #include "Calibrations.hpp"
+#include "Vars.hpp"
+#include "SignalFilter.hpp"
 
 /******************************************************************************
  * Function:     DtrmnControllerMapping
  *
- * Description:  Map the controller to the desired inputs.
+ * Description:  Map the controller to the desired inputs/commands.
  ******************************************************************************/
 void DtrmnControllerMapping(Joystick *L_Joystick1,
                             Joystick *L_Joystick2)
   {
-  double L_DrivePctLeft;
-  double L_DrivePctRight;
-  double L_IntakeArmAngle;
-  double L_IntakeRollers;
-  double L_IntakeLift;
-  double L_Winch;
-  double L_Hook;
+  double L_IntakeRollers = 0.0;
 
-  L_DrivePctLeft = L_Joystick1->GetRawAxis(1); // Left stick
-  L_DrivePctRight = L_Joystick1->GetRawAxis(5); // Right stick
-  L_Hook = L_Joystick1->GetRawAxis(3) - L_Joystick1->GetRawAxis(2); // Combination of right and left trigger
+    if (L_Joystick1->GetPOV() == 0)
+      {
+      DriveMode = E_TankDrive;
+      }
+    else if (L_Joystick1->GetPOV() == 90)
+      {
+      DriveMode = E_ArcadeDrive;
+      }
+    else if (L_Joystick1->GetPOV() == 270)
+      {
+      DriveMode = E_ArdadeDriveSimple;
+      }
+
+    //Code for different DriveModes
+    switch (DriveMode)
+      {
+      case E_TankDrive: //Tank Drive
+        V_RobotUserCmndPct[E_RobotUserCmndLeftWheel]  = -L_Joystick1->GetRawAxis(1);
+        V_RobotUserCmndPct[E_RobotUserCmndRightWheel] = -L_Joystick1->GetRawAxis(5);
+      break;
+
+      case E_ArcadeDrive: //Arcade Drive
+        V_RobotUserCmndPct[E_RobotUserCmndLeftWheel]  = -(L_Joystick1->GetRawAxis(1) + L_Joystick1->GetRawAxis(4));
+        V_RobotUserCmndPct[E_RobotUserCmndRightWheel] = -(L_Joystick1->GetRawAxis(1) - L_Joystick1->GetRawAxis(4));
+      break;
+
+      case E_ArdadeDriveSimple: //Arcade Drive Simple
+        V_RobotUserCmndPct[E_RobotUserCmndLeftWheel] = L_Joystick1->GetRawAxis(1) + L_Joystick1->GetRawAxis(0);
+        V_RobotUserCmndPct[E_RobotUserCmndRightWheel] = L_Joystick1->GetRawAxis(1) - L_Joystick1->GetRawAxis(0);
+      break;
+    }
+
+ // Combination of right and left trigger
+    if(L_Joystick1->GetRawButton(5)){
+      V_RobotUserCmndPct[E_RobotUserCmndHook] = -1;
+    } else if(L_Joystick1->GetRawButton(6)){
+      V_RobotUserCmndPct[E_RobotUserCmndHook] =  1;
+    } else {
+  V_RobotUserCmndPct[E_RobotUserCmndHook] = 0;
+    }
 
   if (L_Joystick2->GetRawButton(1) == true)
     {
@@ -37,17 +70,18 @@ void DtrmnControllerMapping(Joystick *L_Joystick1,
     L_IntakeRollers = -K_IntakeRollers;
     }
 
-  L_IntakeArmAngle = L_Joystick2->GetRawAxis(1);
-  L_IntakeLift = L_Joystick2->GetRawAxis(3) - L_Joystick2->GetRawAxis(2);
-  L_Winch = L_Joystick2->GetRawAxis(5);
+  V_RobotUserCmndPct[E_RobotUserCmndIntakeRoller] = L_IntakeRollers;
 
-//  C_DriveMotorL,
-//  C_DriveMotorR,
-//  C_IntakeArmAngle,
-//  C_IntakeRollers,
-//  C_IntakeLift,
-//  C_Winch,
-//  C_Hook,
-//  V_Actuators[C_ActuatorsSz];
+  V_RobotUserCmndPct[E_RobotUserCmndIntakeArmAng] = DeadBand(L_Joystick2->GetRawAxis(1),
+                                                             -K_JoystickAnalogDeadband,
+                                                              K_JoystickAnalogDeadband);
+
+  V_RobotUserCmndPct[E_RobotUserCmndLift] = DeadBand((L_Joystick2->GetRawAxis(3) - L_Joystick2->GetRawAxis(2)),
+                                                     -K_JoystickAnalogDeadband,
+                                                      K_JoystickAnalogDeadband);
+
+  V_RobotUserCmndPct[E_RobotUserCmndWinch] =   DeadBand(L_Joystick2->GetRawAxis(5),
+                                                        -K_JoystickAnalogDeadband,
+                                                         K_JoystickAnalogDeadband);
   }
 

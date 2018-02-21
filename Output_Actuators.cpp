@@ -34,7 +34,7 @@ void UpdateActuatorCmnds(TalonSRX  *L_DriveMortorCtrlLeftFront,
 
   L_Intake->Set(ControlMode::PercentOutput, L_RobotMotorCmndPct[E_RobotMotorLift]);
 
-  L_Hook->Set(ControlMode::PercentOutput, L_RobotMotorCmndPct[E_RobotMotorHook]);
+  L_Hook->Set(ControlMode::PercentOutput, (-L_RobotMotorCmndPct[E_RobotMotorHook]));
 
   L_Spark0->Set(L_RobotMotorCmndPct[E_RobotMotorIntakeArmAng]); // Intake angle
   L_Spark1->Set(L_RobotMotorCmndPct[E_RobotMotorIntakeArmAng]); // Intake angle

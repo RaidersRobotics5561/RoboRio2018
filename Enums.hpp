@@ -2,7 +2,7 @@
   Enums.hpp
 
    Created on: Feb 14, 2018
-       Author: sdbig
+       Author: 5561
  */
 #ifndef SRC_ROBORIO2018_ENUMS_HPP_
 #define SRC_ROBORIO2018_ENUMS_HPP_
@@ -16,10 +16,10 @@
 
  typedef enum
  {
-	 C_TankDrive,
-	 C_ArcadeDrive,
-	 C_ArdadeDriveSimple
- } E_DriveMode;
+	 E_TankDrive,
+	 E_ArcadeDrive,
+	 E_ArdadeDriveSimple
+ } T_DriveMode;
 
  typedef enum
  {
@@ -87,6 +87,17 @@
 typedef enum {
   E_RobotSideLeft, E_RobotSideRight, E_RobotSideSz
 } T_RobotSide;
+
+typedef enum {
+  E_RobotUserCmndLeftWheel,
+  E_RobotUserCmndRightWheel,
+  E_RobotUserCmndLift,
+  E_RobotUserCmndIntakeArmAng,
+  E_RobotUserCmndIntakeRoller,
+  E_RobotUserCmndHook,
+  E_RobotUserCmndWinch,
+  E_RobotUserCmndSz
+} T_RobotUserCmnd;
 
 typedef enum {
   E_RobotMotorLeftWheel,

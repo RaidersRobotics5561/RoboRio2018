@@ -75,17 +75,11 @@ void Read_Sensors(TalonSRX  *L_DriveMortorCtrlLeft,
     }
 
   /* Now let's figure out the position of the hook (arrgh!!!) */
-  /* First, convert the encoder pulses to revolutions of the gear: */
-  V_HookRevolutions = L_Hook->GetSelectedSensorPosition(K_PIDLoopIdx) / K_HookPulseToRev;
+  /* Convert the pulses to hook distance traveled: */
+  V_HookPosition = fabs(L_Hook->GetSelectedSensorPosition(K_PIDLoopIdx) * K_HookPulseToTravel);
 
+
+  /* Great, let's finally figure out the intake vertical position: */
   /* Next, convert the revolutions to hook distance traveled: */
-  V_HookPosition = V_HookRevolutions * K_HookRevToDistance;
-
-
-  /* Great, let's finally figure out the intace vertical position: */
-  /* First, convert the encoder pulses to revolutions of the gear: */
-  V_IntakeRevolutions = L_Intake->GetSelectedSensorPosition(K_PIDLoopIdx) / K_IntakePulseToRev;
-
-  /* Next, convert the revolutions to hook distance traveled: */
-  V_IntakePosition = V_IntakeRevolutions * K_IntakeRevToDistance;
+  V_IntakePosition = fabs(L_Intake->GetSelectedSensorPosition(K_PIDLoopIdx) * K_IntakePulseToTravel);
   }
