@@ -43,15 +43,20 @@ void VariableInit(Preferences *L_DriverPreferences,
   V_IntakePID_Gain[E_PID_Integral] = L_DriverPreferences->GetDouble("I_Lift", K_Intake_PID_Gain[E_PID_Derivative]);
   V_IntakePID_Gain[E_PID_Derivative] = L_DriverPreferences->GetDouble("D_Lift", K_Intake_PID_Gain[E_PID_Derivative]);
   V_IntakePosition = 0.0;
+  V_IntakePositionPrev = 0.0;
+  V_IntakeLiftHeightDesired = 0.0;
 
   V_HookPositionErrorPrev = 0.0;
   V_HookPositionErrorIntegral = 0.0;
+  V_HookLiftHeightDesired = 0.0;
+
   V_HookLiftHeightDesired = 0.0;
 
   V_HookPID_Gain[E_PID_Proportional] = L_DriverPreferences->GetDouble("P_Hook", K_Hook_PID_Gain[E_PID_Derivative]);
   V_HookPID_Gain[E_PID_Integral] = L_DriverPreferences->GetDouble("I_Hook", K_Hook_PID_Gain[E_PID_Derivative]);
   V_HookPID_Gain[E_PID_Derivative] = L_DriverPreferences->GetDouble("D_Hook", K_Hook_PID_Gain[E_PID_Derivative]);
   V_HookPosition = 0.0;
+  V_RotateGain = L_DriverPreferences->GetDouble("RotateGain", K_RotateGain);
 
   TestCal1 = L_DriverPreferences->GetDouble("LiftGx", 0.0);
   TestCal2 = L_DriverPreferences->GetDouble("HookGx", 0.0);

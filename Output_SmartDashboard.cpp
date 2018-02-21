@@ -36,7 +36,8 @@ void UpdateSmartDashboad(void)
     SmartDashboard::PutNumber("Hook Motor", V_RobotMotorCmndPct[E_RobotMotorHook]);
 
 
-
-
+    SmartDashboard::PutNumber("Intake Cmnd",   V_RobotUserCmndPct[E_RobotUserCmndLift]);
     SmartDashboard::PutNumber("Intake Position",   V_IntakePosition);
+    SmartDashboard::PutNumber("Intake Desired Position",   V_IntakeLiftHeightDesired);
+    SmartDashboard::PutNumber("Intake Lift Motor", V_RobotMotorCmndPct[E_RobotMotorLift]);
   };

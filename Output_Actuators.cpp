@@ -32,7 +32,7 @@ void UpdateActuatorCmnds(TalonSRX  *L_DriveMortorCtrlLeftFront,
   L_DriveMortorCtrlRightFront->Set(ControlMode::PercentOutput,(L_RobotMotorCmndPct[E_RobotMotorRightWheel] * -1));
   L_DriveMortorCtrlRightRear->Set(ControlMode::PercentOutput,(L_RobotMotorCmndPct[E_RobotMotorRightWheel] * -1));
 
-  L_Intake->Set(ControlMode::PercentOutput, L_RobotMotorCmndPct[E_RobotMotorLift]);
+  L_Intake->Set(ControlMode::PercentOutput, (-L_RobotMotorCmndPct[E_RobotMotorLift]));
 
   L_Hook->Set(ControlMode::PercentOutput, (-L_RobotMotorCmndPct[E_RobotMotorHook]));
 

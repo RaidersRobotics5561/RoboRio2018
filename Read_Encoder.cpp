@@ -81,5 +81,10 @@ void Read_Sensors(TalonSRX  *L_DriveMortorCtrlLeft,
 
   /* Great, let's finally figure out the intake vertical position: */
   /* Next, convert the revolutions to hook distance traveled: */
-  V_IntakePosition = fabs(L_Intake->GetSelectedSensorPosition(K_PIDLoopIdx) * K_IntakePulseToTravel);
+
+  V_IntakePosition = LagFilter(K_IntakeLiftLagFilter,
+              (fabs(L_Intake->GetSelectedSensorPosition(K_PIDLoopIdx) * K_IntakePulseToTravel)),
+              V_IntakePositionPrev);
+
+//  V_IntakePosition = fabs(L_Intake->GetSelectedSensorPosition(K_PIDLoopIdx) * K_IntakePulseToTravel);
   }

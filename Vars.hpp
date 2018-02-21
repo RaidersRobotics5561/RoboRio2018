@@ -13,6 +13,7 @@ extern double TestCal1;
 extern double TestCal2;
 
 extern double      V_LukeStopperRamp;
+extern double      V_RotateGain;
 
 extern double      V_EndGameWinchTime;
 extern bool        V_LED_RainbowLatch;
@@ -44,7 +45,8 @@ extern double      V_HookPositionErrorPrev;
 extern double      V_HookPositionErrorIntegral;
 extern double      V_HookLiftHeightDesired;
 extern double      V_HookPID_Gain[E_PID_Sz];
-
+extern double      V_IntakeLiftHeightDesired;
+extern double      V_IntakePositionPrev;
 extern double      V_IntakePosition;
 extern double      GyroAngle;
 extern double      input1;

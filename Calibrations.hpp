@@ -19,17 +19,18 @@ const double K_IntakePulseToRev  =  1.0;
 const double K_IntakeRevToDistance = 0.1;
 
 const double K_IntakePulseToTravel = -0.002693208430913349; // travel (in) / pulse
-const double K_MaxIntakeLiftHeight = 35.0; // Max lift height in inches...
+const double K_MaxIntakeLiftHeight = 68; // Max lift height in inches...
+const double K_LowerIntakeLiftHeight = 2;
+const double K_IntakeLiftLagFilter = 0.8;
 const double K_Intake_PID_Gain[E_PID_Sz] =
     // P        I      D
     { 0.0001, 0.0006, 0.0 };
 const double K_Intake_PID_Limit[E_PID_Sz] =
     // P        I      D
-    { 0.5, 0.8, 0.0 };
-const double K_IntakeProportionalLimit = 0.5;
-const double K_IntakeIntergalLimit = 0.8;
+    { 0.9, 0.9, 0.0 };
 const double K_IntakeDerivativeLimit = 0.0;
-const double K_IntakeCmndLimit = 0.5;
+const double K_IntakeCmndLimit = 1.0;
+const double K_IntakeMinCmndHeight = 1.0;
 
 
 const double K_HookPulseToTravel = 0.0013329068031563234; // travel (in) / pulse
@@ -45,10 +46,10 @@ const double K_HookIntergalLimit = 0.8;
 const double K_HookDerivativeLimit = 0.0;
 const double K_HookCmndLimit = 0.7;
 
-
+const double K_Winch = 1.0;
 const double K_LukeStopperRamp = 0.001;
 
-
+const double K_RotateGain = 0.80;
 const double K_JoystickAnalogDeadband    = 0.1;
 
 const double C_WheelSpeedPID_Gain[E_RobotSideSz][E_PID_Sz] = {
@@ -85,7 +86,7 @@ const double C_WheelspeedCmndLimit[E_RobotSideSz][E_IntergalLimitSz] = {
 const double C_WheelSpeedLagFilterGain[E_RobotSideSz] =
     { 0.9, 0.9};
 
-const double K_IntakeRollers        =  0.6;
+const double K_IntakeRollers        =  0.8;
 const double K_EndMatchWarningTime  =  30;    // This is the expected time remaining that the robot will warn the
 const double K_WinchOnThreshold     =   0.1; // Threshold above which the winch is considered to be on.
 const double K_LED_WinchOnTime      =   3.0;  // This is the amount of accumulated time that the winch needs to be commanded on at the end of the game in order to trigger the rainbow effect
@@ -109,13 +110,13 @@ const double K_DesiredVerticalSpeedAxis[10] = {-0.9,
 const double K_DesiredVerticalSpeed[10] = {-30.0, // 0.0
                                            -15.0, // 0.1
                                            -10.0, // 0.2
-                                           -2.0, // 0.3
-                                           0.0, // 0.4
-                                           0.0, // 0.5
-                                           2.0, // 0.6
-                                           10.0, // 0.7
-                                           15.0, // 0.8
-                                           30.0}; // 0.9
+                                            -2.0, // 0.3
+                                             0.0, // 0.4
+                                             0.0, // 0.5
+                                             2.0, // 0.6
+                                            10.0, // 0.7
+                                            15.0, // 0.8
+                                            30.0}; // 0.9
 
 const double K_DesiredDriveSpeedAxis[20] = {-0.95,
                                             -0.85,

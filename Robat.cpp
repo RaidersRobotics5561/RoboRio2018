@@ -13,6 +13,7 @@
 #include "AnalogTriggerType.h"
 #include "Output_Actuators.hpp"
 #include "Input_Controller.hpp"
+#include "Control_LED.h"
 
 double DesiredSpeed(double axis);
 
@@ -24,8 +25,15 @@ double LukeStoppers(double L_DesiredSpeed,
                     double L_CurrentSpeed,
                     double L_RampRate);
 
+double LiftCmdDisable(double LiftHight,
+                      double CommandedHight,
+                         double MinHight,
+                         double L_MotorCmnd);
+
 double TestCal1;
 double TestCal2;
+
+double V_RotateGain;
 
 double V_LukeStopperRamp;
 
@@ -45,6 +53,7 @@ double V_IntakePositionErrorPrev;
 double V_IntakePositionErrorIntegral;
 double V_IntakeLiftHeightDesired;
 double V_IntakePID_Gain[E_PID_Sz];
+double V_IntakePositionPrev;
 
 double V_WheelRPM_Filt[E_RobotSideSz];
 double V_WheelRPM_FiltPrev[E_RobotSideSz];
@@ -56,7 +65,7 @@ double V_WheelProportionalGain[E_RobotSideSz];
 double V_WheelIntegralGain[E_RobotSideSz];
 double V_WheelDerivativeGain[E_RobotSideSz];
 
-
+RoboState RobatState;
 
 double V_RobotMotorCmndPct[E_RobotMotorSz];
 
@@ -169,6 +178,7 @@ private:
 		mAnalogTrigger->SetLimitsVoltage(3.5, 3.8); // values higher than the highest minimum (pulse floor), lower than the lowest maximum (pulse ceiling)
 //		mCounter = new SetUpSource(&mAnalogTrigger, 3);
 		mCounter = new Counter(4);
+		RobatState = C_Disabled;
 
 		VariableInit(Prefs, mCounter);
 
@@ -425,6 +435,8 @@ private:
 		_talon4->SetSelectedSensorPosition(0, K_SlotIdx, K_TimeoutMs);
 		_talon5->SetSelectedSensorPosition(0, K_SlotIdx, K_TimeoutMs);
 
+		RobatState = C_Teleop;
+
 		while (IsOperatorControl() && IsEnabled()) {
 		  V_AutonSelected = V_AutonOption.GetSelected();
 			V_StartOptSelected = V_StartingPosition.GetSelected();
@@ -500,23 +512,28 @@ private:
                                                    V_IntakeLiftHeightDesired,
                                                    K_MaxIntakeLiftHeight);
 
-//    V_RobotMotorCmndPct[E_RobotMotorLift]  = Control_PID( V_IntakeLiftHeightDesired,
-//                                                          V_IntakePosition,
-//                                                         &V_IntakePositionErrorPrev,
-//                                                         &V_IntakePositionErrorIntegral,
-//                                                          V_IntakePID_Gain[E_PID_Proportional],
-//                                                          V_IntakePID_Gain[E_PID_Integral],
-//                                                          V_IntakePID_Gain[E_PID_Derivative],
-//                                                          K_Intake_PID_Limit[E_PID_Proportional],
-//                                                         -K_Intake_PID_Limit[E_PID_Proportional],
-//                                                          K_Intake_PID_Limit[E_PID_Integral],
-//                                                         -K_Intake_PID_Limit[E_PID_Integral],
-//                                                          K_Intake_PID_Limit[E_PID_Derivative],
-//                                                         -K_Intake_PID_Limit[E_PID_Derivative],
-//                                                          K_IntakeCmndLimit,
-//                                                         -K_IntakeCmndLimit);
+    V_RobotMotorCmndPct[E_RobotMotorLift]  = Control_PID( V_IntakeLiftHeightDesired,
+                                                          V_IntakePosition,
+                                                         &V_IntakePositionErrorPrev,
+                                                         &V_IntakePositionErrorIntegral,
+                                                          V_IntakePID_Gain[E_PID_Proportional],
+                                                          V_IntakePID_Gain[E_PID_Integral],
+                                                          V_IntakePID_Gain[E_PID_Derivative],
+                                                          K_Intake_PID_Limit[E_PID_Proportional],
+                                                         -K_Intake_PID_Limit[E_PID_Proportional],
+                                                          K_Intake_PID_Limit[E_PID_Integral],
+                                                         -K_Intake_PID_Limit[E_PID_Integral],
+                                                          K_Intake_PID_Limit[E_PID_Derivative],
+                                                         -K_Intake_PID_Limit[E_PID_Derivative],
+                                                          K_IntakeCmndLimit,
+                                                         -K_IntakeCmndLimit);
 
-    V_RobotMotorCmndPct[E_RobotMotorLift] = V_RobotUserCmndPct[E_RobotUserCmndLift];
+    V_RobotMotorCmndPct[E_RobotMotorLift] = LiftCmdDisable(V_IntakePosition,
+                                                           V_IntakeLiftHeightDesired,
+                                                           K_IntakeMinCmndHeight,
+                                                           V_RobotMotorCmndPct[E_RobotMotorLift]);
+
+//    V_RobotMotorCmndPct[E_RobotMotorLift] = V_RobotUserCmndPct[E_RobotUserCmndLift];
 
     V_RobotMotorCmndPct[E_RobotMotorWinch] = V_RobotUserCmndPct[E_RobotUserCmndWinch]; // climb direction
 
@@ -558,6 +575,13 @@ private:
       {
       L_ArmAnglePrev = E_ArmCmndDwn;
       }
+
+    UpdateLED_Output(RobatState,false,V_RobotMotorCmndPct[E_RobotMotorWinch],V_LED_CmndState);
+
+    V_LED_State0->Set(V_LED_CmndState[0]);
+    V_LED_State1->Set(V_LED_CmndState[1]);
+    V_LED_State2->Set(V_LED_CmndState[2]);
+    V_LED_State3->Set(V_LED_CmndState[3]);
 
 	  UpdateActuatorCmnds(_talon0,
 	                      _talon1,
@@ -722,6 +746,22 @@ double DesiredLiftHeight(double L_JoystickAxis,
     }
 
   return L_DesiredLiftHeight;
+  }
+
+double LiftCmdDisable(double LiftHight,
+                      double CommandedHight,
+                         double MinHight,
+                         double L_MotorCmnd)
+  {
+  double cmdOutput = 0;
+
+  if(LiftHight < MinHight && CommandedHight < MinHight) {
+    cmdOutput = 0;
+  } else {
+    cmdOutput = L_MotorCmnd;
+  }
+
+ return cmdOutput;
   }
 
 START_ROBOT_CLASS(Robot)

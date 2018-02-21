@@ -35,7 +35,7 @@
 LED_Mode UpdateLED_Output(RoboState L_RobotState,
                           bool      L_DriverOverride,
                           double    L_Winch,
-                          bool      *L_LED_CmndState[4])
+                          bool      *L_LED_CmndState)
   {
   bool L_Pin0            = false;
   bool L_Pin1            = false;
@@ -176,10 +176,10 @@ LED_Mode UpdateLED_Output(RoboState L_RobotState,
 
 
   // Output to the DIO pins:
-  *L_LED_CmndState[0]= L_Pin0;
-  *L_LED_CmndState[1]= L_Pin1;
-  *L_LED_CmndState[2]= L_Pin2;
-  *L_LED_CmndState[3]= L_Pin3;
+  L_LED_CmndState[0] = L_Pin0;
+  L_LED_CmndState[1] = L_Pin1;
+  L_LED_CmndState[2] = L_Pin2;
+  L_LED_CmndState[3] = L_Pin3;
 //  V_LED_State[0].Set(L_Pin0);
 //  V_LED_State[1].Set(L_Pin1);
 //  V_LED_State[2].Set(L_Pin2);
