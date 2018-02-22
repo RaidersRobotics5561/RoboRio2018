@@ -27,20 +27,11 @@ double LukeStoppers(double L_DesiredSpeed,
 
 double LiftCmdDisable(double LiftHight,
                       double CommandedHight,
-                         double MinHight,
-                         double L_MotorCmnd);
-
-double TestCal1;
-double TestCal2;
-
-double V_RotateGain;
-
-double V_LukeStopperRamp;
+                      double MinHight,
+                      double L_MotorCmnd);
 
 double V_EndGameWinchTime;
 bool   V_LED_RainbowLatch;
-int    V_AutonState;
-bool   V_LED_CmndState[4];
 
 double V_HookPosition;
 double V_HookPositionErrorPrev;
@@ -55,6 +46,8 @@ double V_IntakeLiftHeightDesired;
 double V_IntakePID_Gain[E_PID_Sz];
 double V_IntakePositionPrev;
 
+double V_IntakeArmPulseToRev[E_ArmCmndSz];
+
 double V_WheelRPM_Filt[E_RobotSideSz];
 double V_WheelRPM_FiltPrev[E_RobotSideSz];
 double V_WheelRPM_Desired[E_RobotSideSz];
@@ -64,24 +57,27 @@ double V_WheelRPM_Raw[E_RobotSideSz];
 double V_WheelProportionalGain[E_RobotSideSz];
 double V_WheelIntegralGain[E_RobotSideSz];
 double V_WheelDerivativeGain[E_RobotSideSz];
-
-RoboState RobatState;
-
-double V_RobotMotorCmndPct[E_RobotMotorSz];
-
-double V_RobotUserCmndPct[E_RobotUserCmndSz]; // This is the requested value from the driver for the various motors/functions
-
-double V_Actuators[C_ActuatorsSz];
+double V_WheelSpeedLagFiltGain[E_RobotSideSz];
 double V_DistanceTraveled[E_RobotSideSz];
 double V_Revolutions[E_RobotSideSz];
-double V_WheelSpeedLagFiltGain[E_RobotSideSz];
-double V_IntakeArmPulseToRev[E_ArmCmndSz];
-double GyroAngle;
+double V_LukeStopperRamp;
+double V_RotateGain;
+
+RoboState RobatState;
+LED_Mode  V_LED_Mode;
 T_DriveMode DriveMode;
 
+double GyroAngle;
 double input1;
-double V_WinchSpeed;
 double V_ArmAngleDeg;
+
+double V_RobotUserCmndPct[E_RobotUserCmndSz]; // This is the requested value from the driver for the various motors/functions
+double V_RobotMotorCmndPct[E_RobotMotorSz];
+
+
+
+
+
 
 class Act {
 public:
@@ -170,13 +166,18 @@ private:
 	std::vector<Act> ActList, CurrentList, List_StartLeft, List_StartRight,
 			List_StartMiddle;
 
+	/******************************************************************************
+	 * Function:     RobotInit
+	 *
+	 * Description:
+	 *
+	 ******************************************************************************/
 	void RobotInit() {
 
   CameraServer::GetInstance()->StartAutomaticCapture(0);
 		Prefs = Preferences::GetInstance();
 
 		mAnalogTrigger->SetLimitsVoltage(3.5, 3.8); // values higher than the highest minimum (pulse floor), lower than the lowest maximum (pulse ceiling)
-//		mCounter = new SetUpSource(&mAnalogTrigger, 3);
 		mCounter = new Counter(4);
 		RobatState = C_Disabled;
 
@@ -533,7 +534,6 @@ private:
                                                            K_IntakeMinCmndHeight,
                                                            V_RobotMotorCmndPct[E_RobotMotorLift]);
 
-//    V_RobotMotorCmndPct[E_RobotMotorLift] = V_RobotUserCmndPct[E_RobotUserCmndLift];
 
     V_RobotMotorCmndPct[E_RobotMotorWinch] = V_RobotUserCmndPct[E_RobotUserCmndWinch]; // climb direction
 
@@ -557,9 +557,6 @@ private:
                                                           K_HookCmndLimit,
                                                          -K_HookCmndLimit);
 
-//    V_RobotMotorCmndPct[E_RobotMotorHook] = V_RobotUserCmndPct[E_RobotUserCmndHook]; // climb direction
-//    V_RobotMotorCmndPct[E_RobotMotorHook] = V_RobotMotorCmndPct[E_RobotMotorHook]; // climb direction
-
     V_RobotMotorCmndPct[E_RobotMotorIntakeArmAng] = V_RobotUserCmndPct[E_RobotUserCmndIntakeArmAng];
 
 	  V_RobotMotorCmndPct[E_RobotMotorIntakeRoller] = V_RobotUserCmndPct[E_RobotUserCmndIntakeRoller];
@@ -576,12 +573,13 @@ private:
       L_ArmAnglePrev = E_ArmCmndDwn;
       }
 
-    UpdateLED_Output(RobatState,false,V_RobotMotorCmndPct[E_RobotMotorWinch],V_LED_CmndState);
-
-    V_LED_State0->Set(V_LED_CmndState[0]);
-    V_LED_State1->Set(V_LED_CmndState[1]);
-    V_LED_State2->Set(V_LED_CmndState[2]);
-    V_LED_State3->Set(V_LED_CmndState[3]);
+    V_LED_Mode = UpdateLED_Output(RobatState,
+                                  false,
+                                  V_RobotMotorCmndPct[E_RobotMotorWinch],
+                                  V_LED_State0,
+                                  V_LED_State1,
+                                  V_LED_State2,
+                                  V_LED_State3);
 
 	  UpdateActuatorCmnds(_talon0,
 	                      _talon1,
@@ -602,7 +600,13 @@ private:
 		}
 	}
 
-	void AutonomousInit() //This method is called once each time the robot enters Autonomous
+  /******************************************************************************
+   * Function:     AutonomousInit
+   *
+   * Description: This method is called once each time the robot enters Autonomous
+   *
+   ******************************************************************************/
+	void AutonomousInit()
 	{
 
 		_talon0->SetSelectedSensorPosition(0, K_SlotIdx, K_TimeoutMs);
@@ -623,6 +627,12 @@ private:
 		List_StartRight.push_back(Act(Act::T_State::E_StateRotate, 180));
 	}
 
+  /******************************************************************************
+   * Function:     AutonomousPeriodic
+   *
+   * Description:
+   *
+   ******************************************************************************/
 	void AutonomousPeriodic() {
 		while (IsAutonomous() && IsEnabled()) {
 
@@ -673,95 +683,5 @@ private:
 		Wait(C_ExeTime);
 	}
 };
-
-double LukeStoppers(double L_DesiredSpeed,
-                    double L_CurrentSpeed,
-                    double L_RampRate)
-  {
-  double L_FinalDesiredSpeed = L_DesiredSpeed;
-
-  if ((fabs(L_DesiredSpeed) < 1.0) &&
-      (fabs(L_CurrentSpeed) > 1.0))
-    {
-    if (L_CurrentSpeed > 0.0)
-      {
-      L_FinalDesiredSpeed = L_CurrentSpeed - L_RampRate;
-      if (L_FinalDesiredSpeed < 0.0)
-        {
-        L_FinalDesiredSpeed = 0.0;
-        }
-      }
-    else
-      {
-      L_FinalDesiredSpeed = L_CurrentSpeed + L_RampRate;
-      if (L_FinalDesiredSpeed > 0.0)
-        {
-        L_FinalDesiredSpeed = 0.0;
-        }
-      }
-    }
-
-  return (L_FinalDesiredSpeed);
-  }
-
-double DesiredSpeed(double L_JoystickAxis)
-  {
-	double L_DesiredDriveSpeed = 0.0;
-	int L_AxisSize = (int)(sizeof(K_DesiredDriveSpeedAxis) / sizeof(K_DesiredDriveSpeedAxis[0]));
-	int L_CalArraySize = (int)(sizeof(K_DesiredDriveSpeed) / sizeof(K_DesiredDriveSpeed[0]));
-
-	L_DesiredDriveSpeed = LookUp1D_Table(&K_DesiredDriveSpeedAxis[0],
-	                                     &K_DesiredDriveSpeed[0],
-	                                     L_AxisSize,
-	                                     L_CalArraySize,
-	                                     L_JoystickAxis);
-	return L_DesiredDriveSpeed;
-  }
-
-double DesiredLiftHeight(double L_JoystickAxis,
-                         double L_DesiredLiftHeightPrev,
-                         double L_MaxHeight)
-  {
-  double L_DesiredLiftHeightSpeed = 0.0;
-  double L_DesiredLiftHeight = 0.0;
-
-  int L_AxisSize = (int)(sizeof(K_DesiredVerticalSpeedAxis) / sizeof(K_DesiredVerticalSpeedAxis[0]));
-  int L_CalArraySize = (int)(sizeof(K_DesiredVerticalSpeed) / sizeof(K_DesiredVerticalSpeed[0]));
-
-  L_DesiredLiftHeightSpeed = LookUp1D_Table(&K_DesiredVerticalSpeedAxis[0],
-                                            &K_DesiredVerticalSpeed[0],
-                                            L_AxisSize,
-                                            L_CalArraySize,
-                                            L_JoystickAxis);
-
-  L_DesiredLiftHeight = L_DesiredLiftHeightPrev + L_DesiredLiftHeightSpeed * C_ExeTime;
-
-  if (L_DesiredLiftHeight < 0)
-    {
-    L_DesiredLiftHeight = 0.0;
-    }
-  else if (L_DesiredLiftHeight > L_MaxHeight)
-    {
-    L_DesiredLiftHeight = L_MaxHeight;
-    }
-
-  return L_DesiredLiftHeight;
-  }
-
-double LiftCmdDisable(double LiftHight,
-                      double CommandedHight,
-                         double MinHight,
-                         double L_MotorCmnd)
-  {
-  double cmdOutput = 0;
-
-  if(LiftHight < MinHight && CommandedHight < MinHight) {
-    cmdOutput = 0;
-  } else {
-    cmdOutput = L_MotorCmnd;
-  }
-
- return cmdOutput;
-  }
 
 START_ROBOT_CLASS(Robot)

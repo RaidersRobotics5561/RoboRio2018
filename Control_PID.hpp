@@ -23,6 +23,19 @@ extern double Control_PID(double  L_DesiredSpeed,
                           double  L_OutputUpperLimit,
                           double  L_OutputLowerLimit);
 
+extern double LukeStoppers(double L_DesiredSpeed,
+                           double L_CurrentSpeed,
+                           double L_RampRate);
 
+extern double DesiredSpeed(double L_JoystickAxis);
+
+extern double DesiredLiftHeight(double L_JoystickAxis,
+                                double L_DesiredLiftHeightPrev,
+                                double L_MaxHeight);
+
+extern double LiftCmdDisable(double LiftHight,
+                             double CommandedHight,
+                             double MinHight,
+                             double L_MotorCmnd);
 
 #endif /* SRC_ROBORIO2018_CONTROL_PID_HPP_ */

@@ -21,7 +21,6 @@ void VariableInit(Preferences *L_DriverPreferences,
   T_RobotMotor L_RobotMotor;
 
   input1 = 0;
-  V_WinchSpeed = 0.0;
 
   mCounter->Reset();
   input1 = L_DriverPreferences->GetDouble("SetSpeed", 0.0);
@@ -57,9 +56,6 @@ void VariableInit(Preferences *L_DriverPreferences,
   V_HookPID_Gain[E_PID_Derivative] = L_DriverPreferences->GetDouble("D_Hook", K_Hook_PID_Gain[E_PID_Derivative]);
   V_HookPosition = 0.0;
   V_RotateGain = L_DriverPreferences->GetDouble("RotateGain", K_RotateGain);
-
-  TestCal1 = L_DriverPreferences->GetDouble("LiftGx", 0.0);
-  TestCal2 = L_DriverPreferences->GetDouble("HookGx", 0.0);
 
   V_LukeStopperRamp = L_DriverPreferences->GetDouble("LukeStopper", K_LukeStopperRamp);
 
