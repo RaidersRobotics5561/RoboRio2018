@@ -88,6 +88,7 @@ public:
 	T_State Command = E_StateOff;
 	bool initialized = false;
 	bool complete = false;
+	double distanceStarting = 0;
 	double distanceToTravel = 0;
 	double distanceTraveled = 0;
 	double gyroStart = 0;
@@ -163,6 +164,7 @@ private:
 
 	std::string gameData;
 
+	bool setActList = false;
 	std::vector<Act> ActList, CurrentList, List_StartLeft, List_StartRight,
 			List_StartMiddle;
 
@@ -254,35 +256,34 @@ private:
 
 	void Act_Forward(Act *a) {
 		if (a->initialized == false) {
-			V_DistanceTraveled[E_RobotSideLeft] = 0;
-			_talon0->SetSelectedSensorPosition(0, K_SlotIdx, K_TimeoutMs);
-			_talon3->SetSelectedSensorPosition(0, K_SlotIdx, K_TimeoutMs);
+//			_talon0->SetSelectedSensorPosition(0, K_SlotIdx, K_TimeoutMs);
+//			_talon3->SetSelectedSensorPosition(0, K_SlotIdx, K_TimeoutMs);
+//			V_DistanceTraveled[E_RobotSideLeft] = 0;
+			a->distanceStarting = (V_DistanceTraveled[E_RobotSideLeft] + V_DistanceTraveled[E_RobotSideRight])/2;
 			a->initialized = true;
 		}
 		//do forward command
-		double L_speed = 0.25;
-
-		_talon0->Set(ControlMode::PercentOutput, L_speed);
-		_talon1->Set(ControlMode::PercentOutput, L_speed);
-
-		_talon2->Set(ControlMode::PercentOutput, L_speed * -1);
-		_talon3->Set(ControlMode::PercentOutput, L_speed * -1);
-
+		double L_rSpeed = 0.35;
+		double L_lSpeed = 0.42;
 		//log how much is complete
-		a->distanceTraveled = V_DistanceTraveled[E_RobotSideLeft];
+		a->distanceTraveled = (V_DistanceTraveled[E_RobotSideLeft] + V_DistanceTraveled[E_RobotSideRight])/2 - a->distanceStarting;
+
+		//SmartDashboard::PutNumber("distanceTraveled", a->distanceTraveled);
 
 		//a->distanceToTravel = 60;
 		//mark movement as complete
 
 		if (a->distanceToTravel <= a->distanceTraveled) {
 			a->complete = true;
-			L_speed = 0;
-			_talon0->Set(ControlMode::PercentOutput, L_speed);
-			_talon1->Set(ControlMode::PercentOutput, L_speed);
-
-			_talon2->Set(ControlMode::PercentOutput, L_speed * -1);
-			_talon3->Set(ControlMode::PercentOutput, L_speed * -1);
+			L_rSpeed = 0;
+			L_lSpeed = 0;
 		}
+
+		_talon0->Set(ControlMode::PercentOutput, L_lSpeed);
+		_talon1->Set(ControlMode::PercentOutput, L_lSpeed);
+
+		_talon2->Set(ControlMode::PercentOutput, L_rSpeed * -1);
+		_talon3->Set(ControlMode::PercentOutput, L_rSpeed * -1);
 	}
 
 //	void Act_Rotate(Act *a) {
@@ -362,17 +363,18 @@ private:
 
 		double L_modA = fmod(L_posGAngle, modAngle);
 		int L_rotA = floor(GyroAngle / 360);
-
+		double angleDiff = 180 - abs(abs(L_modA - a->gyroEnd) - 180); //Find diff and wrap
+		double angleDiffPlus = 180 - abs(abs(L_modA + 1 - a->gyroEnd) - 180); //Calc the effect of adding
+		double angleDiffMinus = 180 - abs(abs(L_modA - 1 - a->gyroEnd) - 180); //Calc the effect of subtracting
+		int currentBestDirection = 1;
+		if(angleDiffMinus < angleDiff)
+		{
+			currentBestDirection = -1;
+		}
 		if (a->initialized == false)
 		{
 			a->gyroStart = L_modA;
 			a->gyroStartRot = L_rotA;
-//			if (a->gyroStart < a->gyroEnd) {
-//				a->rotateDirection = -1;
-//			}
-			double angleDiff = 360-abs(abs(L_modA - a->gyroEnd)-360); //Find diff and wrap
-			double angleDiffPlus = 360-abs(abs(L_modA + 1 - a->gyroEnd) - 360); //Calc the effect of adding
-			double angleDiffMinus = 360-abs(abs(L_modA - 1 - a->gyroEnd) - 360);  //Calc the effect of subtracting
 
 			if(angleDiffPlus < angleDiff)
 			{
@@ -387,33 +389,35 @@ private:
 			a->initialized = true;
 		}
 
-		double L_speed = 0.25 * a->rotateDirection;
+		double L_rSpeed = 0.4 * a->rotateDirection;
+		double L_lSpeed = 0.45 * a->rotateDirection;
 
 		double CurrentAngle = L_modA;
 
-		if (a->rotateDirection == 1 && (CurrentAngle >= a->gyroEnd || L_rotA > a->gyroStartRot)) {
+//		if (a->rotateDirection == 1 && (CurrentAngle >= a->gyroEnd || L_rotA > a->gyroStartRot)) {
+//			a->complete = true;
+//			L_lSpeed = 0;
+//			L_rSpeed = 0;
+//		}
+//
+//		if (a->rotateDirection == -1 && (CurrentAngle <= a->gyroEnd || L_rotA < a->gyroStartRot)) {
+//			a->complete = true;
+//			L_lSpeed = 0;
+//			L_rSpeed = 0;
+//		}
+
+		if(currentBestDirection != a->rotateDirection)
+		{
 			a->complete = true;
-			L_speed = 0;
+			L_lSpeed = 0;
+			L_rSpeed = 0;
 		}
 
-		if (a->rotateDirection == -1 && (CurrentAngle <= a->gyroEnd || L_rotA < a->gyroStartRot)) {
-			a->complete = true;
-			L_speed = 0;
-		}
+		_talon0->Set(ControlMode::PercentOutput, L_lSpeed);
+		_talon1->Set(ControlMode::PercentOutput, L_lSpeed);
 
-		SmartDashboard::PutNumber("GyroStart", a->gyroStart);
-		SmartDashboard::PutNumber("Gyro End", a->gyroEnd);
-		SmartDashboard::PutNumber("L_Speed", L_speed);
-		SmartDashboard::PutNumber("Current Angle", CurrentAngle);
-		SmartDashboard::PutNumber("Gyro Angle", GyroAngle);
-		SmartDashboard::PutNumber("L_rotA", L_rotA);
-		SmartDashboard::PutBoolean("Complete", a->complete);
-
-		_talon0->Set(ControlMode::PercentOutput, L_speed);
-		_talon1->Set(ControlMode::PercentOutput, L_speed);
-
-		_talon2->Set(ControlMode::PercentOutput, L_speed);
-		_talon3->Set(ControlMode::PercentOutput, L_speed);
+		_talon2->Set(ControlMode::PercentOutput, L_rSpeed);
+		_talon3->Set(ControlMode::PercentOutput, L_rSpeed);
 
 	}
 
@@ -656,31 +660,75 @@ private:
 
 			GyroAngle = Gyro.GetAngle();
 
-			if (V_StartOptSelected == C_StartOpt0) {
+			if (V_StartOptSelected == C_StartOpt0 && setActList == false) {
 				CurrentList = List_StartLeft;
-			} else if (V_StartOptSelected == C_StartOpt1) {
+				setActList = true;
+			} else if (V_StartOptSelected == C_StartOpt1 && setActList == false) {
 				CurrentList = List_StartMiddle;
-			} else if (V_StartOptSelected == C_StartOpt2) {
+				setActList = true;
+			} else if (V_StartOptSelected == C_StartOpt2 && setActList == false) {
 				CurrentList = List_StartRight;
+				setActList = true;
+			}
+			if (setActList == false) {
+				CurrentList = ActList;
+				setActList = true;
 			}
 
-			CurrentList = ActList;
 
-			for (int index = 0; (unsigned) index < ActList.size(); ++index) {
-				if (ActList[index].complete == false) {
+			for (int index = 0; (unsigned) index < CurrentList.size(); ++index) {
+				if (CurrentList[index].complete == false) {
 					//call the appropriate action function here
-					if (ActList[index].Command
+					if (CurrentList[index].Command
 							== Act::T_State::E_StateForward) {
-						Act_Forward(&ActList[index]);
-					} else if (ActList[index].Command
+						Act_Forward(&CurrentList[index]);
+					} else if (CurrentList[index].Command
 							== Act::T_State::E_StateRotate) {
-						Act_Rotate(&ActList[index]);
+						Act_Rotate(&CurrentList[index]);
 					}
 					break;
 				}
 			}
+			SmartDashboard::PutBoolean("CurrentList[0].initialized", CurrentList[0].initialized);
+			SmartDashboard::PutBoolean("CurrentList[0].Complete", CurrentList[0].complete);
+			SmartDashboard::PutNumber("CurrentList[0].distanceToTravel", CurrentList[0].distanceToTravel);
+			SmartDashboard::PutNumber("CurrentList[0].distanceTraveled", CurrentList[0].distanceTraveled);
+			SmartDashboard::PutBoolean("CurrentList[1].initialized", CurrentList[1].initialized);
+			SmartDashboard::PutBoolean("CurrentList[1].Complete", CurrentList[1].complete);
+			SmartDashboard::PutNumber("CurrentList[1].gyroStart", CurrentList[1].gyroStart);
+			SmartDashboard::PutNumber("CurrentList[1].gyroEnd", CurrentList[1].gyroEnd);
+			SmartDashboard::PutNumber("CurrentList[1].gyroStartRot", CurrentList[1].gyroStartRot);
+			SmartDashboard::PutNumber("CurrentList[1].rotateDirection", ActList[1].rotateDirection);
+			SmartDashboard::PutBoolean("CurrentList[2].initialized", CurrentList[2].initialized);
+			SmartDashboard::PutBoolean("CurrentList[2].Complete", CurrentList[2].complete);
+			SmartDashboard::PutNumber("CurrentList[2].distanceToTravel", CurrentList[2].distanceToTravel);
+			SmartDashboard::PutNumber("CurrentList[2].distanceTraveled", CurrentList[2].distanceTraveled);
+//			SmartDashboard::PutBoolean("CurrentList[3].initialized", CurrentList[3].initialized);
+//			SmartDashboard::PutBoolean("CurrentList[3].Complete", CurrentList[3].complete);
+//			SmartDashboard::PutNumber("CurrentList[3].gyroStart", CurrentList[3].gyroStart);
+//			SmartDashboard::PutNumber("CurrentList[3].gyroEnd", CurrentList[3].gyroEnd);
+//			SmartDashboard::PutNumber("CurrentList[3].gyroStartRot", CurrentList[3].gyroStartRot);
+//			SmartDashboard::PutNumber("CurrentList[3].rotateDirection", CurrentList[3].rotateDirection);
+
+			double modAngle = 360;
+			double L_posGAngle = GyroAngle;
+			while (L_posGAngle < 0)
+			{
+				L_posGAngle +=360;
+			}
+
+			double L_modA = fmod(L_posGAngle, modAngle);
+			int L_rotA = floor(GyroAngle / 360);
+
+
+			SmartDashboard::PutNumber("GyroAngle2", GyroAngle);
+			SmartDashboard::PutNumber("V_DistanceTraveled[E_RobotSideLeft]", V_DistanceTraveled[E_RobotSideLeft]);
+			SmartDashboard::PutNumber("L_posGAngle", L_posGAngle);
+			SmartDashboard::PutNumber("L_modA", L_modA);
+			SmartDashboard::PutNumber("L_rotA", L_rotA);
+			Wait(C_ExeTime);
 		}
-		Wait(C_ExeTime);
+
 	}
 };
 
