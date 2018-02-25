@@ -357,7 +357,7 @@ private:
 //			}
 
 	void Act_OutputCube(Act *a) {
-		if(!a->initialized){
+		if (!a->initialized) {
 			a->StartTime = Timer;
 			a->initialized = true;
 		}
@@ -368,9 +368,9 @@ private:
 				&V_ArmAngleDeg, L_ArmAnglePrev, L_ArmAnglePrevPrev);
 
 		if (a->motorComplete) {
-			V_RobotMotorCmndPct[E_RobotMotorLift] = Control_PID(
-					0, V_IntakePosition,
-					&V_IntakePositionErrorPrev, &V_IntakePositionErrorIntegral,
+			V_RobotMotorCmndPct[E_RobotMotorLift] = Control_PID(0,
+					V_IntakePosition, &V_IntakePositionErrorPrev,
+					&V_IntakePositionErrorIntegral,
 					V_IntakePID_Gain[E_PID_Proportional],
 					V_IntakePID_Gain[E_PID_Integral],
 					V_IntakePID_Gain[E_PID_Derivative],
@@ -386,6 +386,11 @@ private:
 					V_IntakePosition, V_IntakeLiftHeightDesired,
 					K_IntakeMinCmndHeight,
 					V_RobotMotorCmndPct[E_RobotMotorLift]);
+
+			if (V_IntakePosition < 0.1){
+				V_RobotMotorCmndPct[E_RobotMotorLift] = 0;
+				a->complete = true;
+			}
 		} else {
 
 			V_RobotMotorCmndPct[E_RobotMotorLift] = Control_PID(
@@ -406,16 +411,16 @@ private:
 					V_IntakePosition, V_IntakeLiftHeightDesired,
 					K_IntakeMinCmndHeight,
 					V_RobotMotorCmndPct[E_RobotMotorLift]);
-		}
 
-		if (V_IntakePosition < a->liftamount + 1
-				&& V_IntakePosition > a->liftamount - 1) {
-			double currentTime = Timer - a->StartTime;
+			if (V_IntakePosition < a->liftamount + 1
+					&& V_IntakePosition > a->liftamount - 1) {
+				double currentTime = Timer - a->StartTime;
 
 				//Run Rollers to output Cube
-				if(currentTime > 1){
+				if (currentTime > 1) {
 					a->motorComplete = true;
 				}
+			}
 		}
 	}
 
