@@ -10,6 +10,7 @@
 #include "const.h"
 #include "Calibrations.hpp"
 #include "LookUp.hpp"
+#include "Vars.hpp"
 
 
 /******************************************************************************
@@ -130,7 +131,8 @@ double LukeStoppers(double L_DesiredSpeed,
  * Description:
  *
  ******************************************************************************/
-double DesiredSpeed(double L_JoystickAxis)
+double DesiredSpeed(double L_JoystickAxis,
+                    double L_CurrentSpeed)
   {
   double L_DesiredDriveSpeed = 0.0;
   int L_AxisSize = (int)(sizeof(K_DesiredDriveSpeedAxis) / sizeof(K_DesiredDriveSpeedAxis[0]));
@@ -141,6 +143,10 @@ double DesiredSpeed(double L_JoystickAxis)
                                        L_AxisSize,
                                        L_CalArraySize,
                                        L_JoystickAxis);
+
+  L_DesiredDriveSpeed = LukeStoppers(L_DesiredDriveSpeed,
+                                     L_CurrentSpeed,
+                                     V_LukeStopperRamp);
   return L_DesiredDriveSpeed;
   }
 

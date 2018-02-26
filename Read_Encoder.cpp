@@ -21,10 +21,12 @@ void Read_Sensors(TalonSRX  *L_DriveMortorCtrlLeft,
                   TalonSRX  *L_Intake,
                   TalonSRX  *L_Hook,
                   Counter   *L_ArmEncoder,
-                  ADXRS450_Gyro *Gyro,
+                  ADXRS450_Gyro *L_Gyro,
                   double    *L_ArmAngleDeg,
                   T_ArmCmnd  L_ArmCmndPrev,
-                  T_ArmCmnd  L_ArmCmndPrevPrev)
+                  T_ArmCmnd  L_ArmCmndPrevPrev,
+                  Ultrasonic *L_UltraSonicSensorLeft,
+                  Ultrasonic *L_UltraSonicSensorRight)
   {
   T_RobotSide L_RobotSide;
   double      L_ArmEncoderCount = 0.0;
@@ -34,6 +36,11 @@ void Read_Sensors(TalonSRX  *L_DriveMortorCtrlLeft,
   V_WheelRPM_Raw[E_RobotSideLeft]  = L_DriveMortorCtrlLeft->GetSelectedSensorVelocity(K_PIDLoopIdx) / K_WheelPulseToRev;
 
   V_WheelRPM_Raw[E_RobotSideRight] = (L_DriveMortorCtrlRight->GetSelectedSensorVelocity(K_PIDLoopIdx) / K_WheelPulseToRev) * -1;
+
+  V_Revolutions[E_RobotSideLeft] =  L_DriveMortorCtrlLeft->GetSelectedSensorPosition(K_PIDLoopIdx) / C_WheelPulsetoRev[E_RobotSideLeft];
+
+  V_Revolutions[E_RobotSideRight] =  L_DriveMortorCtrlRight->GetSelectedSensorPosition(K_PIDLoopIdx) / (-C_WheelPulsetoRev[E_RobotSideRight]);
+
 
   /* Ok, let's filter the speeds */
   for (L_RobotSide = E_RobotSideLeft; L_RobotSide < E_RobotSideSz;
@@ -45,10 +52,12 @@ void Read_Sensors(TalonSRX  *L_DriveMortorCtrlLeft,
 
     V_WheelRPM_FiltPrev[L_RobotSide] = V_WheelRPM_Filt[L_RobotSide];
 
-    V_Revolutions[L_RobotSide] = V_WheelRPM_Raw[L_RobotSide] / C_WheelPulsetoRev[L_RobotSide];
+//    V_Revolutions[L_RobotSide] = V_WheelRPM_Raw[L_RobotSide] / C_WheelPulsetoRev[L_RobotSide];
 
     V_DistanceTraveled[L_RobotSide] = V_Revolutions[L_RobotSide] * C_PI * C_WheelDiameter[L_RobotSide];
     }
+
+  V_DistanceTraveledAvg = (V_DistanceTraveled[E_RobotSideLeft] + V_DistanceTraveled[E_RobotSideRight]) / 2;
 
   /* Great, now lets read the counts from the arm encoder.  Remember, the encoder will change the rate at which it
    * increases counts base on direction.... Also, this is a non directional counter...*/
@@ -81,10 +90,22 @@ void Read_Sensors(TalonSRX  *L_DriveMortorCtrlLeft,
 
   /* Great, let's finally figure out the intake vertical position: */
   /* Next, convert the revolutions to hook distance traveled: */
-
   V_IntakePosition = LagFilter(K_IntakeLiftLagFilter,
-              (fabs(L_Intake->GetSelectedSensorPosition(K_PIDLoopIdx) * K_IntakePulseToTravel)),
-              V_IntakePositionPrev);
+                               (fabs(L_Intake->GetSelectedSensorPosition(K_PIDLoopIdx) * K_IntakePulseToTravel)),
+                               V_IntakePositionPrev);
+
+  V_UltraSonicDistance[E_RobotSideLeft]  = L_UltraSonicSensorLeft->GetRangeInches();  // reads the range on the ultrasonic sensor
+  V_UltraSonicDistance[E_RobotSideRight] = L_UltraSonicSensorRight->GetRangeInches(); // reads the range on the ultrasonic sensor
+
+
+
+  V_GyroAngleRelative = L_Gyro->GetAngle() - V_GyroAngleOffset;
+
+  SmartDashboard::PutNumber("V_UltraSonicDistance[E_RobotSideRight]", V_UltraSonicDistance[E_RobotSideRight]);
+  SmartDashboard::PutNumber("V_UltraSonicDistance[E_RobotSideLeft]", V_UltraSonicDistance[E_RobotSideLeft]);
+  SmartDashboard::PutNumber("V_Revolutions[E_RobotSideLeft]", V_Revolutions[E_RobotSideLeft]);
+  SmartDashboard::PutNumber("DisRight", L_DriveMortorCtrlRight->GetSelectedSensorPosition(K_PIDLoopIdx));
+  SmartDashboard::PutNumber("DisLeft", L_DriveMortorCtrlLeft->GetSelectedSensorPosition(K_PIDLoopIdx));
 
 //  V_IntakePosition = fabs(L_Intake->GetSelectedSensorPosition(K_PIDLoopIdx) * K_IntakePulseToTravel);
   }

@@ -24,6 +24,8 @@ extern double      V_WheelRPM_FiltPrev[E_RobotSideSz];
 extern double      V_WheelRPM_Desired[E_RobotSideSz];
 extern double      V_WheelMotorCmndPct[E_RobotSideSz];
 
+extern double      V_UltraSonicDistance[E_RobotSideSz];
+
 extern double      V_IntakePID_Gain[E_PID_Sz];
 
 extern double      V_RobotMotorCmndPct[E_RobotMotorSz];
@@ -37,17 +39,31 @@ extern double      V_HookPositionErrorPrev;
 extern double      V_HookPositionErrorIntegral;
 extern double      V_HookLiftHeightDesired;
 extern double      V_HookPID_Gain[E_PID_Sz];
+
 extern double      V_IntakeLiftHeightDesired;
 extern double      V_IntakePositionPrev;
 extern double      V_IntakePosition;
-extern double      GyroAngle;
+extern double      V_IntakePositionErrorPrev;
+extern double      V_IntakePositionErrorIntegral;
+
+extern double      V_GyroAngleRelative;
+extern double      V_GyroAngleOffset;
 extern double      input1;
 extern double      V_ArmAngleDeg;
 extern T_DriveMode DriveMode;
 extern double      V_Revolutions[E_RobotSideSz];
 extern double      V_DistanceTraveled[E_RobotSideSz];
+extern double      V_DistanceTraveledAvg;
 extern double      V_IntakeArmPulseToRev[E_ArmCmndSz];
 extern double      V_RobotUserCmndPct[E_RobotUserCmndSz];
+
+extern double      V_RollerTimer;
+extern double      V_IntakeArmTimer;
+
+extern double      V_AutonWheelDebounceTimer[E_RobotSideSz];
+extern T_RobotSide V_AutonTargetSide[3];
+
+extern double      V_AutonIntakeLiftDebounceTimer;
 
 
 #endif /* SRC_ROBORIO2018_VARS_HPP_ */

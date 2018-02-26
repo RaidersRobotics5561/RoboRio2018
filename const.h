@@ -21,10 +21,10 @@ const T_BotType C_BotType = E_BotComp; // Robot type
 const double C_ExeTime = 0.01; // Execution rate of the Roborio controller
 
 const double C_WheelPulsetoRev[E_RobotSideSz] =
-    {  370,  370};
+    {  4100,  4100};
 
 const double C_WheelDiameter[E_RobotSideSz] =
-    { 7, 7};
+    { 6, 6};
 
 const double C_PI = 3.14159265358979;
 
@@ -36,5 +36,7 @@ void Read_Sensors(TalonSRX  *L_DriveMortorCtrlLeft,
                   ADXRS450_Gyro *Gyro,
                   double    *L_ArmAngleDeg,
                   T_ArmCmnd  L_ArmCmndPrev,
-                  T_ArmCmnd  L_ArmCmndPrevPrev);
+                  T_ArmCmnd  L_ArmCmndPrevPrev,
+                  Ultrasonic *L_UltraSonicSensorLeft,
+                  Ultrasonic *L_UltraSonicSensorRight);
 #endif /* SRC_CONST_H_ */

@@ -7,8 +7,6 @@
 #ifndef SRC_ROBORIO2018_CALIBRATIONS_HPP_
 #define SRC_ROBORIO2018_CALIBRATIONS_HPP_
 
-#define PracticeBot
-
 const int K_SlotIdx = 0;
 const int K_PIDLoopIdx = 0;
 const int K_TimeoutMs = 10;
@@ -81,13 +79,11 @@ const double C_WheelspeedCmndLimit[E_RobotSideSz][E_IntergalLimitSz] = {
     { 1.0, -1.0}  //RIGHT
 };
 
-
-
 const double C_WheelSpeedLagFilterGain[E_RobotSideSz] =
     { 0.9, 0.9};
 
-const double K_IntakeRollers        =  0.8;
-const double K_EndMatchWarningTime  =  30;    // This is the expected time remaining that the robot will warn the
+const double K_IntakeRollers        =   1.0;
+const double K_EndMatchWarningTime  =  30.0;    // This is the expected time remaining that the robot will warn the
 const double K_WinchOnThreshold     =   0.1; // Threshold above which the winch is considered to be on.
 const double K_LED_WinchOnTime      =   3.0;  // This is the amount of accumulated time that the winch needs to be commanded on at the end of the game in order to trigger the rainbow effect
 
@@ -101,22 +97,22 @@ const double K_DesiredVerticalSpeedAxis[10] = {-0.9,
                                                -0.5,
                                                -0.3,
                                                -0.1,
-                                               0.1,
-                                               0.3,
-                                               0.5,
-                                               0.7,
-                                               0.9};
+                                                0.1,
+                                                0.3,
+                                                0.5,
+                                                0.7,
+                                                0.9};
 
-const double K_DesiredVerticalSpeed[10] = {-30.0, // 0.0
-                                           -15.0, // 0.1
-                                           -10.0, // 0.2
-                                            -2.0, // 0.3
-                                             0.0, // 0.4
-                                             0.0, // 0.5
-                                             2.0, // 0.6
-                                            10.0, // 0.7
-                                            15.0, // 0.8
-                                            30.0}; // 0.9
+const double K_DesiredVerticalSpeed[10] = {-30.0,  // -0.9
+                                           -15.0,  // -0.7
+                                           -10.0,  // -0.5
+                                            -2.0,  // -0.3
+                                             0.0,  // -0.1
+                                             0.0,  //  0.1
+                                             2.0,  //  0.3
+                                            10.0,  //  0.5
+                                            15.0,  //  0.7
+                                            30.0}; //  0.9
 
 const double K_DesiredDriveSpeedAxis[20] = {-0.95,
                                             -0.85,
@@ -139,11 +135,11 @@ const double K_DesiredDriveSpeedAxis[20] = {-0.95,
                                              0.85,
                                              0.95};
 
-const double K_DesiredDriveSpeed[20] = {-150.0,  //-0.95
-                                        -80.0,  //-0.85
-                                        -60.0,  //-0.75
-                                         -35.0,  //-0.65
-                                         -25.0,  //-0.55
+const double K_DesiredDriveSpeed[20] = {-60.0,  //-0.95
+                                        -40.0,  //-0.85
+                                        -30.0,  //-0.75
+                                         -25.0,  //-0.65
+                                         -20.0,  //-0.55
                                          -15.0,  //-0.45
                                           -10.0,  //-0.35
                                           -5.0,  //-0.25
@@ -154,54 +150,156 @@ const double K_DesiredDriveSpeed[20] = {-150.0,  //-0.95
                                            5.0,  // 0.25
                                            10.0,  // 0.35
                                           15.0,  // 0.45
-                                          25.0,  // 0.55
-                                          35.0,  // 0.65
-                                          60.0,  // 0.75
-                                         80.0,  // 0.85
-                                         150.0}; // 0.95
+                                          20.0,  // 0.55
+                                          25.0,  // 0.65
+                                          30.0,  // 0.75
+                                         40.0,  // 0.85
+                                         60.0}; // 0.95
 
+//2.0,  // 0.15
+//5.0,  // 0.25
+//10.0,  // 0.35
+//15.0,  // 0.45
+//25.0,  // 0.55
+//35.0,  // 0.65
+//60.0,  // 0.75
+//80.0,  // 0.85
+//150.0}; // 0.95
 
-//const double K_DesiredDriveSpeed[20] = {-200.0,  //-0.95
-//                                        -190.0,  //-0.85
-//                                        -120.0,  //-0.75
-//                                         -70.0,  //-0.65
-//                                         -50.0,  //-0.55
-//                                         -30.0,  //-0.45
-//                                          -20.0,  //-0.35
-//                                          -10.0,  //-0.25
-//                                          -5.0,  //-0.15
-//                                           0.0,  //-0.10
-//                                           0.0,  // 0.10
-//                                           5.0,  // 0.15
-//                                           10.0,  // 0.25
-//                                           20.0,  // 0.35
-//                                          30.0,  // 0.45
-//                                          50.0,  // 0.55
-//                                          70.0,  // 0.65
-//                                          120.0,  // 0.75
-//                                         190.0,  // 0.85
-//                                         200.0}; // 0.95
+const double K_AutonDebounceThreshold     =  0.2;   // Seconds (not sure if this is sufficient to share across all functions, but let's start with a single place value).
 
-const double K_DesiredDriveSpeedSlow[20] = {-200.0,  //-0.95
-                                        -95.0,  //-0.85
-                                        -60.0,  //-0.75
-                                         -35.0,  //-0.65
-                                         -25.0,  //-0.55
-                                         -15.0,  //-0.45
-                                          -10.0,  //-0.35
-                                          -5.0,  //-0.25
-                                          -2.0,  //-0.15
-                                           0.0,  //-0.10
-                                           0.0,  // 0.10
-                                           2.0,  // 0.15
-                                           5.0,  // 0.25
-                                           10.0,  // 0.35
-                                          15.0,  // 0.45
-                                          25.0,  // 0.55
-                                          35.0,  // 0.65
-                                          60.0,  // 0.75
-                                         95.0,  // 0.85
-                                         200.0}; // 0.95
+const double K_AutonRotateAngleToSlow     =  15.0;  // Degrees
+
+const double K_AutonDriveDistanceUltraDeadband = 0.5;  // Inches - for the ultrasonic sensor control
+const double K_AutonDriveMinSpeedUltra         =  5.0; // RPM
+const double K_AutonDriveDistanceUltraToSlow   =  2.0;  // Inches
+
+const double K_AutonDriveDistanceDeadband =   1.0;  // Inches
+const double K_AutonDriveDistanceToSlow   =  10.0;  // Inches
+const double K_AutonDriveSpeedRamp        =   5.0;  // RPM/Sec
+const double K_AutonDriveMaxSpeed         =  30.0;  // RPM
+const double K_AutonDriveMinSpeed         =  10.0;  // RPM
+
+const double K_AutonIntakeDistanceToSlow   =   4.0;  // Inches
+const double K_AutonIntakeSpeedRamp        =   1.0;  // Inch/Sec
+const double K_AutonIntakeMaxSpeed         =  20.0;  // Inch/Sec
+const double K_AutonIntakeMinSpeed         =   4.0;  // Inch/Sec
+const double K_AutonIntakeDistanceDeadband =   1.0;  // Inches
+
+const double K_AutonIntakeAngleCmnd        =   0.6;  // Percent of possible motor controller output
+
+const AutonControlPlan K_AutonCommand[E_AutonOptSz] =
+    {
+      { // E_AutonOpt0 - LLL
+        {   E_ActuatorDriveEncoder,          E_ActuatorRotate,    E_ActuatorDriveEncoder,       E_ActuatorArmAngDwn,         E_ActuatorRollers,    E_ActuatorDriveEncoder,            E_ActuatorLift,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone},
+        {                      250,                        90,                         5,                       1.2,                         2,                        -5,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0},
+        {           E_ActuatorNone,            E_ActuatorLift,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,        E_ActuatorArmAngUp,          E_ActuatorRotate,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone},
+        {                        0,                        30,                         0,                         0,                         0,                       1.2,                       -90,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0}
+      },
+      { // E_AutonOpt1 - LLR
+        {           E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone},
+        {                        0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0},
+        {           E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone},
+        {                        0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0}
+      },
+      { // E_AutonOpt2
+        {           E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone},
+        {                        0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0},
+        {           E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone},
+        {                        0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0}
+      },
+      { // E_AutonOpt3
+        {           E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone},
+        {                        0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0},
+        {           E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone},
+        {                        0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0}
+      },
+      { // E_AutonOpt4
+        {           E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone},
+        {                        0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0},
+        {           E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone},
+        {                        0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0}
+      },
+      { // E_AutonOpt5
+        {           E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone},
+        {                        0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0},
+        {           E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone},
+        {                        0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0}
+      },
+      { // E_AutonOpt6
+        {           E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone},
+        {                        0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0},
+        {           E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone},
+        {                        0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0}
+      },
+      { // E_AutonOpt7
+        {           E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone},
+        {                        0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0},
+        {           E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone},
+        {                        0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0}
+      },
+      { // E_AutonOpt8
+        {           E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone},
+        {                        0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0},
+        {           E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone},
+        {                        0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0}
+      },
+      { // E_AutonOpt9
+        {           E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone},
+        {                        0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0},
+        {           E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone},
+        {                        0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0}
+      },
+      { // E_AutonOpt10
+        {           E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone},
+        {                        0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0},
+        {           E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone},
+        {                        0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0}
+      },
+      { // E_AutonOpt11
+        {           E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone},
+        {                        0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0},
+        {           E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone},
+        {                        0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0}
+      },
+      { // E_AutonOpt12
+        {           E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone},
+        {                        0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0},
+        {           E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone},
+        {                        0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0}
+      },
+      { // E_AutonOpt13
+        {           E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone},
+        {                        0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0},
+        {           E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone},
+        {                        0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0}
+      },
+      { // E_AutonOpt14
+        {           E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone},
+        {                        0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0},
+        {           E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone},
+        {                        0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0}
+      },
+      { // E_AutonOpt15
+        {           E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone},
+        {                        0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0},
+        {           E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone},
+        {                        0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0}
+      },
+      { // E_AutonOpt16
+        {           E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone},
+        {                        0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0},
+        {           E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone},
+        {                        0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0}
+      },
+      { // E_AutonOpt17
+        {           E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone},
+        {                        0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0},
+        {           E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone},
+        {                        0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0}
+      }
+    };
+
 
 
 

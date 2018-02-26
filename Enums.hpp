@@ -7,21 +7,21 @@
 #ifndef SRC_ROBORIO2018_ENUMS_HPP_
 #define SRC_ROBORIO2018_ENUMS_HPP_
 
- typedef enum
+ typedef enum Blinker
  {
    C_BlinkR,
    C_BlinkL,
    C_BlinkSz
  }Blinker;
 
- typedef enum
+ typedef enum T_DriveMode
  {
 	 E_TankDrive,
 	 E_ArcadeDrive,
 	 E_ArdadeDriveSimple
  } T_DriveMode;
 
- typedef enum
+ typedef enum LED_Color
  {
    LED_Color_Red,
    LED_Color_Blue,
@@ -36,7 +36,7 @@
    LED_Color_Black    // This is more of an "off mode", must remain at end of enum
  } LED_Color;
 
- typedef enum
+ typedef enum LED_Mode
  {
    LED_Mode0,
    LED_Mode1,
@@ -57,18 +57,18 @@
    LED_ModeSz
  } LED_Mode;
 
- typedef enum
+ typedef enum T_RoboState
  {
-   C_Disabled,
-   C_Auton,
-   C_Teleop,
-   C_Test,
-   C_Null
- }RoboState;
+   E_Disabled,
+   E_Auton,
+   E_Teleop,
+   E_Test,
+   E_Null
+ }T_RoboState;
 
 
 
- typedef enum
+ typedef enum Actuators
  {
    C_DriveMotorL,
    C_DriveMotorR,
@@ -80,15 +80,15 @@
    C_ActuatorsSz
  }Actuators;
 
- typedef enum {
+ typedef enum T_BotType {
    E_BotComp, E_BotPractice, E_BotTestBoard, E_BotSz
  } T_BotType;
 
-typedef enum {
+typedef enum T_RobotSide {
   E_RobotSideLeft, E_RobotSideRight, E_RobotSideSz
 } T_RobotSide;
 
-typedef enum {
+typedef enum T_RobotUserCmnd {
   E_RobotUserCmndLeftWheel,
   E_RobotUserCmndRightWheel,
   E_RobotUserCmndLift,
@@ -99,7 +99,7 @@ typedef enum {
   E_RobotUserCmndSz
 } T_RobotUserCmnd;
 
-typedef enum {
+typedef enum T_RobotMotor {
   E_RobotMotorLeftWheel,
   E_RobotMotorRightWheel,
   E_RobotMotorLift,
@@ -110,20 +110,106 @@ typedef enum {
   E_RobotMotorSz
 } T_RobotMotor;
 
-typedef enum {
+typedef enum T_PID {
   E_PID_Proportional, E_PID_Integral, E_PID_Derivative, E_PID_Sz
 } T_PID;
 
-typedef enum {
+typedef enum T_IntergalLimit {
   E_IntergalUpperLimit, E_IntergalLowerLimit, E_IntergalLimitSz
 } T_IntergalLimit;
 
-typedef enum
+typedef enum T_ArmCmnd
 {
   E_ArmCmndOff,
   E_ArmCmndUp,
   E_ArmCmndDwn,
   E_ArmCmndSz
 } T_ArmCmnd;
+
+typedef enum T_AutonStartPos
+  {
+    E_AutonStartPosLeft,
+    E_AutonStartPosMiddle,
+    E_AutonStartPosRight,
+    E_AutonStartPosDefault
+  } T_AutonStartPos;
+
+typedef enum T_AutonEndPos
+  {
+    E_AutonEndPosSwFront,
+    E_AutonEndPosSwSide,
+    E_AutonEndPosScale
+  } T_AutonEndPos;
+
+typedef enum T_AutonOpt
+  {
+    E_AutonOpt0,
+    E_AutonOpt1,
+    E_AutonOpt2,
+    E_AutonOpt3,
+    E_AutonOpt4,
+    E_AutonOpt5,
+    E_AutonOpt6,
+    E_AutonOpt7,
+    E_AutonOpt8,
+    E_AutonOpt9,
+    E_AutonOpt10,
+    E_AutonOpt11,
+    E_AutonOpt12,
+    E_AutonOpt13,
+    E_AutonOpt14,
+    E_AutonOpt15,
+    E_AutonOpt16,
+    E_AutonOpt17,
+    E_AutonOptSz
+  } T_AutonOpt;
+
+typedef enum T_Actuator
+  {
+    E_ActuatorNone,
+    E_ActuatorDriveEncoder,
+    E_ActuatorDriveUltraSonic,
+    E_ActuatorRotate,
+    E_ActuatorLift,
+    E_ActuatorArmAngDwn,
+    E_ActuatorArmAngUp,
+    E_ActuatorRollers,
+    E_ActuatorSz
+  } T_Actuator;
+
+  typedef enum T_AutonStep
+    {
+      E_AutonStep0,
+      E_AutonStep1,
+      E_AutonStep2,
+      E_AutonStep3,
+      E_AutonStep4,
+      E_AutonStep5,
+      E_AutonStep6,
+      E_AutonStep7,
+      E_AutonStep8,
+      E_AutonStep9,
+      E_AutonStep10,
+      E_AutonStep11,
+      E_AutonStep12,
+      E_AutonStep13,
+      E_AutonStep14,
+      E_AutonStepSz
+    } T_AutonStep;
+
+  typedef enum T_AutonCntrlType
+    {
+      E_AutonCntrlPrimary,
+      E_AutonCntrlSecondary,
+      E_AutonCntrlSz
+    } T_AutonCntrlType;
+
+typedef struct AutonControlPlan
+  {
+  T_Actuator PrimaryActuator[E_AutonStepSz];
+  double     PrimaryCmndValue[E_AutonStepSz];
+  T_Actuator SecondaryActuator[E_AutonStepSz];
+  double     SecondaryCmndValue[E_AutonStepSz];
+  } AutonControlPlan;
 
 #endif /* SRC_ROBORIO2018_ENUMS_HPP_ */

@@ -27,7 +27,8 @@ extern double LukeStoppers(double L_DesiredSpeed,
                            double L_CurrentSpeed,
                            double L_RampRate);
 
-extern double DesiredSpeed(double L_JoystickAxis);
+extern double DesiredSpeed(double L_JoystickAxis,
+                           double L_CurrentSpeed);
 
 extern double DesiredLiftHeight(double L_JoystickAxis,
                                 double L_DesiredLiftHeightPrev,

@@ -7,13 +7,13 @@
 #ifndef SRC_ROBORIO2018_CONTROL_LED_H_
 #define SRC_ROBORIO2018_CONTROL_LED_H_
 
-LED_Mode UpdateLED_Output(RoboState      L_RobotState,
-                          bool           L_DriverOverride,
-                          double         L_Winch,
-                          DigitalOutput *L_LED_State0,
-                          DigitalOutput *L_LED_State1,
-                          DigitalOutput *L_LED_State2,
-                          DigitalOutput *L_LED_State3);
+void UpdateLED_Output(T_RoboState    L_RobotState,
+                      bool           L_DriverOverride,
+                      double         L_Winch,
+                      DigitalOutput *L_LED_State0,
+                      DigitalOutput *L_LED_State1,
+                      DigitalOutput *L_LED_State2,
+                      DigitalOutput *L_LED_State3);
 
 
 

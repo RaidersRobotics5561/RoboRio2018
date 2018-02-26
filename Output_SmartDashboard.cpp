@@ -29,6 +29,9 @@ void UpdateSmartDashboad(void)
     SmartDashboard::PutNumber("RightSEI", V_WheelSpeedErrorIntegral[E_RobotSideRight]);
     SmartDashboard::PutNumber("DriveMode",(double)DriveMode);
 
+    SmartDashboard::PutNumber("DistanceRight", V_DistanceTraveled[E_RobotSideRight]);
+    SmartDashboard::PutNumber("DistanceLeft", V_DistanceTraveled[E_RobotSideLeft]);
+
     SmartDashboard::PutNumber("Arm Angle",     V_ArmAngleDeg);
 
     SmartDashboard::PutNumber("Hook Position",     V_HookPosition);

@@ -32,13 +32,13 @@
  *                    1       1       0      * Mode6 * - User light request
  *                    1       1       1      * Mode7 * - End game
  ******************************************************************************/
-LED_Mode UpdateLED_Output(RoboState      L_RobotState,
-                          bool           L_DriverOverride,
-                          double         L_Winch,
-                          DigitalOutput *L_LED_State0,
-                          DigitalOutput *L_LED_State1,
-                          DigitalOutput *L_LED_State2,
-                          DigitalOutput *L_LED_State3)
+void UpdateLED_Output(T_RoboState    L_RobotState,
+                      bool           L_DriverOverride,
+                      double         L_Winch,
+                      DigitalOutput *L_LED_State0,
+                      DigitalOutput *L_LED_State1,
+                      DigitalOutput *L_LED_State2,
+                      DigitalOutput *L_LED_State3)
   {
   bool L_Pin0            = false;
   bool L_Pin1            = false;
@@ -52,7 +52,7 @@ LED_Mode UpdateLED_Output(RoboState      L_RobotState,
   L_AllianceColor = DriverStation::GetInstance().GetAlliance();
 
   if (L_MatchTime < K_EndMatchWarningTime &&
-      L_RobotState == C_Teleop &&
+      L_RobotState == E_Teleop &&
       V_LED_RainbowLatch == false &&
       fabs(L_Winch) > K_WinchOnThreshold)
     {
@@ -70,7 +70,7 @@ LED_Mode UpdateLED_Output(RoboState      L_RobotState,
     /* Allow the driver to always override the current LED mode. */
       L_LED_Mode = LED_Mode14;
     }
-  else if ((L_RobotState == C_Auton || L_RobotState == C_Teleop) &&
+  else if ((L_RobotState == E_Auton || L_RobotState == E_Teleop) &&
            (L_AllianceColor != DriverStation::Alliance::kInvalid))
     {
       if (V_LED_RainbowLatch == true)
@@ -79,7 +79,7 @@ LED_Mode UpdateLED_Output(RoboState      L_RobotState,
         }
       else if (L_AllianceColor == DriverStation::Alliance::kBlue)
         {
-          if (L_MatchTime > K_EndMatchWarningTime || L_RobotState == C_Auton)
+          if (L_MatchTime > K_EndMatchWarningTime || L_RobotState == E_Auton)
             {
               L_LED_Mode = LED_Mode3;
             }
@@ -90,7 +90,7 @@ LED_Mode UpdateLED_Output(RoboState      L_RobotState,
         }
       else if (L_AllianceColor == DriverStation::Alliance::kRed)
         {
-          if (L_MatchTime > K_EndMatchWarningTime || L_RobotState == C_Auton)
+          if (L_MatchTime > K_EndMatchWarningTime || L_RobotState == E_Auton)
             {
               L_LED_Mode = LED_Mode7;
             }
@@ -100,11 +100,11 @@ LED_Mode UpdateLED_Output(RoboState      L_RobotState,
             }
         }
     }
-  else if (L_RobotState == C_Disabled)
+  else if (L_RobotState == E_Disabled)
     {
       L_LED_Mode = LED_Mode0;
     }
-  else if (L_RobotState == C_Test)
+  else if (L_RobotState == E_Test)
     {
       L_LED_Mode = LED_Mode1;
     }
@@ -183,10 +183,4 @@ LED_Mode UpdateLED_Output(RoboState      L_RobotState,
   L_LED_State1->Set(L_Pin1);
   L_LED_State2->Set(L_Pin2);
   L_LED_State3->Set(L_Pin3);
-//  V_LED_State[0].Set(L_Pin0);
-//  V_LED_State[1].Set(L_Pin1);
-//  V_LED_State[2].Set(L_Pin2);
-//  V_LED_State[3].Set(L_Pin3);
-
-  return (L_LED_Mode);
   }
