@@ -48,7 +48,6 @@ extern double      V_IntakePositionErrorIntegral;
 
 extern double      V_GyroAngleRelative;
 extern double      V_GyroAngleOffset;
-extern double      input1;
 extern double      V_ArmAngleDeg;
 extern T_DriveMode DriveMode;
 extern double      V_Revolutions[E_RobotSideSz];

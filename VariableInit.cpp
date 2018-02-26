@@ -36,10 +36,7 @@ void VariableInit(Preferences   *L_DriverPreferences,
   L_Talon4->SetSelectedSensorPosition(0, K_SlotIdx, K_TimeoutMs);
   L_Talon5->SetSelectedSensorPosition(0, K_SlotIdx, K_TimeoutMs);
 
-  input1 = 0;
-
   mCounter->Reset();
-  input1 = L_DriverPreferences->GetDouble("SetSpeed", 0.0);
 
   V_WheelProportionalGain[E_RobotSideLeft] = L_DriverPreferences->GetDouble("P_L", C_WheelSpeedPID_Gain[E_RobotSideLeft][E_PID_Proportional]);
   V_WheelIntegralGain[E_RobotSideLeft] = L_DriverPreferences->GetDouble("I_L", C_WheelSpeedPID_Gain[E_RobotSideLeft][E_PID_Integral]);

@@ -60,7 +60,6 @@ T_DriveMode DriveMode;
 
 double V_GyroAngleRelative; // This is the relative angle of the robot, since the last time the variable clear function was called.
 double V_GyroAngleOffset;   // This is the amount of drift and/or change that the gyro has observed since the robot was started.
-double input1;
 double V_ArmAngleDeg;
 
 double V_RobotUserCmndPct[E_RobotUserCmndSz]; // This is the requested value from the driver for the various motors/functions
