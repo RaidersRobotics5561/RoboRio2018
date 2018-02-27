@@ -67,6 +67,10 @@ void VariableInit(Preferences   *L_DriverPreferences,
   V_HookPosition = 0.0;
   V_RotateGain = L_DriverPreferences->GetDouble("RotateGain", K_RotateGain);
 
+  V_AutonRotateDebounceTimer   = 0.0;
+  V_AutonWheelDebounceTimer[E_RobotSideLeft]  = 0.0;
+  V_AutonWheelDebounceTimer[E_RobotSideRight] = 0.0;
+  V_AutonIntakeLiftDebounceTimer = 0.0;
   V_LukeStopperRamp = L_DriverPreferences->GetDouble("LukeStopper", K_LukeStopperRamp);
 
   DriveMode = E_ArcadeDrive;
@@ -133,11 +137,10 @@ void AutonVariableInit(Preferences   *L_DriverPreferences,
   L_Talon1->SetSelectedSensorPosition(0, K_SlotIdx, K_TimeoutMs);
   L_Talon2->SetSelectedSensorPosition(0, K_SlotIdx, K_TimeoutMs);
   L_Talon3->SetSelectedSensorPosition(0, K_SlotIdx, K_TimeoutMs);
-  L_Talon4->SetSelectedSensorPosition(0, K_SlotIdx, K_TimeoutMs);
-  L_Talon5->SetSelectedSensorPosition(0, K_SlotIdx, K_TimeoutMs);
 
   mCounter->Reset();
 
+  V_AutonRotateDebounceTimer   = 0.0;
   V_AutonWheelDebounceTimer[E_RobotSideLeft]  = 0.0;
   V_AutonWheelDebounceTimer[E_RobotSideRight] = 0.0;
   V_AutonIntakeLiftDebounceTimer = 0.0;

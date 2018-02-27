@@ -53,6 +53,7 @@ T_RobotSide     V_AutonTargetSide[3];
 T_AutonStartPos V_AutonStartPos;
 T_AutonEndPos   V_AutonEndPos;
 double          V_AutonWheelDebounceTimer[E_RobotSideSz];
+double          V_AutonRotateDebounceTimer;
 double          V_AutonIntakeLiftDebounceTimer;
 
 T_RoboState V_RobatState;
@@ -501,8 +502,18 @@ void AutonomousInit()
   {
 
 
-	_talon0->SetSelectedSensorPosition(0, K_SlotIdx, K_TimeoutMs);
-	_talon3->SetSelectedSensorPosition(0, K_SlotIdx, K_TimeoutMs);
+//	_talon0->SetSelectedSensorPosition(0, K_SlotIdx, K_TimeoutMs);
+//	_talon3->SetSelectedSensorPosition(0, K_SlotIdx, K_TimeoutMs);
+//
+  VariableInit(Prefs,
+               mCounter,
+               _talon0,
+               _talon1,
+               _talon2,
+               _talon3,
+               _talon4,
+               _talon5,
+               &Gyro);
 
 
   }
@@ -680,6 +691,30 @@ void AutonomousPeriodic()
         }
       }
 
+    SmartDashboard::PutNumber("AutonMode", (double)L_AutonOption);
+    SmartDashboard::PutNumber("L_AutonStep", (double)L_AutonStep);
+
+    V_RobotMotorCmndPct[E_RobotMotorLift]  = Control_PID( V_IntakeLiftHeightDesired,
+                                                          V_IntakePosition,
+                                                         &V_IntakePositionErrorPrev,
+                                                         &V_IntakePositionErrorIntegral,
+                                                         K_Intake_PID_Gain[E_PID_Proportional],
+                                                         K_Intake_PID_Gain[E_PID_Integral],
+                                                         K_Intake_PID_Gain[E_PID_Derivative],
+                                                         K_Intake_PID_Limit[E_PID_Proportional],
+                                                         -K_Intake_PID_Limit[E_PID_Proportional],
+                                                         K_Intake_PID_Limit[E_PID_Integral],
+                                                         -K_Intake_PID_Limit[E_PID_Integral],
+                                                         K_Intake_PID_Limit[E_PID_Derivative],
+                                                         -K_Intake_PID_Limit[E_PID_Derivative],
+                                                          K_IntakeCmndLimit,
+                                                         -K_IntakeCmndLimit);
+
+    V_RobotMotorCmndPct[E_RobotMotorLift] = LiftCmdDisable(V_IntakePosition,
+                                                           V_IntakeLiftHeightDesired,
+                                                           K_IntakeMinCmndHeight,
+                                                           V_RobotMotorCmndPct[E_RobotMotorLift]);
+
     UpdateLED_Output(V_RobatState,
                      false,
                      V_RobotMotorCmndPct[E_RobotMotorWinch],
@@ -706,6 +741,59 @@ void AutonomousPeriodic()
     Wait(C_ExeTime);
     }
   }
+
+/******************************************************************************
+ * Function:     TestPeriodic
+ *
+ * Description:  This is the function that is called during the periodic period
+ *               for the test period.
+ ******************************************************************************/
+  void TestPeriodic()
+  {
+//    double L_GyroAngle;
+//    bool L_LgtT0;
+//    LED_Mode L_LED_Mode;
+//
+//    bool LED_State0 = Prefs->GetDouble("LED_State0", 0);
+//    bool LED_State1 = Prefs->GetDouble("LED_State1", 0);
+//    bool LED_State2 = Prefs->GetDouble("LED_State2", 0);
+//    bool LED_State3 = Prefs->GetDouble("LED_State3", 0);
+//
+//      while (IsOperatorControl() && IsEnabled())
+//         {
+////           L_GyroAngle = ahrs->GetAngle();
+//           L_GyroAngle = 0;
+//
+////           L_LgtT0  = V_Logitech.GetRawButton(C_Lgt_Trigger);
+//
+////           UpdateActuatorCmnds(0,
+////                               false,
+////                               false,
+////                               0,
+////                               0,
+////                               0,
+////                               0,
+////                               0,
+////                               0);
+//
+////           L_LED_Mode = UpdateLED_Output(C_Test,
+////                                         L_LgtT0,
+////                                         0.0,
+////                                         true);
+//
+////           UpdateSmartDashboad(L_GyroAngle,
+////                               L_LED_Mode,
+////                               C_Test);
+//
+//           V_LED_State0->Set(LED_State0);
+//           V_LED_State1->Set(LED_State1);
+//           V_LED_State2->Set(LED_State2);
+//           V_LED_State3->Set(LED_State3);
+//
+//           Wait(C_ExeTime);
+//         }
+  }
+
 };
 
 START_ROBOT_CLASS(Robot)

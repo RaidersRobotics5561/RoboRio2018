@@ -29,6 +29,13 @@ void UpdateSmartDashboad(void)
     SmartDashboard::PutNumber("RightSEI", V_WheelSpeedErrorIntegral[E_RobotSideRight]);
     SmartDashboard::PutNumber("DriveMode",(double)DriveMode);
 
+    SmartDashboard::PutNumber("GyroRelative",V_GyroAngleRelative);
+    SmartDashboard::PutNumber("DebounceTime",V_AutonRotateDebounceTimer);
+
+
+
+
+
     SmartDashboard::PutNumber("DistanceRight", V_DistanceTraveled[E_RobotSideRight]);
     SmartDashboard::PutNumber("DistanceLeft", V_DistanceTraveled[E_RobotSideLeft]);
 

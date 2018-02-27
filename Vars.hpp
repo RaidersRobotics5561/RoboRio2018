@@ -60,6 +60,7 @@ extern double      V_RollerTimer;
 extern double      V_IntakeArmTimer;
 
 extern double      V_AutonWheelDebounceTimer[E_RobotSideSz];
+extern double      V_AutonRotateDebounceTimer;
 extern T_RobotSide V_AutonTargetSide[3];
 
 extern double      V_AutonIntakeLiftDebounceTimer;

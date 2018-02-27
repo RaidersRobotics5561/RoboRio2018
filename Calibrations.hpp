@@ -18,11 +18,11 @@ const double K_IntakeRevToDistance = 0.1;
 
 const double K_IntakePulseToTravel = -0.002693208430913349; // travel (in) / pulse
 const double K_MaxIntakeLiftHeight = 68; // Max lift height in inches...
-const double K_LowerIntakeLiftHeight = 2;
+const double K_LowerIntakeLiftHeight = 1;
 const double K_IntakeLiftLagFilter = 0.8;
 const double K_Intake_PID_Gain[E_PID_Sz] =
     // P        I      D
-    { 0.0001, 0.0006, 0.0 };
+    { 0.3, 0.009, 0.0 };
 const double K_Intake_PID_Limit[E_PID_Sz] =
     // P        I      D
     { 0.9, 0.9, 0.0 };
@@ -53,7 +53,7 @@ const double K_JoystickAnalogDeadband    = 0.1;
 const double C_WheelSpeedPID_Gain[E_RobotSideSz][E_PID_Sz] = {
     // P    I    D
     { 0.0001, 0.0006, 0.0 }, //LEFT
-    { 0.0001, 0.0006, 0.0 }}; //RIGHT
+    { 0.0004, 0.0006, 0.0 }}; //RIGHT
 
 const double C_WheelspeedProportionalLimit[E_RobotSideSz][E_IntergalLimitSz] = {
     // UPPER LOWER
@@ -135,26 +135,26 @@ const double K_DesiredDriveSpeedAxis[20] = {-0.95,
                                              0.85,
                                              0.95};
 
-const double K_DesiredDriveSpeed[20] = {-60.0,  //-0.95
-                                        -40.0,  //-0.85
-                                        -30.0,  //-0.75
-                                         -25.0,  //-0.65
-                                         -20.0,  //-0.55
-                                         -15.0,  //-0.45
-                                          -10.0,  //-0.35
-                                          -5.0,  //-0.25
-                                          -2.0,  //-0.15
-                                           0.0,  //-0.10
-                                           0.0,  // 0.10
-                                           2.0,  // 0.15
-                                           5.0,  // 0.25
-                                           10.0,  // 0.35
-                                          15.0,  // 0.45
-                                          20.0,  // 0.55
-                                          25.0,  // 0.65
-                                          30.0,  // 0.75
-                                         40.0,  // 0.85
-                                         60.0}; // 0.95
+const double K_DesiredDriveSpeed[20] = {-150.00,  //-0.95
+                                        -131.25,  //-0.85
+                                        -112.50,  //-0.75
+                                         -93.75,  //-0.65
+                                         -75.00,  //-0.55
+                                         -56.25,  //-0.45
+                                         -37.50,  //-0.35
+                                         -18.75,  //-0.25
+                                          -5.00,  //-0.15
+                                           0.00,  //-0.10
+                                           0.00,  // 0.10
+                                           5.00,  // 0.15
+                                          18.75,  // 0.25
+                                          37.50,  // 0.35
+                                          56.25,  // 0.45
+                                          75.00,  // 0.55
+                                          93.75,  // 0.65
+                                         112.50,  // 0.75
+                                         131.25,  // 0.85
+                                         150.00}; // 0.95
 
 //2.0,  // 0.15
 //5.0,  // 0.25
@@ -168,33 +168,42 @@ const double K_DesiredDriveSpeed[20] = {-60.0,  //-0.95
 
 const double K_AutonDebounceThreshold     =  0.2;   // Seconds (not sure if this is sufficient to share across all functions, but let's start with a single place value).
 
-const double K_AutonRotateAngleToSlow     =  15.0;  // Degrees
+const double K_AutonRotateAngleToSlow     =  25.0;  // Degrees
+const double K_AutonRotateAngleDeadband   =   5.0;  // Degrees
 
 const double K_AutonDriveDistanceUltraDeadband = 0.5;  // Inches - for the ultrasonic sensor control
 const double K_AutonDriveMinSpeedUltra         =  5.0; // RPM
 const double K_AutonDriveDistanceUltraToSlow   =  2.0;  // Inches
 
-const double K_AutonDriveDistanceDeadband =   1.0;  // Inches
-const double K_AutonDriveDistanceToSlow   =  10.0;  // Inches
-const double K_AutonDriveSpeedRamp        =   5.0;  // RPM/Sec
-const double K_AutonDriveMaxSpeed         =  30.0;  // RPM
-const double K_AutonDriveMinSpeed         =  10.0;  // RPM
+const double K_AutonDriveDistanceDeadband =   4.0;  // Inches
+const double K_AutonDriveDistanceToSlow   =  30.0;  // Inches
+const double K_AutonDriveSpeedRamp        =  50.0;  // RPM/Sec
+const double K_AutonDriveMaxSpeed         = 130.0;  // RPM
+const double K_AutonDriveMinSpeed         =   4.0;  // RPM
 
-const double K_AutonIntakeDistanceToSlow   =   4.0;  // Inches
-const double K_AutonIntakeSpeedRamp        =   1.0;  // Inch/Sec
-const double K_AutonIntakeMaxSpeed         =  20.0;  // Inch/Sec
-const double K_AutonIntakeMinSpeed         =   4.0;  // Inch/Sec
-const double K_AutonIntakeDistanceDeadband =   1.0;  // Inches
+const double K_AutonIntakeRamp             =  60.0;  // Inch/Sec
+const double K_AutonIntakeDistanceDeadband =   2.0;  // Inches
 
 const double K_AutonIntakeAngleCmnd        =   0.6;  // Percent of possible motor controller output
 
+/* K_AutonCommand: This table contains all of the possible commands that could be expected in Auton.
+                   These will go sequentually go through the possible combinations.  You can have two
+                   actuators beign controlled at once when it makes sense.  For example, you can only
+                   control the drive wheels with a single command at one time (so you couldn't
+                   command a roation and a drive command at the same time). The following are the
+                   units for the various actuators:
+                   Encoder: Inches
+                   ArmAng: Open loop power command for the given time
+                   Rollers: Open loop power command for the given time
+                   Lift: Inches
+                   Rotate: Degrees*/
 const AutonControlPlan K_AutonCommand[E_AutonOptSz] =
     {
       { // E_AutonOpt0 - LLL
-        {   E_ActuatorDriveEncoder,          E_ActuatorRotate,    E_ActuatorDriveEncoder,       E_ActuatorArmAngDwn,         E_ActuatorRollers,    E_ActuatorDriveEncoder,            E_ActuatorLift,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone},
-        {                      250,                        90,                         5,                       1.2,                         2,                        -5,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0},
+        {   E_ActuatorLift,          E_ActuatorRotate,    E_ActuatorDriveEncoder,       E_ActuatorArmAngDwn,         E_ActuatorRollers,    E_ActuatorDriveEncoder,            E_ActuatorLift,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone},
+        {                      60,                        90,                         5,                       1.2,                         2,                        -5,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0},
         {           E_ActuatorNone,            E_ActuatorLift,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,        E_ActuatorArmAngUp,          E_ActuatorRotate,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone},
-        {                        0,                        30,                         0,                         0,                         0,                       1.2,                       -90,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0}
+        {                        0,                        20,                         0,                         0,                         0,                       1.2,                       -90,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0}
       },
       { // E_AutonOpt1 - LLR
         {           E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone},

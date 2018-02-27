@@ -284,6 +284,50 @@ double CntrlAutonDesiredSpeed(double            L_K_TotalPlannedTravel,
   return (L_DesiredSpeed);
   }
 
+/******************************************************************************
+ * Function:     CntrlAutonDesiredSpeed
+ *
+ * Description:  Determine the desired speed for a given actuator(s) while in
+ *               Auton.  The intent is to ramp the requested speed up from zero,
+ *               to a max value, then ramp down to a minimum value once we get
+ *               near the end.
+ *
+ ******************************************************************************/
+double CntrlAutonDesiredLift(double             L_K_TotalPlannedTravel,
+                              double            L_MeasuredTravel,
+                              double            L_DesiredHeightPrev,
+                              double            L_K_DesiredTravelRamp,
+                              bool              L_TargetMet)
+  {
+  double L_DesiredHeight    = L_DesiredHeightPrev;
+
+
+  if (L_TargetMet == true)
+    {
+    L_DesiredHeight    = L_K_TotalPlannedTravel;
+    }
+  else if ((L_MeasuredTravel > L_K_TotalPlannedTravel) ||
+           (L_DesiredHeightPrev > L_K_TotalPlannedTravel))
+    {
+    L_DesiredHeight = L_DesiredHeightPrev - (L_K_DesiredTravelRamp * C_ExeTime);
+    if (L_DesiredHeight < L_K_TotalPlannedTravel)
+      {
+      L_DesiredHeight = L_K_TotalPlannedTravel;
+      }
+    }
+  else if ((L_MeasuredTravel < L_K_TotalPlannedTravel) ||
+           (L_DesiredHeightPrev < L_K_TotalPlannedTravel))
+    {
+    L_DesiredHeight = L_DesiredHeightPrev + (L_K_DesiredTravelRamp * C_ExeTime);
+    if (L_DesiredHeight > L_K_TotalPlannedTravel)
+      {
+      L_DesiredHeight = L_K_TotalPlannedTravel;
+      }
+    }
+
+  return (L_DesiredHeight);
+  }
+
 
 /******************************************************************************
  * Function:     CntrlAutonDrive
@@ -302,21 +346,34 @@ bool CntrlAutonDrive(T_Actuator       L_CntrlActuator,
     L_ControlComplete = DtrmnActuatorComplete( L_AutonTarget,
                                                V_DistanceTraveledAvg,
                                                K_AutonDriveDistanceDeadband,
-                                              &V_AutonWheelDebounceTimer[E_RobotSideLeft],
+                                              &V_AutonWheelDebounceTimer[E_RobotSideRight],
                                                K_AutonDebounceThreshold);
 
-    V_WheelRPM_Desired[E_RobotSideLeft] = CntrlAutonDesiredSpeed(L_AutonTarget,
-                                                                 V_DistanceTraveledAvg,
-                                                                 V_WheelRPM_Desired[E_RobotSideLeft],
-                                                                 K_AutonDriveDistanceToSlow,
-                                                                 K_AutonDriveMinSpeed,
-                                                                 K_AutonDriveMaxSpeed,
-                                                                 K_AutonDriveSpeedRamp,
-                                                                 V_AutonWheelDebounceTimer[E_RobotSideLeft],
-                                                                 L_ControlComplete);
+//    V_WheelRPM_Desired[E_RobotSideLeft] = CntrlAutonDesiredSpeed(L_AutonTarget,
+//                                                                 V_DistanceTraveledAvg,
+//                                                                 V_WheelRPM_Desired[E_RobotSideLeft],
+//                                                                 K_AutonDriveDistanceToSlow,
+//                                                                 K_AutonDriveMinSpeed,
+//                                                                 K_AutonDriveMaxSpeed,
+//                                                                 K_AutonDriveSpeedRamp,
+//                                                                 V_AutonWheelDebounceTimer[E_RobotSideLeft],
+//                                                                 L_ControlComplete);
+
+    V_WheelRPM_Desired[E_RobotSideRight] = CntrlAutonDesiredSpeed(L_AutonTarget,
+                                                                     V_DistanceTraveledAvg,
+                                                                     V_WheelRPM_Desired[E_RobotSideRight],
+                                                                     K_AutonDriveDistanceToSlow,
+                                                                     K_AutonDriveMinSpeed,
+                                                                     K_AutonDriveMaxSpeed,
+                                                                     K_AutonDriveSpeedRamp,
+                                                                     V_AutonWheelDebounceTimer[E_RobotSideRight],
+                                                                     L_ControlComplete);
 
     /* Since we are driving straight, we will have a desired speed that will be the same for both sides: */
-    V_WheelRPM_Desired[E_RobotSideRight] = V_WheelRPM_Desired[E_RobotSideLeft];
+    V_WheelRPM_Desired[E_RobotSideLeft] = V_WheelRPM_Desired[E_RobotSideRight];
+
+    SmartDashboard::PutNumber("AutonRight", V_WheelRPM_Desired[E_RobotSideRight]);
+    SmartDashboard::PutNumber("AutonLeft", V_WheelRPM_Desired[E_RobotSideLeft]);
     }
   else if (L_CntrlActuator == E_ActuatorDriveUltraSonic)
     {
@@ -344,9 +401,9 @@ bool CntrlAutonDrive(T_Actuator       L_CntrlActuator,
   else if (L_CntrlActuator == E_ActuatorRotate)
     {
     L_ControlComplete = DtrmnActuatorComplete( L_AutonTarget,
-                                               V_DistanceTraveledAvg,
-                                               K_AutonDriveDistanceDeadband,
-                                              &V_AutonWheelDebounceTimer[E_RobotSideLeft],
+                                               V_GyroAngleRelative,
+                                               K_AutonRotateAngleDeadband,
+                                              &V_AutonRotateDebounceTimer,
                                                K_AutonDebounceThreshold);
 
     V_WheelRPM_Desired[E_RobotSideLeft] = CntrlAutonDesiredSpeed(L_AutonTarget,
@@ -356,18 +413,19 @@ bool CntrlAutonDrive(T_Actuator       L_CntrlActuator,
                                                                  K_AutonDriveMinSpeed,
                                                                  K_AutonDriveMaxSpeed,
                                                                  K_AutonDriveSpeedRamp,
-                                                                 V_AutonWheelDebounceTimer[E_RobotSideLeft],
+                                                                 V_AutonRotateDebounceTimer,
                                                                  L_ControlComplete);
 
     /* Since we are driving straight, we will have a desired speed that will be the same for both sides: */
     V_WheelRPM_Desired[E_RobotSideRight] = -V_WheelRPM_Desired[E_RobotSideLeft];
     }
 
+
   for (L_RobotSide = E_RobotSideLeft;
        L_RobotSide < E_RobotSideSz;
        L_RobotSide = T_RobotSide(int(L_RobotSide) + 1))
     {
-    V_RobotMotorCmndPct[E_RobotMotorLeftWheel]  = Control_PID(V_WheelRPM_Desired[L_RobotSide],
+    V_RobotMotorCmndPct[L_RobotSide]  = Control_PID(V_WheelRPM_Desired[L_RobotSide],
                                                               V_WheelRPM_Filt[L_RobotSide],
                                                               &V_WheelSpeedErrorPrev[L_RobotSide],
                                                               &V_WheelSpeedErrorIntegral[L_RobotSide],
@@ -405,36 +463,23 @@ bool CntrlAutonLift(T_Actuator       L_CntrlActuator,
                                             &V_AutonIntakeLiftDebounceTimer,
                                              K_AutonDebounceThreshold);
 
-  V_IntakeLiftHeightDesired = CntrlAutonDesiredSpeed(L_AutonTarget,
-                                                     V_IntakePosition,
-                                                     V_IntakeLiftHeightDesired,
-                                                     K_AutonIntakeDistanceToSlow,
-                                                     K_AutonIntakeMinSpeed,
-                                                     K_AutonIntakeMaxSpeed,
-                                                     K_AutonIntakeSpeedRamp,
-                                                     V_AutonIntakeLiftDebounceTimer,
-                                                     L_ControlComplete);
+  V_IntakeLiftHeightDesired = CntrlAutonDesiredLift(L_AutonTarget,
+                                                    V_IntakePosition,
+                                                    V_IntakeLiftHeightDesired,
+                                                    K_AutonIntakeRamp,
+                                                    L_ControlComplete);
 
-  V_RobotMotorCmndPct[E_RobotMotorLift]  = Control_PID( V_IntakeLiftHeightDesired,
-                                                        V_IntakePosition,
-                                                       &V_IntakePositionErrorPrev,
-                                                       &V_IntakePositionErrorIntegral,
-                                                        V_IntakePID_Gain[E_PID_Proportional],
-                                                        V_IntakePID_Gain[E_PID_Integral],
-                                                        V_IntakePID_Gain[E_PID_Derivative],
-                                                        K_Intake_PID_Limit[E_PID_Proportional],
-                                                       -K_Intake_PID_Limit[E_PID_Proportional],
-                                                        K_Intake_PID_Limit[E_PID_Integral],
-                                                       -K_Intake_PID_Limit[E_PID_Integral],
-                                                        K_Intake_PID_Limit[E_PID_Derivative],
-                                                       -K_Intake_PID_Limit[E_PID_Derivative],
-                                                        K_IntakeCmndLimit,
-                                                       -K_IntakeCmndLimit);
 
-  V_RobotMotorCmndPct[E_RobotMotorLift] = LiftCmdDisable(V_IntakePosition,
-                                                         V_IntakeLiftHeightDesired,
-                                                         K_IntakeMinCmndHeight,
-                                                         V_RobotMotorCmndPct[E_RobotMotorLift]);
+
+
+//  V_IntakeLiftHeightDesired = L_AutonTarget;
+
+
+
+//  V_RobotMotorCmndPct[E_RobotMotorLift] = LiftCmdDisable(V_IntakePosition,
+//                                                         V_IntakeLiftHeightDesired,
+//                                                         K_IntakeMinCmndHeight,
+//                                                         V_RobotMotorCmndPct[E_RobotMotorLift]);
 
   return (L_ControlComplete);
   }
@@ -498,21 +543,21 @@ bool CntrlAutonOpenLoopTimer(T_Actuator       L_CntrlActuator,
 
   V_RobotMotorCmndPct[E_RobotMotorIntakeRoller] = V_RobotUserCmndPct[E_RobotUserCmndIntakeRoller];
 
-  L_ControlComplete = DtrmnActuatorComplete( L_AutonTarget,
-                                             V_IntakePosition,
-                                             K_AutonIntakeDistanceDeadband,
-                                            &V_AutonIntakeLiftDebounceTimer,
-                                             K_AutonDebounceThreshold);
-
-  V_IntakeLiftHeightDesired = CntrlAutonDesiredSpeed(L_AutonTarget,
-                                                     V_IntakePosition,
-                                                     V_IntakeLiftHeightDesired,
-                                                     K_AutonIntakeDistanceToSlow,
-                                                     K_AutonIntakeMinSpeed,
-                                                     K_AutonIntakeMaxSpeed,
-                                                     K_AutonIntakeSpeedRamp,
-                                                     V_AutonIntakeLiftDebounceTimer,
-                                                     L_ControlComplete);
+//  L_ControlComplete = DtrmnActuatorComplete( L_AutonTarget,
+//                                             V_IntakePosition,
+//                                             K_AutonIntakeDistanceDeadband,
+//                                            &V_AutonIntakeLiftDebounceTimer,
+//                                             K_AutonDebounceThreshold);
+//
+//  V_IntakeLiftHeightDesired = CntrlAutonDesiredSpeed(L_AutonTarget,
+//                                                     V_IntakePosition,
+//                                                     V_IntakeLiftHeightDesired,
+//                                                     K_AutonIntakeDistanceToSlow,
+//                                                     K_AutonIntakeMinSpeed,
+//                                                     K_AutonIntakeMaxSpeed,
+//                                                     K_AutonIntakeSpeedRamp,
+//                                                     V_AutonIntakeLiftDebounceTimer,
+//                                                     L_ControlComplete);
 
 
 
