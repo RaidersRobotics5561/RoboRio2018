@@ -143,15 +143,15 @@ void DisabledInit()
   {
   V_RobatState = E_Disabled;
 
-  VariableInit(Prefs,
-               mCounter,
-               _talon0,
-               _talon1,
-               _talon2,
-               _talon3,
-               _talon4,
-               _talon5,
-               &Gyro);
+//  VariableInit(Prefs,
+//               mCounter,
+//               _talon0,
+//               _talon1,
+//               _talon2,
+//               _talon3,
+//               _talon4,
+//               _talon5,
+//               &Gyro);
 
   UpdateLED_Output(V_RobatState,
                    false,
@@ -189,15 +189,15 @@ void DisabledPeriodic()
   {
   V_RobatState = E_Disabled;
 
-  VariableInit(Prefs,
-               mCounter,
-               _talon0,
-               _talon1,
-               _talon2,
-               _talon3,
-               _talon4,
-               _talon5,
-               &Gyro);
+//  VariableInit(Prefs,
+//               mCounter,
+//               _talon0,
+//               _talon1,
+//               _talon2,
+//               _talon3,
+//               _talon4,
+//               _talon5,
+//               &Gyro);
 
   while (IsDisabled())
     {
@@ -348,15 +348,15 @@ void RobotInit()
     T_ArmCmnd L_ArmAnglePrev = E_ArmCmndOff;
     T_ArmCmnd L_ArmAnglePrevPrev = E_ArmCmndOff;
 
-		VariableInit(Prefs,
-		             mCounter,
-		             _talon0,
-		             _talon1,
-		             _talon2,
-		             _talon3,
-		             _talon4,
-		             _talon5,
-		             &Gyro);
+//		VariableInit(Prefs,
+//		             mCounter,
+//		             _talon0,
+//		             _talon1,
+//		             _talon2,
+//		             _talon3,
+//		             _talon4,
+//		             _talon5,
+//		             &Gyro);
 
     V_RobatState = E_Teleop;
 
@@ -521,15 +521,15 @@ void AutonomousInit()
 //	_talon0->SetSelectedSensorPosition(0, K_SlotIdx, K_TimeoutMs);
 //	_talon3->SetSelectedSensorPosition(0, K_SlotIdx, K_TimeoutMs);
 //
-  VariableInit(Prefs,
-               mCounter,
-               _talon0,
-               _talon1,
-               _talon2,
-               _talon3,
-               _talon4,
-               _talon5,
-               &Gyro);
+//  VariableInit(Prefs,
+//               mCounter,
+//               _talon0,
+//               _talon1,
+//               _talon2,
+//               _talon3,
+//               _talon4,
+//               _talon5,
+//               &Gyro);
 
 
   }
@@ -552,15 +552,15 @@ void AutonomousPeriodic()
   T_RobotMotor     L_RobotMotor            = E_RobotMotorLeftWheel;
   T_RobotSide      L_TurnSignal            = E_RobotSideSz;
 
-  VariableInit(Prefs,
-               mCounter,
-               _talon0,
-               _talon1,
-               _talon2,
-               _talon3,
-               _talon4,
-               _talon5,
-               &Gyro);
+//  VariableInit(Prefs,
+//               mCounter,
+//               _talon0,
+//               _talon1,
+//               _talon2,
+//               _talon3,
+//               _talon4,
+//               _talon5,
+//               &Gyro);
 
   V_RobatState = E_Auton;
 
