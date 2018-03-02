@@ -74,6 +74,11 @@ void DtrmnControllerMapping(Joystick *L_Joystick1,
   if(L_Joystick2->GetRawButton(4)){
    Winch = K_Winch;
   }
+  else if (L_Joystick2->GetRawButton(3))
+    {
+    Winch = -K_Winch;
+    }
+
   V_RobotUserCmndPct[E_RobotUserCmndIntakeRoller] = L_IntakeRollers;
 
   V_RobotUserCmndPct[E_RobotUserCmndIntakeArmAng] = DeadBand(L_Joystick2->GetRawAxis(1),

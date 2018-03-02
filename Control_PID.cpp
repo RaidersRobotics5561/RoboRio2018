@@ -174,6 +174,8 @@ double DesiredLiftHeight(double L_JoystickAxis,
 
   L_DesiredLiftHeight = L_DesiredLiftHeightPrev + L_DesiredLiftHeightSpeed * C_ExeTime;
 
+  L_DesiredLiftHeight = fabs(L_DesiredLiftHeight);
+
   if (L_DesiredLiftHeight < 0)
     {
     L_DesiredLiftHeight = 0.0;

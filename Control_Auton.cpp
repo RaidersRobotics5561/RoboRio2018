@@ -15,6 +15,158 @@
 double V_RollerTimer;
 double V_IntakeArmTimer;
 
+///******************************************************************************
+// * Function:     DtrmnAutonOption
+// *
+// * Description:  Determine what path the robot will travel in during the auton
+// *               mode.  This should only need to be called once when starting
+// *               auton mode.:
+// *
+// *                   E_AutonOpt0  - LLL
+// *                   E_AutonOpt1  - LLR
+// *                   E_AutonOpt2  - RLL
+// *                   E_AutonOpt3  - RLR
+// *                   E_AutonOpt4  - MLL
+// *                   E_AutonOpt5  - MLR
+// *                   E_AutonOpt6  - LLF
+// *                   E_AutonOpt7  - LLS
+// *                   E_AutonOpt8  - LRS
+// *                   E_AutonOpt9  - LRF
+// *                   E_AutonOpt10 - MLF
+// *                   E_AutonOpt11 - MLS
+// *                   E_AutonOpt12 - MRS
+// *                   E_AutonOpt13 - MRF
+// *                   E_AutonOpt14 - RLF
+// *                   E_AutonOpt15 - RLS
+// *                   E_AutonOpt16 - RRS
+// *                   E_AutonOpt17 - RRF
+// *
+// ******************************************************************************/
+//T_AutonOpt DtrmnAutonOption(T_RobotSide     L_AutonTargetSwitch,
+//                            T_RobotSide     L_AutonTargetScale,
+//                            T_AutonStartPos L_AutonStartPos,
+//                            T_AutonEndPos   L_AutonEndPos)
+//  {
+//  T_AutonOpt L_AutonOption;
+//
+//  if (L_AutonStartPos == E_AutonStartPosDefault)
+//    {
+//    L_AutonOption = E_AutonOpt18;
+//    }
+//  else if (L_AutonEndPos == E_AutonEndPosSwFront)
+//    {
+//    if (L_AutonStartPos == E_AutonStartPosLeft)
+//      {
+//      if (L_AutonTargetSwitch == E_RobotSideLeft)
+//        {
+//        L_AutonOption = E_AutonOpt0;
+//        }
+//      else
+//        {
+//        L_AutonOption = E_AutonOpt5;
+//        }
+//      }
+//    else if (L_AutonStartPos == E_AutonStartPosRight)
+//      {
+//      if (L_AutonTargetSwitch == E_RobotSideLeft)
+//        {
+//        L_AutonOption = E_AutonOpt12;
+//        }
+//      else
+//        {
+//        L_AutonOption = E_AutonOpt17;
+//        }
+//      }
+//    else // L_AutonStartPos == E_AutonStartPosMiddle
+//      {
+//      if (L_AutonTargetSwitch == E_RobotSideLeft)
+//        {
+//        L_AutonOption = E_AutonOpt6;
+//        }
+//      else
+//        {
+//        L_AutonOption = E_AutonOpt11;
+//        }
+//      }
+//    }
+//  else if(L_AutonEndPos == E_AutonEndPosSwSide)
+//    {
+//    if (L_AutonStartPos == E_AutonStartPosLeft)
+//      {
+//      if (L_AutonTargetSwitch == E_RobotSideLeft)
+//        {
+//        L_AutonOption = E_AutonOpt1;
+//        }
+//      else
+//        {
+//        L_AutonOption = E_AutonOpt4;
+//        }
+//      }
+//    else if (L_AutonStartPos == E_AutonStartPosRight)
+//      {
+//      if (L_AutonTargetSwitch == E_RobotSideLeft)
+//        {
+//        L_AutonOption = E_AutonOpt13;
+//        }
+//      else
+//        {
+//        L_AutonOption = E_AutonOpt16;
+//        }
+//      }
+//    else // L_AutonStartPos == E_AutonStartPosMiddle
+//      {
+//      if (L_AutonTargetSwitch == E_RobotSideLeft)
+//        {
+//        L_AutonOption = E_AutonOpt7;
+//        }
+//      else
+//        {
+//        L_AutonOption = E_AutonOpt10;
+//        }
+//      }
+//    }
+//  else /*  E_AutonEndPosScale  */
+//    {
+//    if (L_AutonStartPos == E_AutonStartPosLeft)
+//      {
+//      if (L_AutonTargetScale == E_RobotSideLeft)
+//        {
+//        L_AutonOption = E_AutonOpt2;
+//        }
+//      else
+//        {
+//        L_AutonOption = E_AutonOpt3;
+//        }
+//      }
+//    else if (L_AutonStartPos == E_AutonStartPosRight)
+//      {
+//      if (L_AutonTargetScale == E_RobotSideLeft)
+//        {
+//        L_AutonOption = E_AutonOpt14;
+//        }
+//      else
+//        {
+//        L_AutonOption = E_AutonOpt15;
+//        }
+//      }
+//    else // L_AutonStartPos == E_AutonStartPosMiddle
+//      {
+//      if (L_AutonTargetScale == E_RobotSideLeft)
+//        {
+//        L_AutonOption = E_AutonOpt8;
+//        }
+//      else
+//        {
+//        L_AutonOption = E_AutonOpt9;
+//        }
+//      }
+//    }
+//
+////  L_AutonOption = E_AutonOpt1; // FOR TEST ONLY!!
+//
+//  return (L_AutonOption);
+//  }
+
 /******************************************************************************
  * Function:     DtrmnAutonOption
  *
@@ -44,121 +196,62 @@ double V_IntakeArmTimer;
  ******************************************************************************/
 T_AutonOpt DtrmnAutonOption(T_RobotSide     L_AutonTargetSwitch,
                             T_RobotSide     L_AutonTargetScale,
-                            T_AutonStartPos L_AutonStartPos,
-                            T_AutonEndPos   L_AutonEndPos)
+                            T_AutonStartPos L_AutonStartPos)
   {
   T_AutonOpt L_AutonOption;
+  T_AutonEndPos L_AutonEndPos;
 
-  if(L_AutonEndPos == E_AutonEndPosSwFront)
+  if (L_AutonStartPos == E_AutonStartPosLeft)
     {
-    if (L_AutonStartPos == E_AutonStartPosLeft)
+    if (L_AutonTargetScale == E_RobotSideLeft)
       {
-      if (L_AutonTargetSwitch == E_RobotSideLeft)
-        {
-//        L_AutonOption = E_AutonOpt0;
-        }
-      else
-        {
-//        L_AutonOption = E_AutonOpt0;
-        }
+      L_AutonOption = E_AutonOpt1;
       }
-    else if (L_AutonStartPos == E_AutonStartPosRight)
+    else if (L_AutonTargetSwitch == E_RobotSideLeft)
       {
-      if (L_AutonTargetSwitch == E_RobotSideLeft)
-        {
-//        L_AutonOption = E_AutonOpt0;
-        }
-      else
-        {
-//        L_AutonOption = E_AutonOpt0;
-        }
+      L_AutonOption = E_AutonOpt0;
       }
-    else // L_AutonStartPos == E_AutonStartPosRight
+    else
       {
-      if (L_AutonTargetSwitch == E_RobotSideLeft)
-        {
-//        L_AutonOption = E_AutonOpt0;
-        }
-      else
-        {
-//        L_AutonOption = E_AutonOpt0;
-        }
+      L_AutonOption = E_AutonOpt6; // Default
       }
     }
-  else if(L_AutonEndPos == E_AutonEndPosSwSide)
+  else if (L_AutonStartPos == E_AutonStartPosMiddle)
     {
-    if (L_AutonStartPos == E_AutonStartPosLeft)
+    if (L_AutonTargetSwitch == E_RobotSideLeft)
       {
-      if (L_AutonTargetSwitch == E_RobotSideLeft)
-        {
-//        L_AutonOption = E_AutonOpt0;
-        }
-      else
-        {
-//        L_AutonOption = E_AutonOpt0;
-        }
+      L_AutonOption = E_AutonOpt2;
       }
-    else if (L_AutonStartPos == E_AutonStartPosRight)
+    else if (L_AutonTargetSwitch == E_RobotSideRight)
       {
-      if (L_AutonTargetSwitch == E_RobotSideLeft)
-        {
-//        L_AutonOption = E_AutonOpt0;
-        }
-      else
-        {
-//        L_AutonOption = E_AutonOpt0;
-        }
+      L_AutonOption = E_AutonOpt3;
       }
-    else // L_AutonStartPos == E_AutonStartPosRight
+    else
       {
-      if (L_AutonTargetSwitch == E_RobotSideLeft)
-        {
-//        L_AutonOption = E_AutonOpt0;
-        }
-      else
-        {
-//        L_AutonOption = E_AutonOpt0;
-        }
+      L_AutonOption = E_AutonOpt6; // Default, we don't have the time to reach the scale when in the middle position...
       }
     }
-  else /*  E_AutonEndPosScale  */
+  else if (L_AutonStartPos == E_AutonStartPosRight)
     {
-    if (L_AutonStartPos == E_AutonStartPosLeft)
+    if (L_AutonTargetScale == E_RobotSideRight)
       {
-      if (L_AutonTargetScale == E_RobotSideLeft)
-        {
-//        L_AutonOption = E_AutonOpt0;
-        }
-      else
-        {
-//        L_AutonOption = E_AutonOpt0;
-        }
+      L_AutonOption = E_AutonOpt4;
       }
-    else if (L_AutonStartPos == E_AutonStartPosRight)
+    else if (L_AutonTargetSwitch == E_RobotSideRight)
       {
-      if (L_AutonTargetScale == E_RobotSideLeft)
-        {
-//        L_AutonOption = E_AutonOpt0;
-        }
-      else
-        {
-//        L_AutonOption = E_AutonOpt0;
-        }
+      L_AutonOption = E_AutonOpt5;
       }
-    else // L_AutonStartPos == E_AutonStartPosRight
+    else
       {
-      if (L_AutonTargetScale == E_RobotSideLeft)
-        {
-//        L_AutonOption = E_AutonOpt0;
-        }
-      else
-        {
-//        L_AutonOption = E_AutonOpt0;
-        }
+      L_AutonOption = E_AutonOpt6; // Default
       }
+    }
+  else // L_AutonStartPos == E_AutonStartPosDefault
+    {
+    L_AutonOption = E_AutonOpt6; // Default
     }
 
-  L_AutonOption = E_AutonOpt0; // FOR TEST ONLY!!
+//  L_AutonOption = E_AutonOpt1; // FOR TEST ONLY!!
 
   return (L_AutonOption);
   }
@@ -224,9 +317,11 @@ double CntrlAutonDesiredSpeed(double            L_K_TotalPlannedTravel,
   {
   double L_DesiredSpeed     = 0.0;
   double L_RampDownDistance = 0.0;
+  double L_DesiredDirectionSign = 1.0;
+  double L_ActualDirectionSign  = 1.0;
 
   /* Find the angle at which we want to start ramping out the desired speed. */
-  L_RampDownDistance = L_K_TotalPlannedTravel - L_K_RampDownTravel;
+  L_RampDownDistance = fabs(L_K_TotalPlannedTravel) - fabs(L_K_RampDownTravel);
 
   if (L_RampDownDistance < 0.0)
     {
@@ -234,51 +329,51 @@ double CntrlAutonDesiredSpeed(double            L_K_TotalPlannedTravel,
     L_RampDownDistance = 0.0;
     }
 
+  if (L_K_TotalPlannedTravel < 0)
+    {
+    L_DesiredDirectionSign = -1.0;
+    }
 
-  if ((L_MeasuredTravel >= L_RampDownDistance) &&
-      (L_DesiredSpeedPrev > L_K_MinSpeed))
+  if (L_MeasuredTravel < 0)
+    {
+    L_ActualDirectionSign = -1.0;
+    }
+
+  if (fabs(L_MeasuredTravel) >= L_RampDownDistance)
     {
     /* We have reached the point at which we need to start slowing down
      * (i.e. let's put the brakes on!). */
-    L_DesiredSpeed = L_DesiredSpeedPrev - (L_K_SpeedRamp * C_ExeTime);
+    L_DesiredSpeed = L_K_MinSpeed * L_DesiredDirectionSign;
     }
-  else if (((L_MeasuredTravel < L_RampDownDistance) &&
-            (L_DesiredSpeedPrev < L_K_MaxSpeed)) ||
-           (L_DesiredSpeedPrev < L_K_MinSpeed))
+  else if (fabs(L_MeasuredTravel) < L_RampDownDistance)
     {
-    /* We still have a way to go or we haven't reached our minimum speed.
+    /* We still have a way to go.
      * Let's speed up! */
-    L_DesiredSpeed = L_DesiredSpeedPrev + (L_K_SpeedRamp * C_ExeTime);
-    }
-  else if (L_DesiredSpeedPrev < L_K_MinSpeed)
-    {
-    /* A catch all.  Unless we are ramping up the speed, we should limit to
-     * a minimum. */
-    L_DesiredSpeed = L_K_MinSpeed;
-    }
-  else if (L_DesiredSpeedPrev >= L_K_MaxSpeed)
-    {
-    /* Another defensive programming measure.  We want to make sure we don't
-     * go past the max value! */
-    L_DesiredSpeed = L_K_MaxSpeed;
+    L_DesiredSpeed = L_K_MaxSpeed * L_DesiredDirectionSign;
     }
 
-  if (L_TargetMet == true)
+  if ((L_TargetMet == true) ||
+      (L_DebounceTime > 0.0))
     {
-    /* We have met our target and the debounce timers have run.
+    /* We have met our target or the debounce timers are running.
      * Let's request 0 speed. */
     L_DesiredSpeed = 0.0;
     }
-  else if (L_MeasuredTravel > L_K_TotalPlannedTravel)
+  else if ((L_DesiredDirectionSign > 0.0) &&
+           (L_MeasuredTravel > L_K_TotalPlannedTravel))
     {
     /*Opps!  Looks like we overshot our target.  Lets back up.*/
     L_DesiredSpeed = -L_K_MinSpeed;
     }
-  else if (L_DebounceTime > 0.0)
+  else if ((L_DesiredDirectionSign < 0.0) &&
+           (L_MeasuredTravel < L_K_TotalPlannedTravel))
     {
-    /* The debounce timer seems to be running.  This must mean that we are close.
-     * Let's run at the min speed to make sure we don't overshoot. */
+    /*Opps!  Looks like we overshot our target.  Lets back up.*/
     L_DesiredSpeed = L_K_MinSpeed;
+    }
+  else if (L_DesiredSpeed < L_K_MinSpeed)
+    {
+    L_DesiredSpeed = L_K_MinSpeed * L_DesiredDirectionSign;
     }
 
   return (L_DesiredSpeed);
@@ -286,6 +381,104 @@ double CntrlAutonDesiredSpeed(double            L_K_TotalPlannedTravel,
 
 /******************************************************************************
  * Function:     CntrlAutonDesiredSpeed
+ *
+ * Description:  Determine the desired speed for a given actuator(s) while in
+ *               Auton.  The intent is to ramp the requested speed up from zero,
+ *               to a max value, then ramp down to a minimum value once we get
+ *               near the end.
+ *
+ ******************************************************************************/
+double CntrlAutonUltraSonic(double            L_K_TotalPlannedTravel,
+                            double            L_MeasuredTravel,
+                            double            L_K_MinSpeed,
+                            bool              L_TargetMet)
+  {
+  double L_DesiredSpeed     = 0.0;
+  double L_Error = 0.0;
+
+  L_Error = L_MeasuredTravel - L_K_TotalPlannedTravel;
+
+  if (L_Error > 0)
+    {
+    L_DesiredSpeed = L_K_MinSpeed;
+    }
+  else if (L_Error < 0)
+    {
+    L_DesiredSpeed = -L_K_MinSpeed;
+    }
+
+  if (L_TargetMet == true)
+    {
+    L_DesiredSpeed = 0.0;
+    }
+
+  return (L_DesiredSpeed);
+  }
+
+/******************************************************************************
+ * Function:     CntrlAutonDesiredRotate
+ *
+ * Description:  Determine the desired speed for a given actuator(s) while in
+ *               Auton.  The intent is to ramp the requested speed up from zero,
+ *               to a max value, then ramp down to a minimum value once we get
+ *               near the end.
+ *
+ ******************************************************************************/
+double CntrlAutonDesiredRotate(double           L_K_TotalPlannedRotation,
+                              double            L_MeasuredRotation,
+                              double            L_DesiredRotationPrev,
+                              double            L_K_ProportionalGx,
+                              double            L_K_MinSpeed,
+                              double            L_K_MaxSpeed,
+                              double            L_DebounceTime,
+                              bool              L_TargetMet)
+  {
+  double L_DesiredSpeed     = 0.0;
+  double L_Error            = 0.0;
+  double L_Direction        = 0.0;
+
+  L_Error = L_K_TotalPlannedRotation - L_MeasuredRotation;
+
+  if (L_Error > 0)
+    {
+    L_Direction = 1.0;
+    }
+  else if (L_Error < 0)
+    {
+    L_Direction = -1.0;
+    }
+
+  L_DesiredSpeed = L_Error * L_K_ProportionalGx;
+
+  if (fabs(L_DesiredSpeed) > L_K_MaxSpeed)
+    {
+    L_DesiredSpeed = L_K_MaxSpeed * L_Direction;
+    }
+  else if (fabs(L_DesiredSpeed) < L_K_MinSpeed)
+    {
+    L_DesiredSpeed = L_K_MinSpeed * L_Direction;
+    }
+
+
+//  if (L_DebounceTime > 0.0)
+//    {
+//    /* The debounce timer seems to be running.  This must mean that we are close.
+//     * Let's run at the min speed to make sure we don't overshoot. */
+//    L_DesiredSpeed = L_K_MinSpeed * L_Direction;
+//    }
+
+  if ((L_TargetMet == true) ||
+      (L_DebounceTime > 0.0))
+    {
+    L_DesiredSpeed = 0.0;
+    }
+
+  return (L_DesiredSpeed);
+  }
+
+
+/******************************************************************************
+ * Function:     CntrlAutonDesiredLift
  *
  * Description:  Determine the desired speed for a given actuator(s) while in
  *               Auton.  The intent is to ramp the requested speed up from zero,
@@ -349,16 +542,6 @@ bool CntrlAutonDrive(T_Actuator       L_CntrlActuator,
                                               &V_AutonWheelDebounceTimer[E_RobotSideRight],
                                                K_AutonDebounceThreshold);
 
-//    V_WheelRPM_Desired[E_RobotSideLeft] = CntrlAutonDesiredSpeed(L_AutonTarget,
-//                                                                 V_DistanceTraveledAvg,
-//                                                                 V_WheelRPM_Desired[E_RobotSideLeft],
-//                                                                 K_AutonDriveDistanceToSlow,
-//                                                                 K_AutonDriveMinSpeed,
-//                                                                 K_AutonDriveMaxSpeed,
-//                                                                 K_AutonDriveSpeedRamp,
-//                                                                 V_AutonWheelDebounceTimer[E_RobotSideLeft],
-//                                                                 L_ControlComplete);
-
     V_WheelRPM_Desired[E_RobotSideRight] = CntrlAutonDesiredSpeed(L_AutonTarget,
                                                                      V_DistanceTraveledAvg,
                                                                      V_WheelRPM_Desired[E_RobotSideRight],
@@ -371,9 +554,6 @@ bool CntrlAutonDrive(T_Actuator       L_CntrlActuator,
 
     /* Since we are driving straight, we will have a desired speed that will be the same for both sides: */
     V_WheelRPM_Desired[E_RobotSideLeft] = V_WheelRPM_Desired[E_RobotSideRight];
-
-    SmartDashboard::PutNumber("AutonRight", V_WheelRPM_Desired[E_RobotSideRight]);
-    SmartDashboard::PutNumber("AutonLeft", V_WheelRPM_Desired[E_RobotSideLeft]);
     }
   else if (L_CntrlActuator == E_ActuatorDriveUltraSonic)
     {
@@ -382,20 +562,16 @@ bool CntrlAutonDrive(T_Actuator       L_CntrlActuator,
          L_RobotSide = T_RobotSide(int(L_RobotSide) + 1))
       {
       L_ControlComplete = DtrmnActuatorComplete( L_AutonTarget,
-                                                 V_DistanceTraveled[L_RobotSide],
+                                                 V_UltraSonicDistance[L_RobotSide],
                                                  K_AutonDriveDistanceUltraDeadband,
                                                 &V_AutonWheelDebounceTimer[L_RobotSide],
                                                  K_AutonDebounceThreshold);
 
-      V_WheelRPM_Desired[L_RobotSide] = CntrlAutonDesiredSpeed(L_AutonTarget,
-                                                               V_DistanceTraveledAvg,
-                                                               V_WheelRPM_Desired[L_RobotSide],
-                                                               K_AutonDriveDistanceUltraToSlow,
-                                                               K_AutonDriveMinSpeedUltra,
-                                                               K_AutonDriveMaxSpeed,
-                                                               K_AutonDriveSpeedRamp,
-                                                               V_AutonWheelDebounceTimer[L_RobotSide],
-                                                               L_ControlComplete);
+      V_WheelRPM_Desired[L_RobotSide] = CntrlAutonUltraSonic(L_AutonTarget,
+                                                             V_UltraSonicDistance[L_RobotSide],
+                                                             K_AutonDriveMinSpeedUltra,
+                                                             L_ControlComplete);
+
       }
     }
   else if (L_CntrlActuator == E_ActuatorRotate)
@@ -406,17 +582,17 @@ bool CntrlAutonDrive(T_Actuator       L_CntrlActuator,
                                               &V_AutonRotateDebounceTimer,
                                                K_AutonDebounceThreshold);
 
-    V_WheelRPM_Desired[E_RobotSideLeft] = CntrlAutonDesiredSpeed(L_AutonTarget,
+    V_WheelRPM_Desired[E_RobotSideLeft] = CntrlAutonDesiredRotate(L_AutonTarget,
                                                                  V_GyroAngleRelative,
                                                                  V_WheelRPM_Desired[E_RobotSideLeft],
-                                                                 K_AutonRotateAngleToSlow,
-                                                                 K_AutonDriveMinSpeed,
-                                                                 K_AutonDriveMaxSpeed,
-                                                                 K_AutonDriveSpeedRamp,
+                                                                 K_AutonRotateAnglePropGx,
+                                                                 K_AutonRotateMinSpeed,
+                                                                 K_AutonRotateMaxSpeed,
                                                                  V_AutonRotateDebounceTimer,
                                                                  L_ControlComplete);
 
-    /* Since we are driving straight, we will have a desired speed that will be the same for both sides: */
+
+    /* Since we are rotating while in tank drive, we will have a desired speed that is opposite from the other side: */
     V_WheelRPM_Desired[E_RobotSideRight] = -V_WheelRPM_Desired[E_RobotSideLeft];
     }
 
@@ -429,9 +605,9 @@ bool CntrlAutonDrive(T_Actuator       L_CntrlActuator,
                                                               V_WheelRPM_Filt[L_RobotSide],
                                                               &V_WheelSpeedErrorPrev[L_RobotSide],
                                                               &V_WheelSpeedErrorIntegral[L_RobotSide],
-                                                              V_WheelProportionalGain[L_RobotSide],
-                                                              V_WheelIntegralGain[L_RobotSide],
-                                                              V_WheelDerivativeGain[L_RobotSide],
+                                                              K_WheelSpeedPID_GainAuton[L_RobotSide][E_PID_Proportional],
+                                                              K_WheelSpeedPID_GainAuton[L_RobotSide][E_PID_Integral],
+                                                              K_WheelSpeedPID_GainAuton[L_RobotSide][E_PID_Derivative],
                                                               C_WheelspeedProportionalLimit[L_RobotSide][E_IntergalUpperLimit],
                                                               C_WheelspeedProportionalLimit[L_RobotSide][E_IntergalLowerLimit],
                                                               C_WheelspeedIntergalLimit[L_RobotSide][E_IntergalUpperLimit],
@@ -469,18 +645,6 @@ bool CntrlAutonLift(T_Actuator       L_CntrlActuator,
                                                     K_AutonIntakeRamp,
                                                     L_ControlComplete);
 
-
-
-
-//  V_IntakeLiftHeightDesired = L_AutonTarget;
-
-
-
-//  V_RobotMotorCmndPct[E_RobotMotorLift] = LiftCmdDisable(V_IntakePosition,
-//                                                         V_IntakeLiftHeightDesired,
-//                                                         K_IntakeMinCmndHeight,
-//                                                         V_RobotMotorCmndPct[E_RobotMotorLift]);
-
   return (L_ControlComplete);
   }
 
@@ -504,18 +668,18 @@ bool CntrlAutonOpenLoopTimer(T_Actuator       L_CntrlActuator,
       {
       if (L_CntrlActuator == E_ActuatorArmAngDwn)
         {
-        V_RobotMotorCmndPct[E_RobotMotorIntakeArmAng] = -K_AutonIntakeAngleCmnd;
+        V_RobotUserCmndPct[E_RobotUserCmndIntakeArmAng] = -K_AutonIntakeAngleCmnd;
         }
       else
         {
-        V_RobotMotorCmndPct[E_RobotMotorIntakeArmAng] = K_AutonIntakeAngleCmnd;
+        V_RobotUserCmndPct[E_RobotUserCmndIntakeArmAng] = K_AutonIntakeAngleCmnd;
         }
       }
     else
       {
       V_IntakeArmTimer = L_AutonTarget;
 
-      V_RobotMotorCmndPct[E_RobotMotorIntakeArmAng] = 0.0;
+      V_RobotUserCmndPct[E_RobotUserCmndIntakeArmAng] = 0.0;
 
       L_ControlComplete = true;
       }
@@ -527,13 +691,13 @@ bool CntrlAutonOpenLoopTimer(T_Actuator       L_CntrlActuator,
 
     if (V_RollerTimer < L_AutonTarget)
       {
-      V_RobotMotorCmndPct[E_RobotMotorIntakeRoller] = -K_IntakeRollers; // Negative to eject cube
+      V_RobotUserCmndPct[E_RobotUserCmndIntakeRoller] = -K_IntakeRollers; // Negative to eject cube
       }
     else
       {
       V_RollerTimer = L_AutonTarget;
 
-      V_RobotMotorCmndPct[E_RobotMotorIntakeRoller] = 0.0;
+      V_RobotUserCmndPct[E_RobotUserCmndIntakeRoller] = 0.0;
 
       L_ControlComplete = true;
       }

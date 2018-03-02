@@ -50,4 +50,8 @@ void UpdateSmartDashboad(void)
     SmartDashboard::PutNumber("Intake Position",   V_IntakePosition);
     SmartDashboard::PutNumber("Intake Desired Position",   V_IntakeLiftHeightDesired);
     SmartDashboard::PutNumber("Intake Lift Motor", V_RobotMotorCmndPct[E_RobotMotorLift]);
+
+    SmartDashboard::PutNumber("UltraRight", V_UltraSonicDistance[E_RobotSideRight]);
+    SmartDashboard::PutNumber("UltraLeft", V_UltraSonicDistance[E_RobotSideLeft]);
+
   };

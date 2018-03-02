@@ -22,19 +22,28 @@
  * Description:  Update the commands sent out to the Arduino controlling the LEDs.
  *               The 8 modes are as follows:
  *
- *                * Chan0 * Chan1 * Chan2 *
- *                    0       0       0      * Mode0 * - Default no comm
- *                    0       0       1      * Mode1 * - Com, but disabled
- *                    0       1       0      * Mode2 * - Blue alliance, main
- *                    0       1       1      * Mode3 * - Blue alliance, final part
- *                    1       0       0      * Mode4 * - Red alliance, main
- *                    1       0       1      * Mode5 * - Red alliance, final part
- *                    1       1       0      * Mode6 * - User light request
- *                    1       1       1      * Mode7 * - End game
+ *                * Chan0 * Chan1 * Chan2 * Chan3 *
+ *                    0       0       0       0      * Mode0  * - Default no comm
+ *                    0       0       0       1      * Mode1  * - Com, but disabled
+ *                    0       0       1       0      * Mode2  * - Blue alliance, main
+ *                    0       0       1       1      * Mode3  * - Blue alliance, final part
+ *                    0       1       0       0      * Mode4  * - Red alliance, main
+ *                    0       1       0       1      * Mode5  * - Red alliance, final part
+ *                    0       1       1       0      * Mode6  * - 
+ *                    0       1       1       1      * Mode7  * -
+ *                    1       0       0       0      * Mode8  * - 
+ *                    1       0       0       1      * Mode9  * - 
+ *                    1       0       1       0      * Mode10 * - 
+ *                    1       0       1       1      * Mode11 * - 
+ *                    1       1       0       0      * Mode12 * - 
+ *                    1       1       0       1      * Mode13 * - 
+ *                    1       1       1       0      * Mode14 * - User light request - Aqua
+ *                    1       1       1       1      * Mode15 * - 
  ******************************************************************************/
 void UpdateLED_Output(T_RoboState    L_RobotState,
                       bool           L_DriverOverride,
                       double         L_Winch,
+                      T_RobotSide    L_TurnSignal,
                       DigitalOutput *L_LED_State0,
                       DigitalOutput *L_LED_State1,
                       DigitalOutput *L_LED_State2,
@@ -77,6 +86,14 @@ void UpdateLED_Output(T_RoboState    L_RobotState,
         {
           L_LED_Mode = LED_Mode11;
         }
+      else if (L_TurnSignal == E_RobotSideRight)
+        {
+        L_LED_Mode = LED_Mode13;
+        }
+      else if (L_TurnSignal == E_RobotSideLeft)
+        {
+        L_LED_Mode = LED_Mode12;
+        }
       else if (L_AllianceColor == DriverStation::Alliance::kBlue)
         {
           if (L_MatchTime > K_EndMatchWarningTime || L_RobotState == E_Auton)
@@ -102,7 +119,7 @@ void UpdateLED_Output(T_RoboState    L_RobotState,
     }
   else if (L_RobotState == E_Disabled)
     {
-      L_LED_Mode = LED_Mode0;
+      L_LED_Mode = LED_Mode1;
     }
   else if (L_RobotState == E_Test)
     {

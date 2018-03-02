@@ -150,17 +150,6 @@ typedef enum T_AutonOpt
     E_AutonOpt4,
     E_AutonOpt5,
     E_AutonOpt6,
-    E_AutonOpt7,
-    E_AutonOpt8,
-    E_AutonOpt9,
-    E_AutonOpt10,
-    E_AutonOpt11,
-    E_AutonOpt12,
-    E_AutonOpt13,
-    E_AutonOpt14,
-    E_AutonOpt15,
-    E_AutonOpt16,
-    E_AutonOpt17,
     E_AutonOptSz
   } T_AutonOpt;
 

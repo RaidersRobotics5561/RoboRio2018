@@ -1,3 +1,14 @@
+/************************************************************************************************************
+*
+*  Robot base code for RoboRio
+*
+*  Flushing Raiders Robotics - Team 5561
+*
+************************************************************************************************************/
+
+/************************************************************************************************************
+* Header files
+************************************************************************************************************/
 #include "const.h"
 #include "LookUp.hpp"
 #include "Calibrations.hpp"
@@ -13,6 +24,9 @@
 #include "Control_Auton.hpp"
 
 
+/************************************************************************************************************
+* Header files
+************************************************************************************************************/
 double V_EndGameWinchTime;
 bool   V_LED_RainbowLatch;
 
@@ -47,11 +61,10 @@ double V_Revolutions[E_RobotSideSz];
 double V_LukeStopperRamp;
 double V_RotateGain;
 
-double V_UltraSonicDistance[E_RobotSideSz];
+double V_UltraSonicDistance[E_RobotSideSz]; // Measured, filtered ultrasonic distance
 
 T_RobotSide     V_AutonTargetSide[3];
 T_AutonStartPos V_AutonStartPos;
-T_AutonEndPos   V_AutonEndPos;
 double          V_AutonWheelDebounceTimer[E_RobotSideSz];
 double          V_AutonRotateDebounceTimer;
 double          V_AutonIntakeLiftDebounceTimer;
@@ -69,17 +82,11 @@ double V_RobotMotorCmndPct[E_RobotMotorSz];
 class Robot: public IterativeRobot {
 
 	frc::SendableChooser<std::string> V_StartingPosition;
-	const std::string C_StartOpt0 = "Left";
-	const std::string C_StartOpt1 = "Middle";
-	const std::string C_StartOpt2 = "Right";
-  const std::string C_StartOpt3 = "Default";
+	const std::string C_StartOpt0 = "Default";
+	const std::string C_StartOpt1 = "Left";
+	const std::string C_StartOpt2 = "Middle";
+  const std::string C_StartOpt3 = "Right";
 	std::string V_StartOptSelected;
-
-	frc::SendableChooser<std::string> V_AutonSwitchSelect;
-	const std::string C_SwitchOpt0 = "Tall";
-	const std::string C_SwitchOpt1 = "ShortFront";
-	const std::string C_SwitchOpt2 = "ShortSide";
-	std::string V_AutonSwitchOptSelected;
 
 private:
 	//left Back, SRX:left Front #1
@@ -129,7 +136,7 @@ private:
 /******************************************************************************
  * Function:     DisabledInit
  *
- * Description:
+ * Description: Initialization when the robot enters the disabled state.
  *
  ******************************************************************************/
 void DisabledInit()
@@ -149,6 +156,7 @@ void DisabledInit()
   UpdateLED_Output(V_RobatState,
                    false,
                    V_RobotMotorCmndPct[E_RobotMotorWinch],
+                   E_RobotSideSz,
                    V_LED_State0,
                    V_LED_State1,
                    V_LED_State2,
@@ -196,6 +204,7 @@ void DisabledPeriodic()
     UpdateLED_Output(V_RobatState,
                      false,
                      V_RobotMotorCmndPct[E_RobotMotorWinch],
+                     E_RobotSideSz,
                      V_LED_State0,
                      V_LED_State1,
                      V_LED_State2,
@@ -231,6 +240,14 @@ void RobotInit()
   {
 
 	CameraServer::GetInstance()->StartAutomaticCapture(0);
+	CameraServer::GetInstance()->StartAutomaticCapture(1);
+
+	V_StartingPosition.AddDefault(C_StartOpt0, C_StartOpt0);
+	V_StartingPosition.AddObject(C_StartOpt1, C_StartOpt1);
+	V_StartingPosition.AddObject(C_StartOpt2, C_StartOpt2);
+	V_StartingPosition.AddObject(C_StartOpt3, C_StartOpt3);
+	frc::SmartDashboard::PutData("Starting Position", &V_StartingPosition);
+
 	Prefs = Preferences::GetInstance();
 
 	V_RobatState = E_Disabled;
@@ -250,15 +267,6 @@ void RobotInit()
 	V_LED_State3->Set(false);
 
 	Gyro.Calibrate();
-
-	V_StartingPosition.AddDefault(C_StartOpt0, C_StartOpt0);
-	V_StartingPosition.AddObject(C_StartOpt1, C_StartOpt1);
-	V_StartingPosition.AddObject(C_StartOpt2, C_StartOpt2);
-	frc::SmartDashboard::PutData("Starting Position", &V_StartingPosition);
-
-	V_AutonSwitchSelect.AddDefault(C_SwitchOpt0, C_SwitchOpt0);
-	V_AutonSwitchSelect.AddObject(C_SwitchOpt1, C_SwitchOpt1);
-   frc::SmartDashboard::PutData("Switch/Scale Selection", &V_AutonSwitchSelect);
 
 	_talon0->ConfigSelectedFeedbackSensor(
 			FeedbackDevice::CTRE_MagEncoder_Relative, 0, 10);
@@ -310,6 +318,13 @@ void RobotInit()
 	_talon3->ConfigPeakOutputReverse(-1, K_TimeoutMs);
 	_talon4->ConfigPeakOutputReverse(-1, K_TimeoutMs);
 	_talon5->ConfigPeakOutputReverse(-1, K_TimeoutMs);
+
+	_talon4->SetSelectedSensorPosition(0, K_SlotIdx, K_TimeoutMs);
+	_talon5->SetSelectedSensorPosition(0, K_SlotIdx, K_TimeoutMs);
+
+  V_IntakePosition = 0.0;
+  V_IntakePositionPrev = 0.0;
+  V_IntakeLiftHeightDesired = 0.0;
 
    VariableInit(Prefs,
                 mCounter,
@@ -468,6 +483,7 @@ void RobotInit()
     UpdateLED_Output(V_RobatState,
                      false,
                      V_RobotMotorCmndPct[E_RobotMotorWinch],
+                     E_RobotSideSz,
                      V_LED_State0,
                      V_LED_State1,
                      V_LED_State2,
@@ -534,6 +550,7 @@ void AutonomousPeriodic()
   double           L_AutonTarget           = 0.0;
   bool             L_ControlComplete[E_AutonCntrlSz];
   T_RobotMotor     L_RobotMotor            = E_RobotMotorLeftWheel;
+  T_RobotSide      L_TurnSignal            = E_RobotSideSz;
 
   VariableInit(Prefs,
                mCounter,
@@ -566,17 +583,15 @@ void AutonomousPeriodic()
 
   V_StartOptSelected = V_StartingPosition.GetSelected();
 
-  V_AutonSwitchOptSelected = V_AutonSwitchSelect.GetSelected();
-
-  if (V_StartOptSelected == C_StartOpt0)
+  if (V_StartOptSelected == C_StartOpt1)
     {
     V_AutonStartPos = E_AutonStartPosLeft;
     }
-  else if (V_StartOptSelected == C_StartOpt1)
+  else if (V_StartOptSelected == C_StartOpt2)
     {
     V_AutonStartPos = E_AutonStartPosMiddle;
     }
-  else if (V_StartOptSelected == C_StartOpt2)
+  else if (V_StartOptSelected == C_StartOpt3)
     {
     V_AutonStartPos = E_AutonStartPosRight;
     }
@@ -585,23 +600,9 @@ void AutonomousPeriodic()
     V_AutonStartPos = E_AutonStartPosDefault;
     }
 
-  if (V_AutonSwitchOptSelected == C_SwitchOpt0)
-    {
-    V_AutonEndPos = E_AutonEndPosScale;
-    }
-  else if (V_AutonSwitchOptSelected == C_SwitchOpt1)
-    {
-    V_AutonEndPos = E_AutonEndPosSwSide;
-    }
-  else
-    {
-    V_AutonEndPos = E_AutonEndPosSwFront;
-    }
-
   L_AutonOption =  DtrmnAutonOption(V_AutonTargetSide[0],
                                     V_AutonTargetSide[1],
-                                    V_AutonStartPos,
-                                    V_AutonEndPos);
+                                    V_AutonStartPos);
 
   L_ControlComplete[E_AutonCntrlPrimary]   = false;
   L_ControlComplete[E_AutonCntrlSecondary] = false;
@@ -646,6 +647,9 @@ void AutonomousPeriodic()
     if (L_AutonStep < E_AutonStepSz)
       {
       /* Only allow this if we are within the Auton bounds: */
+
+	  /* Reset the turn signal each loop.  Need to determine if we are turning for LEDs. */
+	  L_TurnSignal = E_RobotSideSz;
       for (L_AutonCntrlType = E_AutonCntrlPrimary;
            L_AutonCntrlType < E_AutonCntrlSz;
            L_AutonCntrlType = T_AutonCntrlType(int(L_AutonCntrlType) + 1))
@@ -663,16 +667,19 @@ void AutonomousPeriodic()
 
         switch (L_CntrlActuator)
           {
+          case E_ActuatorRotate:          if (L_AutonTarget > 0) {L_TurnSignal = E_RobotSideRight;} else {L_TurnSignal = E_RobotSideLeft;}
           case E_ActuatorDriveEncoder:
-          case E_ActuatorDriveUltraSonic:
-          case E_ActuatorRotate:          L_ControlComplete[L_AutonCntrlType] = CntrlAutonDrive(L_CntrlActuator,
+          case E_ActuatorDriveUltraSonic: L_ControlComplete[L_AutonCntrlType] = CntrlAutonDrive(L_CntrlActuator,
                                                                                                 L_AutonTarget);          break;
+
           case E_ActuatorLift:            L_ControlComplete[L_AutonCntrlType] = CntrlAutonLift(L_CntrlActuator,
                                                                                                L_AutonTarget);           break;
+
           case E_ActuatorRollers:
           case E_ActuatorArmAngUp:
           case E_ActuatorArmAngDwn:       L_ControlComplete[L_AutonCntrlType] = CntrlAutonOpenLoopTimer(L_CntrlActuator,
                                                                                                         L_AutonTarget);  break;
+
           case E_ActuatorNone:
           default:                        L_ControlComplete[L_AutonCntrlType] = true;                                    break;
           }
@@ -691,9 +698,7 @@ void AutonomousPeriodic()
         }
       }
 
-    SmartDashboard::PutNumber("AutonMode", (double)L_AutonOption);
-    SmartDashboard::PutNumber("L_AutonStep", (double)L_AutonStep);
-
+    /* Need to clean this up at some point, but we need to maintain control of the lift mechanism */
     V_RobotMotorCmndPct[E_RobotMotorLift]  = Control_PID( V_IntakeLiftHeightDesired,
                                                           V_IntakePosition,
                                                          &V_IntakePositionErrorPrev,
@@ -715,9 +720,13 @@ void AutonomousPeriodic()
                                                            K_IntakeMinCmndHeight,
                                                            V_RobotMotorCmndPct[E_RobotMotorLift]);
 
+    SmartDashboard::PutNumber("AutonMode", (double)L_AutonOption);
+    SmartDashboard::PutNumber("L_AutonStep", (double)L_AutonStep);
+
     UpdateLED_Output(V_RobatState,
                      false,
                      V_RobotMotorCmndPct[E_RobotMotorWinch],
+                     L_TurnSignal,
                      V_LED_State0,
                      V_LED_State1,
                      V_LED_State2,
@@ -750,48 +759,20 @@ void AutonomousPeriodic()
  ******************************************************************************/
   void TestPeriodic()
   {
-//    double L_GyroAngle;
-//    bool L_LgtT0;
-//    LED_Mode L_LED_Mode;
-//
-//    bool LED_State0 = Prefs->GetDouble("LED_State0", 0);
-//    bool LED_State1 = Prefs->GetDouble("LED_State1", 0);
-//    bool LED_State2 = Prefs->GetDouble("LED_State2", 0);
-//    bool LED_State3 = Prefs->GetDouble("LED_State3", 0);
-//
-//      while (IsOperatorControl() && IsEnabled())
-//         {
-////           L_GyroAngle = ahrs->GetAngle();
-//           L_GyroAngle = 0;
-//
-////           L_LgtT0  = V_Logitech.GetRawButton(C_Lgt_Trigger);
-//
-////           UpdateActuatorCmnds(0,
-////                               false,
-////                               false,
-////                               0,
-////                               0,
-////                               0,
-////                               0,
-////                               0,
-////                               0);
-//
-////           L_LED_Mode = UpdateLED_Output(C_Test,
-////                                         L_LgtT0,
-////                                         0.0,
-////                                         true);
-//
-////           UpdateSmartDashboad(L_GyroAngle,
-////                               L_LED_Mode,
-////                               C_Test);
-//
-//           V_LED_State0->Set(LED_State0);
-//           V_LED_State1->Set(LED_State1);
-//           V_LED_State2->Set(LED_State2);
-//           V_LED_State3->Set(LED_State3);
-//
-//           Wait(C_ExeTime);
-//         }
+    bool LED_State0 = Prefs->GetDouble("LED_State0", 0);
+    bool LED_State1 = Prefs->GetDouble("LED_State1", 0);
+    bool LED_State2 = Prefs->GetDouble("LED_State2", 0);
+    bool LED_State3 = Prefs->GetDouble("LED_State3", 0);
+
+      while (IsOperatorControl() && IsEnabled())
+         {
+           V_LED_State0->Set(LED_State0);
+           V_LED_State1->Set(LED_State1);
+           V_LED_State2->Set(LED_State2);
+           V_LED_State3->Set(LED_State3);
+
+           Wait(C_ExeTime);
+         }
   }
 
 };

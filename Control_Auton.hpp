@@ -10,8 +10,7 @@
 
 extern T_AutonOpt DtrmnAutonOption(T_RobotSide     L_AutonTargetSwitch,
                                    T_RobotSide     L_AutonTargetScale,
-                                   T_AutonStartPos L_AutonStartPos,
-                                   T_AutonEndPos   L_AutonEndPos);
+                                   T_AutonStartPos L_AutonStartPos);
 
 extern bool DtrmnActuatorComplete(double     L_CntrlVal,
                                   double     L_MeasuredVal,

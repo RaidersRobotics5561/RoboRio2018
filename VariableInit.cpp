@@ -36,6 +36,7 @@ void VariableInit(Preferences   *L_DriverPreferences,
   L_Talon4->SetSelectedSensorPosition(0, K_SlotIdx, K_TimeoutMs);
   L_Talon5->SetSelectedSensorPosition(0, K_SlotIdx, K_TimeoutMs);
 
+
   mCounter->Reset();
 
   V_WheelProportionalGain[E_RobotSideLeft] = L_DriverPreferences->GetDouble("P_L", C_WheelSpeedPID_Gain[E_RobotSideLeft][E_PID_Proportional]);
@@ -54,6 +55,7 @@ void VariableInit(Preferences   *L_DriverPreferences,
   V_IntakePID_Gain[E_PID_Proportional] = L_DriverPreferences->GetDouble("P_Lift", K_Intake_PID_Gain[E_PID_Derivative]);
   V_IntakePID_Gain[E_PID_Integral] = L_DriverPreferences->GetDouble("I_Lift", K_Intake_PID_Gain[E_PID_Derivative]);
   V_IntakePID_Gain[E_PID_Derivative] = L_DriverPreferences->GetDouble("D_Lift", K_Intake_PID_Gain[E_PID_Derivative]);
+
   V_IntakePosition = 0.0;
   V_IntakePositionPrev = 0.0;
   V_IntakeLiftHeightDesired = 0.0;

@@ -11,6 +11,8 @@
 #include "Enums.hpp"
 #include "Calibrations.hpp"
 
+double V_UltraSonicDistancePrev[E_RobotSideSz];
+
 /******************************************************************************
  * Function:     Read_Sensors
  *
@@ -31,6 +33,7 @@ void Read_Sensors(TalonSRX  *L_DriveMortorCtrlLeft,
   T_RobotSide L_RobotSide;
   double      L_ArmEncoderCount = 0.0;
   double      L_ArmAngle;
+  double      L_UltraDistance;
 
   /* Ok, let's first read the wheel speeds: */
   V_WheelRPM_Raw[E_RobotSideLeft]  = L_DriveMortorCtrlLeft->GetSelectedSensorVelocity(K_PIDLoopIdx) / K_WheelPulseToRev;
@@ -94,10 +97,27 @@ void Read_Sensors(TalonSRX  *L_DriveMortorCtrlLeft,
                                (fabs(L_Intake->GetSelectedSensorPosition(K_PIDLoopIdx) * K_IntakePulseToTravel)),
                                V_IntakePositionPrev);
 
-  V_UltraSonicDistance[E_RobotSideLeft]  = L_UltraSonicSensorLeft->GetRangeInches();  // reads the range on the ultrasonic sensor
-  V_UltraSonicDistance[E_RobotSideRight] = L_UltraSonicSensorRight->GetRangeInches(); // reads the range on the ultrasonic sensor
+  L_UltraDistance = L_UltraSonicSensorLeft->GetRangeInches();
 
+  if (L_UltraDistance > K_UltraMaxDistance)
+    {
+    L_UltraDistance = K_UltraMaxDistance;
+    }
 
+  V_UltraSonicDistance[E_RobotSideLeft]  = LagFilter(K_UltraSonicLagFilterGain[E_RobotSideLeft],
+                                                     L_UltraDistance,
+                                                     V_UltraSonicDistancePrev[E_RobotSideLeft]);  // reads the range on the ultrasonic sensor
+
+  L_UltraDistance = L_UltraSonicSensorRight->GetRangeInches();
+
+  if (L_UltraDistance > K_UltraMaxDistance)
+    {
+    L_UltraDistance = K_UltraMaxDistance;
+    }
+
+  V_UltraSonicDistance[E_RobotSideRight] = LagFilter(K_UltraSonicLagFilterGain[E_RobotSideRight],
+                                                     L_UltraDistance,
+                                                     V_UltraSonicDistancePrev[E_RobotSideRight]); // reads the range on the ultrasonic sensor
 
   V_GyroAngleRelative = L_Gyro->GetAngle() - V_GyroAngleOffset;
 
