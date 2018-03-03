@@ -121,11 +121,5 @@ void Read_Sensors(TalonSRX  *L_DriveMortorCtrlLeft,
 
   V_GyroAngleRelative = L_Gyro->GetAngle() - V_GyroAngleOffset;
 
-  SmartDashboard::PutNumber("V_UltraSonicDistance[E_RobotSideRight]", V_UltraSonicDistance[E_RobotSideRight]);
-  SmartDashboard::PutNumber("V_UltraSonicDistance[E_RobotSideLeft]", V_UltraSonicDistance[E_RobotSideLeft]);
-  SmartDashboard::PutNumber("V_Revolutions[E_RobotSideLeft]", V_Revolutions[E_RobotSideLeft]);
-  SmartDashboard::PutNumber("DisRight", L_DriveMortorCtrlRight->GetSelectedSensorPosition(K_PIDLoopIdx));
-  SmartDashboard::PutNumber("DisLeft", L_DriveMortorCtrlLeft->GetSelectedSensorPosition(K_PIDLoopIdx));
-
 //  V_IntakePosition = fabs(L_Intake->GetSelectedSensorPosition(K_PIDLoopIdx) * K_IntakePulseToTravel);
   }

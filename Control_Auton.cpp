@@ -518,6 +518,11 @@ double CntrlAutonDesiredLift(double             L_K_TotalPlannedTravel,
       }
     }
 
+  if (L_DesiredHeight >= K_MaxIntakeLiftHeight)
+    {
+    L_DesiredHeight = K_MaxIntakeLiftHeight;
+    }
+
   return (L_DesiredHeight);
   }
 
@@ -668,11 +673,11 @@ bool CntrlAutonOpenLoopTimer(T_Actuator       L_CntrlActuator,
       {
       if (L_CntrlActuator == E_ActuatorArmAngDwn)
         {
-        V_RobotUserCmndPct[E_RobotUserCmndIntakeArmAng] = -K_AutonIntakeAngleCmnd;
+        V_RobotUserCmndPct[E_RobotUserCmndIntakeArmAng] = K_AutonIntakeAngleCmnd;
         }
       else
         {
-        V_RobotUserCmndPct[E_RobotUserCmndIntakeArmAng] = K_AutonIntakeAngleCmnd;
+        V_RobotUserCmndPct[E_RobotUserCmndIntakeArmAng] = -K_AutonIntakeAngleCmnd;
         }
       }
     else

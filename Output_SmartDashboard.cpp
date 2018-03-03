@@ -21,30 +21,17 @@ void UpdateSmartDashboad(void)
     SmartDashboard::PutNumber("LeftSide", V_RobotMotorCmndPct[E_RobotMotorLeftWheel]);
     SmartDashboard::PutNumber("LeftDesired", V_WheelRPM_Desired[E_RobotSideLeft]);
     SmartDashboard::PutNumber("RightDesired", V_WheelRPM_Desired[E_RobotSideRight]);
-    SmartDashboard::PutNumber("LeftFilt", V_WheelRPM_Filt[E_RobotSideLeft]);
-    SmartDashboard::PutNumber("RightFilt", V_WheelRPM_Filt[E_RobotSideRight]);
-    SmartDashboard::PutNumber("LeftSEV", V_WheelSpeedErrorPrev[E_RobotSideLeft]);
-    SmartDashboard::PutNumber("RightSEV", V_WheelSpeedErrorPrev[E_RobotSideRight]);
-    SmartDashboard::PutNumber("LeftSEI", V_WheelSpeedErrorIntegral[E_RobotSideLeft]);
-    SmartDashboard::PutNumber("RightSEI", V_WheelSpeedErrorIntegral[E_RobotSideRight]);
+
     SmartDashboard::PutNumber("DriveMode",(double)DriveMode);
 
     SmartDashboard::PutNumber("GyroRelative",V_GyroAngleRelative);
-    SmartDashboard::PutNumber("DebounceTime",V_AutonRotateDebounceTimer);
-
-
-
-
 
     SmartDashboard::PutNumber("DistanceRight", V_DistanceTraveled[E_RobotSideRight]);
     SmartDashboard::PutNumber("DistanceLeft", V_DistanceTraveled[E_RobotSideLeft]);
 
-    SmartDashboard::PutNumber("Arm Angle",     V_ArmAngleDeg);
-
     SmartDashboard::PutNumber("Hook Position",     V_HookPosition);
     SmartDashboard::PutNumber("Hook Desired",     V_HookLiftHeightDesired);
     SmartDashboard::PutNumber("Hook Motor", V_RobotMotorCmndPct[E_RobotMotorHook]);
-
 
     SmartDashboard::PutNumber("Intake Cmnd",   V_RobotUserCmndPct[E_RobotUserCmndLift]);
     SmartDashboard::PutNumber("Intake Position",   V_IntakePosition);
@@ -54,4 +41,6 @@ void UpdateSmartDashboad(void)
     SmartDashboard::PutNumber("UltraRight", V_UltraSonicDistance[E_RobotSideRight]);
     SmartDashboard::PutNumber("UltraLeft", V_UltraSonicDistance[E_RobotSideLeft]);
 
+    SmartDashboard::PutNumber("V_UltraSonicDistance[E_RobotSideRight]", V_UltraSonicDistance[E_RobotSideRight]);
+    SmartDashboard::PutNumber("V_UltraSonicDistance[E_RobotSideLeft]", V_UltraSonicDistance[E_RobotSideLeft]);
   };
