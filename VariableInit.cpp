@@ -151,8 +151,13 @@ void AutonVariableInit(Preferences   *L_DriverPreferences,
        L_RobotSide < E_RobotSideSz;
        L_RobotSide = T_RobotSide(int(L_RobotSide) + 1))
     {
-    V_WheelSpeedErrorPrev[L_RobotSide] = 0.0;
+    V_WheelSpeedErrorPrev[L_RobotSide]     = 0.0;
     V_WheelSpeedErrorIntegral[L_RobotSide] = 0.0;
+    V_WheelRPM_Raw[L_RobotSide]            = 0.0;
+    V_WheelRPM_Filt[L_RobotSide]           = 0.0;
+    V_WheelRPM_FiltPrev[L_RobotSide]       = 0.0;
+    V_WheelRPM_Desired[L_RobotSide]        = 0.0;
+    V_UltraSonicDistance[L_RobotSide]      = 0.0;
     }
 
   /* Reset all commands to zero (with the exception of the lift mechanism and hook): */

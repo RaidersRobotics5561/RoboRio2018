@@ -56,8 +56,8 @@ const double C_WheelSpeedPID_Gain[E_RobotSideSz][E_PID_Sz] = {
 
 const double K_WheelSpeedPID_GainAuton[E_RobotSideSz][E_PID_Sz] = {
     // P    I    D
-    { 0.0001,  0.0005, 0.0 }, //LEFT
-    { 0.0001,  0.0005, 0.0 }}; //RIGHT
+    { 0.002,   0.0005,  0.0 }, //LEFT 002  0005
+    { 0.0014,  0.00045, 0.0 }}; //RIGHT 0015  00045
 
 const double C_WheelspeedProportionalLimit[E_RobotSideSz][E_IntergalLimitSz] = {
     // UPPER LOWER
@@ -186,7 +186,7 @@ const double K_AutonDriveDistanceUltraDeadband =  0.5;  // Inches - for the ultr
 const double K_AutonDriveMinSpeedUltra         =  8.0; // RPM
 
 const double K_AutonDriveDistanceDeadband =   5.0;  // Inches
-const double K_AutonDriveDistanceToSlow   =  85.0;  // Inches
+const double K_AutonDriveDistanceToSlow   =  35.0;  // Inches 85
 const double K_AutonDriveSpeedRamp        = 100.0;  // RPM/Sec
 const double K_AutonDriveMaxSpeed         = 100.0;  // RPM
 const double K_AutonDriveMinSpeed         =  35.0;  // RPM

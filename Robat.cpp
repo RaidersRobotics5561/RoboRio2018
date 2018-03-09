@@ -552,15 +552,15 @@ void AutonomousPeriodic()
   T_RobotMotor     L_RobotMotor            = E_RobotMotorLeftWheel;
   T_RobotSide      L_TurnSignal            = E_RobotSideSz;
 
-//  VariableInit(Prefs,
-//               mCounter,
-//               _talon0,
-//               _talon1,
-//               _talon2,
-//               _talon3,
-//               _talon4,
-//               _talon5,
-//               &Gyro);
+  VariableInit(Prefs,
+               mCounter,
+               _talon0,
+               _talon1,
+               _talon2,
+               _talon3,
+               _talon4,
+               _talon5,
+               &Gyro);
 
   V_RobatState = E_Auton;
 
