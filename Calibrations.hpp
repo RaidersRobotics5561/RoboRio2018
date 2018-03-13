@@ -58,10 +58,10 @@ const double C_WheelSpeedPID_Gain[E_RobotSideSz][E_PID_Sz] = {
 
 const double K_WheelSpeedPID_GainAuton[E_RobotSideSz][E_PID_Sz] = {
     // P    I    D
-		{ 0.0001, 0.0006, 0.0 }, //LEFT
-	    { 0.0002, 0.0009, 0.0 }};
-//    { 0.002,   0.0005,  0.0 }, //LEFT 002  0005
-//    { 0.0014,  0.00045, 0.0 }}; //RIGHT 0015  00045
+//		{ 0.0001, 0.0006, 0.0 }, //LEFT
+//	    { 0.0002, 0.0009, 0.0 }};
+   { 0.002,   0.0005,  0.0 }, //LEFT 002  0005
+   { 0.0014,  0.00045, 0.0 }}; //RIGHT 0015  00045
 
 const double C_WheelspeedProportionalLimit[E_RobotSideSz][E_IntergalLimitSz] = {
     // UPPER LOWER
