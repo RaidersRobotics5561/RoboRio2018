@@ -15,157 +15,6 @@
 double V_RollerTimer;
 double V_IntakeArmTimer;
 
-///******************************************************************************
-// * Function:     DtrmnAutonOption
-// *
-// * Description:  Determine what path the robot will travel in during the auton
-// *               mode.  This should only need to be called once when starting
-// *               auton mode.:
-// *
-// *                   E_AutonOpt0  - LLL
-// *                   E_AutonOpt1  - LLR
-// *                   E_AutonOpt2  - RLL
-// *                   E_AutonOpt3  - RLR
-// *                   E_AutonOpt4  - MLL
-// *                   E_AutonOpt5  - MLR
-// *                   E_AutonOpt6  - LLF
-// *                   E_AutonOpt7  - LLS
-// *                   E_AutonOpt8  - LRS
-// *                   E_AutonOpt9  - LRF
-// *                   E_AutonOpt10 - MLF
-// *                   E_AutonOpt11 - MLS
-// *                   E_AutonOpt12 - MRS
-// *                   E_AutonOpt13 - MRF
-// *                   E_AutonOpt14 - RLF
-// *                   E_AutonOpt15 - RLS
-// *                   E_AutonOpt16 - RRS
-// *                   E_AutonOpt17 - RRF
-// *
-// ******************************************************************************/
-//T_AutonOpt DtrmnAutonOption(T_RobotSide     L_AutonTargetSwitch,
-//                            T_RobotSide     L_AutonTargetScale,
-//                            T_AutonStartPos L_AutonStartPos,
-//                            T_AutonEndPos   L_AutonEndPos)
-//  {
-//  T_AutonOpt L_AutonOption;
-//
-//  if (L_AutonStartPos == E_AutonStartPosDefault)
-//    {
-//    L_AutonOption = E_AutonOpt18;
-//    }
-//  else if (L_AutonEndPos == E_AutonEndPosSwFront)
-//    {
-//    if (L_AutonStartPos == E_AutonStartPosLeft)
-//      {
-//      if (L_AutonTargetSwitch == E_RobotSideLeft)
-//        {
-//        L_AutonOption = E_AutonOpt0;
-//        }
-//      else
-//        {
-//        L_AutonOption = E_AutonOpt5;
-//        }
-//      }
-//    else if (L_AutonStartPos == E_AutonStartPosRight)
-//      {
-//      if (L_AutonTargetSwitch == E_RobotSideLeft)
-//        {
-//        L_AutonOption = E_AutonOpt12;
-//        }
-//      else
-//        {
-//        L_AutonOption = E_AutonOpt17;
-//        }
-//      }
-//    else // L_AutonStartPos == E_AutonStartPosMiddle
-//      {
-//      if (L_AutonTargetSwitch == E_RobotSideLeft)
-//        {
-//        L_AutonOption = E_AutonOpt6;
-//        }
-//      else
-//        {
-//        L_AutonOption = E_AutonOpt11;
-//        }
-//      }
-//    }
-//  else if(L_AutonEndPos == E_AutonEndPosSwSide)
-//    {
-//    if (L_AutonStartPos == E_AutonStartPosLeft)
-//      {
-//      if (L_AutonTargetSwitch == E_RobotSideLeft)
-//        {
-//        L_AutonOption = E_AutonOpt1;
-//        }
-//      else
-//        {
-//        L_AutonOption = E_AutonOpt4;
-//        }
-//      }
-//    else if (L_AutonStartPos == E_AutonStartPosRight)
-//      {
-//      if (L_AutonTargetSwitch == E_RobotSideLeft)
-//        {
-//        L_AutonOption = E_AutonOpt13;
-//        }
-//      else
-//        {
-//        L_AutonOption = E_AutonOpt16;
-//        }
-//      }
-//    else // L_AutonStartPos == E_AutonStartPosMiddle
-//      {
-//      if (L_AutonTargetSwitch == E_RobotSideLeft)
-//        {
-//        L_AutonOption = E_AutonOpt7;
-//        }
-//      else
-//        {
-//        L_AutonOption = E_AutonOpt10;
-//        }
-//      }
-//    }
-//  else /*  E_AutonEndPosScale  */
-//    {
-//    if (L_AutonStartPos == E_AutonStartPosLeft)
-//      {
-//      if (L_AutonTargetScale == E_RobotSideLeft)
-//        {
-//        L_AutonOption = E_AutonOpt2;
-//        }
-//      else
-//        {
-//        L_AutonOption = E_AutonOpt3;
-//        }
-//      }
-//    else if (L_AutonStartPos == E_AutonStartPosRight)
-//      {
-//      if (L_AutonTargetScale == E_RobotSideLeft)
-//        {
-//        L_AutonOption = E_AutonOpt14;
-//        }
-//      else
-//        {
-//        L_AutonOption = E_AutonOpt15;
-//        }
-//      }
-//    else // L_AutonStartPos == E_AutonStartPosMiddle
-//      {
-//      if (L_AutonTargetScale == E_RobotSideLeft)
-//        {
-//        L_AutonOption = E_AutonOpt8;
-//        }
-//      else
-//        {
-//        L_AutonOption = E_AutonOpt9;
-//        }
-//      }
-//    }
-//
-////  L_AutonOption = E_AutonOpt1; // FOR TEST ONLY!!
-//
-//  return (L_AutonOption);
-//  }
 
 /******************************************************************************
  * Function:     DtrmnAutonOption
@@ -194,19 +43,28 @@ double V_IntakeArmTimer;
  *                   E_AutonOpt17 - RRF
  *
  ******************************************************************************/
-T_AutonOpt DtrmnAutonOption(T_RobotSide     L_AutonTargetSwitch,
-                            T_RobotSide     L_AutonTargetScale,
-                            T_AutonStartPos L_AutonStartPos)
+T_AutonOpt DtrmnAutonOption(T_RobotSide       L_AutonTargetSwitch,
+                            T_RobotSide       L_AutonTargetScale,
+                            T_AutonStartPos   L_AutonStartPos,
+                            T_AutonPreference L_AutonPreference)
   {
   T_AutonOpt L_AutonOption;
 
   if (L_AutonStartPos == E_AutonStartPosLeft)
     {
-    if (L_AutonTargetScale == E_RobotSideLeft)
+    if (((L_AutonTargetScale == E_RobotSideLeft) &&
+         (L_AutonPreference == E_AutonPreferenceScale)) ||
+
+        ((L_AutonTargetScale  == E_RobotSideLeft) &&
+         (L_AutonTargetSwitch == E_RobotSideRight)))
       {
       L_AutonOption = E_AutonOpt1;
       }
-    else if (L_AutonTargetSwitch == E_RobotSideLeft)
+    else if (((L_AutonTargetSwitch == E_RobotSideLeft) &&
+             (L_AutonPreference == E_AutonPreferenceSwitch)) ||
+
+            ((L_AutonTargetSwitch  == E_RobotSideLeft) &&
+             (L_AutonTargetScale   == E_RobotSideRight)))
       {
       L_AutonOption = E_AutonOpt0;
       }
@@ -232,11 +90,19 @@ T_AutonOpt DtrmnAutonOption(T_RobotSide     L_AutonTargetSwitch,
     }
   else if (L_AutonStartPos == E_AutonStartPosRight)
     {
-    if (L_AutonTargetScale == E_RobotSideRight)
+    if (((L_AutonTargetScale == E_RobotSideRight) &&
+        (L_AutonPreference == E_AutonPreferenceScale)) ||
+
+       ((L_AutonTargetScale  == E_RobotSideRight) &&
+        (L_AutonTargetSwitch == E_RobotSideLeft)))
       {
       L_AutonOption = E_AutonOpt4;
       }
-    else if (L_AutonTargetSwitch == E_RobotSideRight)
+    else if (((L_AutonTargetSwitch == E_RobotSideRight) &&
+              (L_AutonPreference == E_AutonPreferenceSwitch)) ||
+
+             ((L_AutonTargetSwitch  == E_RobotSideRight) &&
+              (L_AutonTargetScale   == E_RobotSideLeft)))
       {
       L_AutonOption = E_AutonOpt5;
       }
@@ -249,53 +115,6 @@ T_AutonOpt DtrmnAutonOption(T_RobotSide     L_AutonTargetSwitch,
     {
     L_AutonOption = E_AutonOpt6; // Default
     }
-
-/*base*/
-//
-//  if (L_AutonStartPos == E_AutonStartPosLeft)
-//    {
-//    if (L_AutonTargetSwitch == E_RobotSideLeft)
-//      {
-//      L_AutonOption = E_AutonOpt0;
-//      }
-//    else
-//      {
-//      L_AutonOption = E_AutonOpt6; // Default
-//      }
-//    }
-//  else if (L_AutonStartPos == E_AutonStartPosMiddle)
-//    {
-//    if (L_AutonTargetSwitch == E_RobotSideLeft)
-//      {
-//      L_AutonOption = E_AutonOpt2;
-//      }
-//    else if (L_AutonTargetSwitch == E_RobotSideRight)
-//      {
-//      L_AutonOption = E_AutonOpt3;
-//      }
-//    else
-//      {
-//      L_AutonOption = E_AutonOpt6; // Default, we don't have the time to reach the scale when in the middle position...
-//      }
-//    }
-//  else if (L_AutonStartPos == E_AutonStartPosRight)
-//    {
-//    if (L_AutonTargetSwitch == E_RobotSideRight)
-//      {
-//      L_AutonOption = E_AutonOpt5;
-//      }
-//    else
-//      {
-//      L_AutonOption = E_AutonOpt6; // Default
-//      }
-//    }
-//  else // L_AutonStartPos == E_AutonStartPosDefault
-//    {
-//    L_AutonOption = E_AutonOpt6; // Default
-//    }
-
-
-//  L_AutonOption = E_AutonOpt1; // FOR TEST ONLY!!
 
   return (L_AutonOption);
   }
@@ -504,12 +323,6 @@ double CntrlAutonDesiredRotate(double           L_K_TotalPlannedRotation,
     }
 
 
-//  if (L_DebounceTime > 0.0)
-//    {
-//    /* The debounce timer seems to be running.  This must mean that we are close.
-//     * Let's run at the min speed to make sure we don't overshoot. */
-//    L_DesiredSpeed = L_K_MinSpeed * L_Direction;
-//    }
 
   if ((L_TargetMet == true) ||
       (L_DebounceTime > 0.0))
@@ -756,21 +569,6 @@ bool CntrlAutonOpenLoopTimer(T_Actuator       L_CntrlActuator,
 
   V_RobotMotorCmndPct[E_RobotMotorIntakeRoller] = V_RobotUserCmndPct[E_RobotUserCmndIntakeRoller];
 
-//  L_ControlComplete = DtrmnActuatorComplete( L_AutonTarget,
-//                                             V_IntakePosition,
-//                                             K_AutonIntakeDistanceDeadband,
-//                                            &V_AutonIntakeLiftDebounceTimer,
-//                                             K_AutonDebounceThreshold);
-//
-//  V_IntakeLiftHeightDesired = CntrlAutonDesiredSpeed(L_AutonTarget,
-//                                                     V_IntakePosition,
-//                                                     V_IntakeLiftHeightDesired,
-//                                                     K_AutonIntakeDistanceToSlow,
-//                                                     K_AutonIntakeMinSpeed,
-//                                                     K_AutonIntakeMaxSpeed,
-//                                                     K_AutonIntakeSpeedRamp,
-//                                                     V_AutonIntakeLiftDebounceTimer,
-//                                                     L_ControlComplete);
 
 
 

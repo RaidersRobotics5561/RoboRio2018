@@ -4,6 +4,8 @@
 *
 *  Flushing Raiders Robotics - Team 5561
 *
+*  Robot code for the 2018 season.
+*
 ************************************************************************************************************/
 
 /************************************************************************************************************
@@ -63,11 +65,12 @@ double V_RotateGain;
 
 double V_UltraSonicDistance[E_RobotSideSz]; // Measured, filtered ultrasonic distance
 
-T_RobotSide     V_AutonTargetSide[3];
-T_AutonStartPos V_AutonStartPos;
-double          V_AutonWheelDebounceTimer[E_RobotSideSz];
-double          V_AutonRotateDebounceTimer;
-double          V_AutonIntakeLiftDebounceTimer;
+T_RobotSide       V_AutonTargetSide[3];
+T_AutonStartPos   V_AutonStartPos;
+T_AutonPreference V_AutonPreferenceFinal;
+double            V_AutonWheelDebounceTimer[E_RobotSideSz];
+double            V_AutonRotateDebounceTimer;
+double            V_AutonIntakeLiftDebounceTimer;
 
 T_RoboState V_RobatState;
 T_DriveMode DriveMode;
@@ -87,6 +90,11 @@ class Robot: public IterativeRobot {
 	const std::string C_StartOpt2 = "Middle";
   const std::string C_StartOpt3 = "Right";
 	std::string V_StartOptSelected;
+
+  frc::SendableChooser<std::string> V_AutonPreference;
+  const std::string C_Preference0 = "Switch";
+  const std::string C_Preference1 = "Scale";
+  std::string V_AutonPreferenceSelected;
 
 private:
 	//left Back, SRX:left Front #1
@@ -248,6 +256,10 @@ void RobotInit()
 	V_StartingPosition.AddObject(C_StartOpt3, C_StartOpt3);
 	frc::SmartDashboard::PutData("Starting Position", &V_StartingPosition);
 
+	V_AutonPreference.AddDefault(C_Preference0, C_Preference0);
+	V_AutonPreference.AddObject(C_Preference1, C_Preference1);
+  frc::SmartDashboard::PutData("Switch Scale Preference", &V_AutonPreference);
+
 	Prefs = Preferences::GetInstance();
 
 	V_RobatState = E_Disabled;
@@ -345,7 +357,7 @@ void RobotInit()
  ******************************************************************************/
 	void TeleopPeriodic()
 	  {
-    T_ArmCmnd L_ArmAnglePrev = E_ArmCmndOff;
+    T_ArmCmnd L_ArmAnglePrev     = E_ArmCmndOff;
     T_ArmCmnd L_ArmAnglePrevPrev = E_ArmCmndOff;
 
 //		VariableInit(Prefs,
@@ -600,9 +612,21 @@ void AutonomousPeriodic()
     V_AutonStartPos = E_AutonStartPosDefault;
     }
 
+  V_AutonPreferenceSelected = V_AutonPreference.GetSelected();
+
+  if (V_AutonPreferenceSelected == C_Preference0)
+    {
+    V_AutonPreferenceFinal = E_AutonPreferenceSwitch;
+    }
+  else
+    {
+    V_AutonPreferenceFinal = E_AutonPreferenceScale;
+    }
+
   L_AutonOption =  DtrmnAutonOption(V_AutonTargetSide[0],
                                     V_AutonTargetSide[1],
-                                    V_AutonStartPos);
+                                    V_AutonStartPos,
+                                    V_AutonPreferenceFinal);
 
   L_ControlComplete[E_AutonCntrlPrimary]   = false;
   L_ControlComplete[E_AutonCntrlSecondary] = false;

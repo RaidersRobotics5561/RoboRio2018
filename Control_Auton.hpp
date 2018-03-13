@@ -8,9 +8,10 @@
 #define SRC_ROBORIO2018_CONTROL_AUTON_HPP_
 
 
-extern T_AutonOpt DtrmnAutonOption(T_RobotSide     L_AutonTargetSwitch,
-                                   T_RobotSide     L_AutonTargetScale,
-                                   T_AutonStartPos L_AutonStartPos);
+extern T_AutonOpt DtrmnAutonOption(T_RobotSide       L_AutonTargetSwitch,
+                                   T_RobotSide       L_AutonTargetScale,
+                                   T_AutonStartPos   L_AutonStartPos,
+                                   T_AutonPreference L_AutonPreference);
 
 extern bool DtrmnActuatorComplete(double     L_CntrlVal,
                                   double     L_MeasuredVal,

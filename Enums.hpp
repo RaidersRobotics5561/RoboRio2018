@@ -134,12 +134,12 @@ typedef enum T_AutonStartPos
     E_AutonStartPosDefault
   } T_AutonStartPos;
 
-typedef enum T_AutonEndPos
+typedef enum T_AutonPreference
   {
-    E_AutonEndPosSwFront,
-    E_AutonEndPosSwSide,
-    E_AutonEndPosScale
-  } T_AutonEndPos;
+    E_AutonPreferenceSwitch,
+    E_AutonPreferenceScale,
+    E_AutonPreferenceSz
+  } T_AutonPreference;
 
 typedef enum T_AutonOpt
   {

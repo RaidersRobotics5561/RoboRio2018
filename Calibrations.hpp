@@ -51,17 +51,13 @@ const double K_JoystickAnalogDeadband    = 0.1;
 
 const double C_WheelSpeedPID_Gain[E_RobotSideSz][E_PID_Sz] = {
     // P    I    D
-		{ 0.002,   0.0005,  0.0 }, //LEFT 002  0005
+		{ 0.002,   0.0005,  0.0 }, //LEFT
 	    { 0.0014,  0.00045, 0.0 }}; // Other Left
-//    { 0.0001, 0.0006, 0.0 }, //LEFT
-//    { 0.0002, 0.0009, 0.0 }}; //RIGHT
 
 const double K_WheelSpeedPID_GainAuton[E_RobotSideSz][E_PID_Sz] = {
     // P    I    D
-//		{ 0.0001, 0.0006, 0.0 }, //LEFT
-//	    { 0.0002, 0.0009, 0.0 }};
-   { 0.002,   0.0005,  0.0 }, //LEFT 002  0005
-   { 0.0014,  0.00045, 0.0 }}; //RIGHT 0015  00045
+    { 0.002,   0.0005,  0.0 }, //LEFT 
+    { 0.0014,  0.00045, 0.0 }}; //RIGHT
 
 const double C_WheelspeedProportionalLimit[E_RobotSideSz][E_IntergalLimitSz] = {
     // UPPER LOWER
@@ -190,7 +186,7 @@ const double K_AutonDriveDistanceUltraDeadband =  0.5;  // Inches - for the ultr
 const double K_AutonDriveMinSpeedUltra         =  8.0; // RPM
 
 const double K_AutonDriveDistanceDeadband =   5.0;  // Inches
-const double K_AutonDriveDistanceToSlow   =  24.5561;  // Inches 85
+const double K_AutonDriveDistanceToSlow   =  24.5561;  // Inches
 const double K_AutonDriveSpeedRamp        = 100.0;  // RPM/Sec
 const double K_AutonDriveMaxSpeed         = 139.5561;  // RPM
 const double K_AutonDriveMinSpeed         =  44.5561;  // RPM
@@ -201,10 +197,10 @@ const double K_AutonIntakeDistanceDeadband =   2.0;  // Inches
 const double K_AutonIntakeAngleCmnd        =   0.6;  // Percent of possible motor controller output
 
 /* K_AutonCommand: This table contains all of the possible commands that could be expected in Auton.
-                   These will go sequentually go through the possible combinations.  You can have two
-                   actuators beign controlled at once when it makes sense.  For example, you can only
+                   These will go sequentially go through the possible combinations.  You can have two
+                   actuators being controlled at once when it makes sense.  For example, you can only
                    control the drive wheels with a single command at one time (so you couldn't
-                   command a roation and a drive command at the same time). The following are the
+                   command a rotation and a drive command at the same time). The following are the
                    units for the various actuators:
                    Encoder: Inches
                    ArmAng: Open loop power command for the given time
@@ -226,8 +222,8 @@ const AutonControlPlan K_AutonCommand[E_AutonOptSz] =
         {                        0,                         0,                        52,                         0,                         0,                       -10,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0}
       },
       { // E_AutonOpt2 - middle - front switch - left
-        {   E_ActuatorDriveEncoder,          E_ActuatorRotate,    E_ActuatorDriveEncoder,          E_ActuatorRotate,   				 E_ActuatorNone, 				E_ActuatorNone,       E_ActuatorDriveUltraSonic,         E_ActuatorNone,        E_ActuatorNone,          E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone},
-        {                      14.5561,                       -54.5561,                        130,                      54.5561,                        0,                        10,                       6.5561,                       1.5,                         1,                       -90,                         0,                         0,                         0,                         0,                         0},
+        {   E_ActuatorDriveEncoder,          E_ActuatorRotate,    E_ActuatorDriveEncoder,          E_ActuatorRotate,           E_ActuatorNone,             E_ActuatorNone, E_ActuatorDriveUltraSonic,         E_ActuatorNone,        E_ActuatorNone,          E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone},
+        {                  14.5561,                  -54.5561,                       130,                   54.5561,                        0,                         10,                    6.5561,                       1.5,                         1,                       -90,                         0,                         0,                         0,                         0,                         0},
         {           E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,    E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone},
         {                        0,                         0,                         0,                         0,                         0,                        30,                         0,                         0,                        -5,                         0,                         0,                         0,                         0,                         0,                         0}
       },
