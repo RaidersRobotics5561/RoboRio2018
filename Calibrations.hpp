@@ -51,13 +51,17 @@ const double K_JoystickAnalogDeadband    = 0.1;
 
 const double C_WheelSpeedPID_Gain[E_RobotSideSz][E_PID_Sz] = {
     // P    I    D
-    { 0.0001, 0.0006, 0.0 }, //LEFT
-    { 0.0002, 0.0009, 0.0 }}; //RIGHT
+		{ 0.002,   0.0005,  0.0 }, //LEFT 002  0005
+	    { 0.0014,  0.00045, 0.0 }}; // Other Left
+//    { 0.0001, 0.0006, 0.0 }, //LEFT
+//    { 0.0002, 0.0009, 0.0 }}; //RIGHT
 
 const double K_WheelSpeedPID_GainAuton[E_RobotSideSz][E_PID_Sz] = {
     // P    I    D
-    { 0.002,   0.0005,  0.0 }, //LEFT 002  0005
-    { 0.0014,  0.00045, 0.0 }}; //RIGHT 0015  00045
+		{ 0.0001, 0.0006, 0.0 }, //LEFT
+	    { 0.0002, 0.0009, 0.0 }};
+//    { 0.002,   0.0005,  0.0 }, //LEFT 002  0005
+//    { 0.0014,  0.00045, 0.0 }}; //RIGHT 0015  00045
 
 const double C_WheelspeedProportionalLimit[E_RobotSideSz][E_IntergalLimitSz] = {
     // UPPER LOWER
@@ -175,21 +179,21 @@ const double K_DesiredDriveSpeed[20] = {-150.00,  //-0.95
 //80.0,  // 0.85
 //150.0}; // 0.95
 
-const double K_AutonDebounceThreshold     =  0.1;   // Seconds (not sure if this is sufficient to share across all functions, but let's start with a single place value).
+const double K_AutonDebounceThreshold     =  0.05;   // Seconds (not sure if this is sufficient to share across all functions, but let's start with a single place value).
 
-const double K_AutonRotateAnglePropGx     =   0.5;  // RPM/Degrees
+const double K_AutonRotateAnglePropGx     =   0.65561;  // RPM/Degrees
 const double K_AutonRotateAngleDeadband   =   2.0;  // Degrees
-const double K_AutonRotateMaxSpeed        =  30.0;  // RPM
-const double K_AutonRotateMinSpeed        =  5.0;  // RPM
+const double K_AutonRotateMaxSpeed        =  34.5561;  // RPM
+const double K_AutonRotateMinSpeed        =  11.5561;  // RPM
 
 const double K_AutonDriveDistanceUltraDeadband =  0.5;  // Inches - for the ultrasonic sensor control
 const double K_AutonDriveMinSpeedUltra         =  8.0; // RPM
 
 const double K_AutonDriveDistanceDeadband =   5.0;  // Inches
-const double K_AutonDriveDistanceToSlow   =  35.0;  // Inches 85
+const double K_AutonDriveDistanceToSlow   =  24.5561;  // Inches 85
 const double K_AutonDriveSpeedRamp        = 100.0;  // RPM/Sec
-const double K_AutonDriveMaxSpeed         = 100.0;  // RPM
-const double K_AutonDriveMinSpeed         =  35.0;  // RPM
+const double K_AutonDriveMaxSpeed         = 139.5561;  // RPM
+const double K_AutonDriveMinSpeed         =  44.5561;  // RPM
 
 const double K_AutonIntakeRamp             =  60.0;  // Inch/Sec
 const double K_AutonIntakeDistanceDeadband =   2.0;  // Inches
@@ -222,16 +226,16 @@ const AutonControlPlan K_AutonCommand[E_AutonOptSz] =
         {                        0,                         0,                        52,                         0,                         0,                       -10,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0}
       },
       { // E_AutonOpt2 - middle - front switch - left
-        {   E_ActuatorDriveEncoder,          E_ActuatorRotate,    E_ActuatorDriveEncoder,          E_ActuatorRotate,    E_ActuatorDriveEncoder, E_ActuatorDriveUltraSonic,       E_ActuatorArmAngDwn,         E_ActuatorRollers,        E_ActuatorArmAngUp,          E_ActuatorRotate,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone},
-        {                       60,                       -90,                        45,                        90,                        55,                        10,                       0.6,                       1.5,                         1,                       -90,                         0,                         0,                         0,                         0,                         0},
-        {           E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorLift,            E_ActuatorNone,            E_ActuatorNone,    E_ActuatorDriveEncoder,            E_ActuatorLift,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone},
+        {   E_ActuatorDriveEncoder,          E_ActuatorRotate,    E_ActuatorDriveEncoder,          E_ActuatorRotate,   				 E_ActuatorNone, 				E_ActuatorNone,       E_ActuatorDriveUltraSonic,         E_ActuatorNone,        E_ActuatorNone,          E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone},
+        {                      14.5561,                       -54.5561,                        130,                      54.5561,                        0,                        10,                       6.5561,                       1.5,                         1,                       -90,                         0,                         0,                         0,                         0,                         0},
+        {           E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,    E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone},
         {                        0,                         0,                         0,                         0,                         0,                        30,                         0,                         0,                        -5,                         0,                         0,                         0,                         0,                         0,                         0}
       },
       { // E_AutonOpt3 - middle - front switch - right
-        {   E_ActuatorDriveEncoder,          E_ActuatorRotate,    E_ActuatorDriveEncoder,          E_ActuatorRotate,    E_ActuatorDriveEncoder, E_ActuatorDriveUltraSonic,       E_ActuatorArmAngDwn,         E_ActuatorRollers,        E_ActuatorArmAngUp,          E_ActuatorRotate,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone},
-        {                       60,                        90,                        45,                       -90,                        55,                        10,                       0.6,                       1.5,                         1,                        90,                         0,                         0,                         0,                         0,                         0},
-        {           E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorLift,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,    E_ActuatorDriveEncoder,            E_ActuatorLift,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone},
-        {                        0,                         0,                         0,                         0,                        30,                         0,                         0,                         0,                        -5,                         0,                         0,                         0,                         0,                         0,                         0}
+        {   E_ActuatorNone,          E_ActuatorRotate,    E_ActuatorDriveEncoder,          E_ActuatorNone,   			E_ActuatorNone,				E_ActuatorDriveUltraSonic,				E_ActuatorNone,         E_ActuatorNone,        E_ActuatorNone,          E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone},
+        {                       0,                       5,                        75,                       0,                        0,                        6.5561,                       0,                       0,                         0,                        0,                         0,                         0,                         0,                         0,                         0},
+        {           E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,    	E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone},
+        {                        0,                         0,                         0,                         0,                        0,                         0,                         0,                         0,                        0,                         0,                         0,                         0,                         0,                         0,                         0}
       },
       { // E_AutonOpt4 - Right - Scale - Right
         {   E_ActuatorDriveEncoder,          E_ActuatorRotate,    E_ActuatorDriveEncoder,       E_ActuatorArmAngDwn,         E_ActuatorRollers,        E_ActuatorArmAngUp,          E_ActuatorRotate,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone},
