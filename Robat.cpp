@@ -403,14 +403,14 @@ void RobotInit()
                                                               V_WheelProportionalGain[E_RobotSideLeft],
                                                               V_WheelIntegralGain[E_RobotSideLeft],
                                                               V_WheelDerivativeGain[E_RobotSideLeft],
-                                                              C_WheelspeedProportionalLimit[E_RobotSideLeft][E_IntergalUpperLimit],
-                                                              C_WheelspeedProportionalLimit[E_RobotSideLeft][E_IntergalLowerLimit],
-                                                              C_WheelspeedIntergalLimit[E_RobotSideLeft][E_IntergalUpperLimit],
-                                                              C_WheelspeedIntergalLimit[E_RobotSideLeft][E_IntergalLowerLimit],
-                                                              C_WheelspeedDerivativeLimit[E_RobotSideLeft][E_IntergalUpperLimit],
-                                                              C_WheelspeedDerivativeLimit[E_RobotSideLeft][E_IntergalLowerLimit],
-                                                              C_WheelspeedCmndLimit[E_RobotSideLeft][E_IntergalUpperLimit],
-                                                              C_WheelspeedCmndLimit[E_RobotSideLeft][E_IntergalLowerLimit]);
+                                                              K_WheelSpeedProportionalLimit[E_RobotSideLeft][E_IntergalUpperLimit],
+                                                              K_WheelSpeedProportionalLimit[E_RobotSideLeft][E_IntergalLowerLimit],
+                                                              K_WheelSpeedIntergalLimit[E_RobotSideLeft][E_IntergalUpperLimit],
+                                                              K_WheelSpeedIntergalLimit[E_RobotSideLeft][E_IntergalLowerLimit],
+                                                              K_WheelSpeedDerivativeLimit[E_RobotSideLeft][E_IntergalUpperLimit],
+                                                              K_WheelSpeedDerivativeLimit[E_RobotSideLeft][E_IntergalLowerLimit],
+                                                              K_WheelSpeedCmndLimit[E_RobotSideLeft][E_IntergalUpperLimit],
+                                                              K_WheelSpeedCmndLimit[E_RobotSideLeft][E_IntergalLowerLimit]);
 
     V_RobotMotorCmndPct[E_RobotMotorRightWheel] = Control_PID(V_WheelRPM_Desired[E_RobotSideRight],
                                                               V_WheelRPM_Filt[E_RobotSideRight],
@@ -419,14 +419,14 @@ void RobotInit()
                                                               V_WheelProportionalGain[E_RobotSideRight],
                                                               V_WheelIntegralGain[E_RobotSideRight],
                                                               V_WheelDerivativeGain[E_RobotSideRight],
-                                                              C_WheelspeedProportionalLimit[E_RobotSideRight][E_IntergalUpperLimit],
-                                                              C_WheelspeedProportionalLimit[E_RobotSideRight][E_IntergalLowerLimit],
-                                                              C_WheelspeedIntergalLimit[E_RobotSideRight][E_IntergalUpperLimit],
-                                                              C_WheelspeedIntergalLimit[E_RobotSideRight][E_IntergalLowerLimit],
-                                                              C_WheelspeedDerivativeLimit[E_RobotSideRight][E_IntergalUpperLimit],
-                                                              C_WheelspeedDerivativeLimit[E_RobotSideRight][E_IntergalLowerLimit],
-                                                              C_WheelspeedCmndLimit[E_RobotSideRight][E_IntergalUpperLimit],
-                                                              C_WheelspeedCmndLimit[E_RobotSideRight][E_IntergalLowerLimit]);
+                                                              K_WheelSpeedProportionalLimit[E_RobotSideRight][E_IntergalUpperLimit],
+                                                              K_WheelSpeedProportionalLimit[E_RobotSideRight][E_IntergalLowerLimit],
+                                                              K_WheelSpeedIntergalLimit[E_RobotSideRight][E_IntergalUpperLimit],
+                                                              K_WheelSpeedIntergalLimit[E_RobotSideRight][E_IntergalLowerLimit],
+                                                              K_WheelSpeedDerivativeLimit[E_RobotSideRight][E_IntergalUpperLimit],
+                                                              K_WheelSpeedDerivativeLimit[E_RobotSideRight][E_IntergalLowerLimit],
+                                                              K_WheelSpeedCmndLimit[E_RobotSideRight][E_IntergalUpperLimit],
+                                                              K_WheelSpeedCmndLimit[E_RobotSideRight][E_IntergalLowerLimit]);
 
     V_IntakeLiftHeightDesired =  DesiredLiftHeight(V_RobotUserCmndPct[E_RobotUserCmndLift],
                                                    V_IntakeLiftHeightDesired,
@@ -720,6 +720,9 @@ void AutonomousPeriodic()
         {
         V_RobotMotorCmndPct[L_RobotMotor] = 0.0;
         }
+
+      /* Ok, let's indicate that we have completed the auton control. */
+      V_RobatState = E_AutonComplete;
       }
 
     /* Need to clean this up at some point, but we need to maintain control of the lift mechanism */

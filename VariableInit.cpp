@@ -39,14 +39,14 @@ void VariableInit(Preferences   *L_DriverPreferences,
 
   mCounter->Reset();
 
-  V_WheelProportionalGain[E_RobotSideLeft] = L_DriverPreferences->GetDouble("P_L", C_WheelSpeedPID_Gain[E_RobotSideLeft][E_PID_Proportional]);
-  V_WheelIntegralGain[E_RobotSideLeft] = L_DriverPreferences->GetDouble("I_L", C_WheelSpeedPID_Gain[E_RobotSideLeft][E_PID_Integral]);
-  V_WheelDerivativeGain[E_RobotSideLeft] = L_DriverPreferences->GetDouble("D_L", C_WheelSpeedPID_Gain[E_RobotSideLeft][E_PID_Derivative]);
-  V_WheelProportionalGain[E_RobotSideRight] = L_DriverPreferences->GetDouble("P_R", C_WheelSpeedPID_Gain[E_RobotSideRight][E_PID_Proportional]);
-  V_WheelIntegralGain[E_RobotSideRight] = L_DriverPreferences->GetDouble("I_R", C_WheelSpeedPID_Gain[E_RobotSideRight][E_PID_Integral]);
-  V_WheelDerivativeGain[E_RobotSideRight] = L_DriverPreferences->GetDouble("D_R", C_WheelSpeedPID_Gain[E_RobotSideRight][E_PID_Derivative]);
-  V_WheelSpeedLagFiltGain[E_RobotSideRight] = L_DriverPreferences->GetDouble("Lag_R", C_WheelSpeedLagFilterGain[E_RobotSideRight]);
-  V_WheelSpeedLagFiltGain[E_RobotSideLeft] = L_DriverPreferences->GetDouble("Lag_L", C_WheelSpeedLagFilterGain[E_RobotSideLeft]);
+  V_WheelProportionalGain[E_RobotSideLeft] = L_DriverPreferences->GetDouble("P_L", K_WheelSpeedPID_Gain[E_RobotSideLeft][E_PID_Proportional]);
+  V_WheelIntegralGain[E_RobotSideLeft] = L_DriverPreferences->GetDouble("I_L", K_WheelSpeedPID_Gain[E_RobotSideLeft][E_PID_Integral]);
+  V_WheelDerivativeGain[E_RobotSideLeft] = L_DriverPreferences->GetDouble("D_L", K_WheelSpeedPID_Gain[E_RobotSideLeft][E_PID_Derivative]);
+  V_WheelProportionalGain[E_RobotSideRight] = L_DriverPreferences->GetDouble("P_R", K_WheelSpeedPID_Gain[E_RobotSideRight][E_PID_Proportional]);
+  V_WheelIntegralGain[E_RobotSideRight] = L_DriverPreferences->GetDouble("I_R", K_WheelSpeedPID_Gain[E_RobotSideRight][E_PID_Integral]);
+  V_WheelDerivativeGain[E_RobotSideRight] = L_DriverPreferences->GetDouble("D_R", K_WheelSpeedPID_Gain[E_RobotSideRight][E_PID_Derivative]);
+  V_WheelSpeedLagFiltGain[E_RobotSideRight] = L_DriverPreferences->GetDouble("Lag_R", K_WheelSpeedLagFilterGain[E_RobotSideRight]);
+  V_WheelSpeedLagFiltGain[E_RobotSideLeft] = L_DriverPreferences->GetDouble("Lag_L", K_WheelSpeedLagFilterGain[E_RobotSideLeft]);
 
   V_IntakeArmPulseToRev[E_ArmCmndOff] =  L_DriverPreferences->GetDouble("ArmPulseOff", K_IntakeArmPulseToRev[E_ArmCmndOff]);
   V_IntakeArmPulseToRev[E_ArmCmndUp] =  L_DriverPreferences->GetDouble("ArmPulseUp", K_IntakeArmPulseToRev[E_ArmCmndUp]);
@@ -106,6 +106,8 @@ void VariableInit(Preferences   *L_DriverPreferences,
 
   V_RollerTimer = 0.0;
   V_IntakeArmTimer = 0.0;
+
+  V_LED_RainbowLatch = false;
 
   V_GyroAngleOffset = L_Gyro->GetAngle();
   }

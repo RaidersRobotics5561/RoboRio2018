@@ -61,6 +61,7 @@
  {
    E_Disabled,
    E_Auton,
+   E_AutonComplete,
    E_Teleop,
    E_Test,
    E_Null

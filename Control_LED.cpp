@@ -29,16 +29,16 @@
  *                    0       0       1       1      * Mode3  * - Blue alliance, final part
  *                    0       1       0       0      * Mode4  * - Red alliance, main
  *                    0       1       0       1      * Mode5  * - Red alliance, final part
- *                    0       1       1       0      * Mode6  * - 
+ *                    0       1       1       0      * Mode6  * -
  *                    0       1       1       1      * Mode7  * -
- *                    1       0       0       0      * Mode8  * - 
- *                    1       0       0       1      * Mode9  * - 
- *                    1       0       1       0      * Mode10 * - 
- *                    1       0       1       1      * Mode11 * - 
- *                    1       1       0       0      * Mode12 * - 
- *                    1       1       0       1      * Mode13 * - 
+ *                    1       0       0       0      * Mode8  * -
+ *                    1       0       0       1      * Mode9  * -
+ *                    1       0       1       0      * Mode10 * -
+ *                    1       0       1       1      * Mode11 * -
+ *                    1       1       0       0      * Mode12 * -
+ *                    1       1       0       1      * Mode13 * -
  *                    1       1       1       0      * Mode14 * - User light request - Aqua
- *                    1       1       1       1      * Mode15 * - 
+ *                    1       1       1       1      * Mode15 * -
  ******************************************************************************/
 void UpdateLED_Output(T_RoboState    L_RobotState,
                       bool           L_DriverOverride,
@@ -116,6 +116,10 @@ void UpdateLED_Output(T_RoboState    L_RobotState,
               L_LED_Mode = LED_Mode8;
             }
         }
+    }
+  else if (L_RobotState == E_AutonComplete)
+    {
+      L_LED_Mode = LED_Mode11;
     }
   else if (L_RobotState == E_Disabled)
     {

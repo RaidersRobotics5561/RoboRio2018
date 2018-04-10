@@ -62,14 +62,18 @@ void DtrmnControllerMapping(Joystick *L_Joystick1,
   V_RobotUserCmndPct[E_RobotUserCmndHook] = 0;
     }
 
-  if (L_Joystick2->GetRawButton(1) == true)
-    {
-    L_IntakeRollers = K_IntakeRollers;
-    }
-  else if (L_Joystick2->GetRawButton(2) == true)
-    {
-    L_IntakeRollers = -K_IntakeRollers;
-    }
+//  if (L_Joystick2->GetRawButton(1) == true)
+//    {
+//    L_IntakeRollers = K_IntakeRollers;
+//    }
+//  else if (L_Joystick2->GetRawButton(2) == true)
+//    {
+//    L_IntakeRollers = -K_IntakeRollers;
+//    }
+
+    L_IntakeRollers = DeadBand(L_Joystick2->GetRawAxis(5),
+                               -K_JoystickAnalogDeadband,
+                                K_JoystickAnalogDeadband);
 
   if(L_Joystick2->GetRawButton(4)){
    Winch = K_Winch;

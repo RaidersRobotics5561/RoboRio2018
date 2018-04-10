@@ -395,6 +395,14 @@ bool CntrlAutonDrive(T_Actuator       L_CntrlActuator,
   {
   bool        L_ControlComplete = false;
   T_RobotSide L_RobotSide       = E_RobotSideLeft;
+  float       L_RobotPID_Gx[E_RobotSideSz][E_PID_Sz];
+
+  L_RobotPID_Gx[E_RobotSideLeft][E_PID_Proportional]  = K_WheelSpeedPID_GainAuton[E_RobotSideLeft][E_PID_Proportional];
+  L_RobotPID_Gx[E_RobotSideLeft][E_PID_Integral]      = K_WheelSpeedPID_GainAuton[E_RobotSideLeft][E_PID_Integral];
+  L_RobotPID_Gx[E_RobotSideLeft][E_PID_Derivative]    = K_WheelSpeedPID_GainAuton[E_RobotSideLeft][E_PID_Derivative];
+  L_RobotPID_Gx[E_RobotSideRight][E_PID_Proportional] = K_WheelSpeedPID_GainAuton[E_RobotSideRight][E_PID_Proportional];
+  L_RobotPID_Gx[E_RobotSideRight][E_PID_Integral]     = K_WheelSpeedPID_GainAuton[E_RobotSideRight][E_PID_Integral];
+  L_RobotPID_Gx[E_RobotSideRight][E_PID_Derivative]   = K_WheelSpeedPID_GainAuton[E_RobotSideRight][E_PID_Derivative];
 
   if (L_CntrlActuator == E_ActuatorDriveEncoder)
     {
@@ -438,6 +446,13 @@ bool CntrlAutonDrive(T_Actuator       L_CntrlActuator,
     }
   else if (L_CntrlActuator == E_ActuatorRotate)
     {
+    L_RobotPID_Gx[E_RobotSideLeft][E_PID_Proportional]  = K_WheelSpeedPID_GainRotateAuton[E_RobotSideLeft][E_PID_Proportional];
+    L_RobotPID_Gx[E_RobotSideLeft][E_PID_Integral]      = K_WheelSpeedPID_GainRotateAuton[E_RobotSideLeft][E_PID_Integral];
+    L_RobotPID_Gx[E_RobotSideLeft][E_PID_Derivative]    = K_WheelSpeedPID_GainRotateAuton[E_RobotSideLeft][E_PID_Derivative];
+    L_RobotPID_Gx[E_RobotSideRight][E_PID_Proportional] = K_WheelSpeedPID_GainRotateAuton[E_RobotSideRight][E_PID_Proportional];
+    L_RobotPID_Gx[E_RobotSideRight][E_PID_Integral]     = K_WheelSpeedPID_GainRotateAuton[E_RobotSideRight][E_PID_Integral];
+    L_RobotPID_Gx[E_RobotSideRight][E_PID_Derivative]   = K_WheelSpeedPID_GainRotateAuton[E_RobotSideRight][E_PID_Derivative];
+
     L_ControlComplete = DtrmnActuatorComplete( L_AutonTarget,
                                                V_GyroAngleRelative,
                                                K_AutonRotateAngleDeadband,
@@ -467,17 +482,17 @@ bool CntrlAutonDrive(T_Actuator       L_CntrlActuator,
                                                     V_WheelRPM_Filt[L_RobotSide],
                                                     &V_WheelSpeedErrorPrev[L_RobotSide],
                                                     &V_WheelSpeedErrorIntegral[L_RobotSide],
-                                                    K_WheelSpeedPID_GainAuton[L_RobotSide][E_PID_Proportional],
-                                                    K_WheelSpeedPID_GainAuton[L_RobotSide][E_PID_Integral],
-                                                    K_WheelSpeedPID_GainAuton[L_RobotSide][E_PID_Derivative],
-                                                    C_WheelspeedProportionalLimit[L_RobotSide][E_IntergalUpperLimit],
-                                                    C_WheelspeedProportionalLimit[L_RobotSide][E_IntergalLowerLimit],
-                                                    C_WheelspeedIntergalLimit[L_RobotSide][E_IntergalUpperLimit],
-                                                    C_WheelspeedIntergalLimit[L_RobotSide][E_IntergalLowerLimit],
-                                                    C_WheelspeedDerivativeLimit[L_RobotSide][E_IntergalUpperLimit],
-                                                    C_WheelspeedDerivativeLimit[L_RobotSide][E_IntergalLowerLimit],
-                                                    C_WheelspeedCmndLimit[L_RobotSide][E_IntergalUpperLimit],
-                                                    C_WheelspeedCmndLimit[L_RobotSide][E_IntergalLowerLimit]);
+                                                    L_RobotPID_Gx[L_RobotSide][E_PID_Proportional],
+                                                    L_RobotPID_Gx[L_RobotSide][E_PID_Integral],
+                                                    L_RobotPID_Gx[L_RobotSide][E_PID_Derivative],
+                                                    K_WheelSpeedProportionalLimit[L_RobotSide][E_IntergalUpperLimit],
+                                                    K_WheelSpeedProportionalLimit[L_RobotSide][E_IntergalLowerLimit],
+                                                    K_WheelSpeedIntergalLimit[L_RobotSide][E_IntergalUpperLimit],
+                                                    K_WheelSpeedIntergalLimit[L_RobotSide][E_IntergalLowerLimit],
+                                                    K_WheelSpeedDerivativeLimit[L_RobotSide][E_IntergalUpperLimit],
+                                                    K_WheelSpeedDerivativeLimit[L_RobotSide][E_IntergalLowerLimit],
+                                                    K_WheelSpeedCmndLimit[L_RobotSide][E_IntergalUpperLimit],
+                                                    K_WheelSpeedCmndLimit[L_RobotSide][E_IntergalLowerLimit]);
     }
 
 
