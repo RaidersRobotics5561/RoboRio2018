@@ -696,6 +696,7 @@ void AutonomousPeriodic()
           case E_ActuatorDriveUltraSonic: L_ControlComplete[L_AutonCntrlType] = CntrlAutonDrive(L_CntrlActuator,
                                                                                                 L_AutonTarget);          break;
 
+#ifdef COMPBOT
           case E_ActuatorLift:            L_ControlComplete[L_AutonCntrlType] = CntrlAutonLift(L_CntrlActuator,
                                                                                                L_AutonTarget);           break;
 
@@ -703,9 +704,10 @@ void AutonomousPeriodic()
           case E_ActuatorArmAngUp:
           case E_ActuatorArmAngDwn:       L_ControlComplete[L_AutonCntrlType] = CntrlAutonOpenLoopTimer(L_CntrlActuator,
                                                                                                         L_AutonTarget);  break;
-
+#endif
           case E_ActuatorNone:
-          default:                        L_ControlComplete[L_AutonCntrlType] = true;                                    break;
+          default:                        L_ControlComplete[L_AutonCntrlType] = true;   break;
+
           }
         }
       }

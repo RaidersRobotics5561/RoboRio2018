@@ -157,6 +157,38 @@ bool DtrmnActuatorComplete(double     L_CntrlVal,
   return (L_ControlComplete);
   }
 
+/******************************************************************************
+ * Function:     DtrmnActuatorComplete
+ *
+ * Description:  Determine when an actuator has reached its desired end point.
+ *
+ ******************************************************************************/
+bool DtrmnActuatorCompleteSonic(double     L_CntrlVal,
+                           	   double     L_MeasuredVal,
+							   double     L_Deadband,
+							   double    *L_DebounceTimer,
+							   double     L_DebounceThreshold)
+  {
+  bool   L_ControlComplete = false;
+
+  if (L_MeasuredVal <= L_CntrlVal)
+    {
+    *L_DebounceTimer += C_ExeTime;
+
+    if (*L_DebounceTimer >= L_DebounceThreshold)
+      {
+      *L_DebounceTimer = L_DebounceThreshold;
+      L_ControlComplete = true;
+      }
+    }
+  else
+    {
+    *L_DebounceTimer = 0.0;
+    }
+
+  return (L_ControlComplete);
+  }
+
 
 
 /******************************************************************************
@@ -431,7 +463,7 @@ bool CntrlAutonDrive(T_Actuator       L_CntrlActuator,
          L_RobotSide < E_RobotSideSz;
          L_RobotSide = T_RobotSide(int(L_RobotSide) + 1))
       {
-      L_ControlComplete = DtrmnActuatorComplete( L_AutonTarget,
+      L_ControlComplete = DtrmnActuatorCompleteSonic( L_AutonTarget,
                                                  V_UltraSonicDistance[L_RobotSide],
                                                  K_AutonDriveDistanceUltraDeadband,
                                                 &V_AutonWheelDebounceTimer[L_RobotSide],

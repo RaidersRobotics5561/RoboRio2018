@@ -7,7 +7,7 @@
 #ifndef SRC_ROBORIO2018_CALIBRATIONS_HPP_
 #define SRC_ROBORIO2018_CALIBRATIONS_HPP_
 
-
+#define PBOT
 /* Characterization calibrations:
  * These calibrations set the values that should be fixed (i.e. encoder pulses to revolutions).*/
 
@@ -19,7 +19,7 @@ const int    K_TimeoutMs = 10;
                       (pulses / rev)  */
 const double K_WheelPulseToRev = 12.75;
 
-/* K_IntakeArmPulseToRev: Number of encoder pulses to relative angle position of the intake arms.  The encoders are
+/* K_IntakezArmPulseToRev: Number of encoder pulses to relative angle position of the intake arms.  The encoders are
                           non-directional and as a result, additional code is used to determine direction.  As a result,
                           the calibration has been expanded to allow for different pulses per direction.  However, in
                           the 2018 competition bot, this doesn't work due to noise in the signal (need to reevaluate in
@@ -85,12 +85,12 @@ const double K_WheelSpeedPID_Gain[E_RobotSideSz][E_PID_Sz] = {
 const double K_WheelSpeedPID_GainAuton[E_RobotSideSz][E_PID_Sz] = {
     // P         I        D
     { 0.0035,   0.00020, 0.0 },  //LEFT
-    { 0.0025,   0.00020, 0.0 }}; //RIGHT
+    { 0.0035,   0.00020, 0.0 }}; //RIGHT
 
 const double K_WheelSpeedPID_GainRotateAuton[E_RobotSideSz][E_PID_Sz] = {
     // P    I    D
-    { 0.0015,   0.0008, 0.0 },  //LEFT
-    { 0.0015,   0.0008, 0.0 }}; //RIGHT
+    { 0.03,   0.0008, 0.0 },  //LEFT
+    { 0.03,   0.0008, 0.0 }}; //RIGHT
 
 const double K_WheelSpeedProportionalLimit[E_RobotSideSz][E_IntergalLimitSz] = {
     // UPPER LOWER
@@ -211,18 +211,18 @@ const double K_DesiredDriveSpeed[20] = {-150.00,  //-0.95
 const double K_AutonDebounceThreshold     =  0.05;
 
 const double K_AutonRotateAnglePropGx     =   0.65561;  // RPM/Degrees
-const double K_AutonRotateAngleDeadband   =   2.0;  // Degrees
-const double K_AutonRotateMaxSpeed        =  28.5561;  // RPM
-const double K_AutonRotateMinSpeed        =  11.5561;  // RPM
+const double K_AutonRotateAngleDeadband   =   1.0;  // Degrees
+const double K_AutonRotateMaxSpeed        =  30;  // RPM
+const double K_AutonRotateMinSpeed        =  10;  // RPM
 
 const double K_AutonDriveDistanceUltraDeadband =  0.5;  // Inches - for the ultrasonic sensor control
-const double K_AutonDriveMinSpeedUltra         = 20.5561; // RPM
+const double K_AutonDriveMinSpeedUltra         = 55; // RPM
 
 const double K_AutonDriveDistanceDeadband =   5.0;  // Inches
-const double K_AutonDriveDistanceToSlow   =  24.5561;  // Inches
+const double K_AutonDriveDistanceToSlow   =  35;  // Inches
 const double K_AutonDriveSpeedRamp        = 100.0;  // RPM/Sec
-const double K_AutonDriveMaxSpeed         = 139.5561;  // RPM
-const double K_AutonDriveMinSpeed         =  44.5561;  // RPM
+const double K_AutonDriveMaxSpeed         = 200;  // RPM
+const double K_AutonDriveMinSpeed         =  75;  // RPM
 
 const double K_AutonIntakeRamp             =  60.0;  // Inch/Sec
 const double K_AutonIntakeDistanceDeadband =   2.0;  // Inches
@@ -272,7 +272,7 @@ const AutonControlPlan K_AutonCommand[E_AutonOptSz] =
       },
       { // E_AutonOpt4 - Right - Scale - Right
         {   E_ActuatorDriveEncoder,          E_ActuatorRotate,    E_ActuatorDriveEncoder,       E_ActuatorArmAngDwn,         E_ActuatorRollers,        E_ActuatorArmAngUp,          E_ActuatorRotate,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone},
-        {                      300,                       -90,                         2,                      0.35,                       1.5,                      0.35,                        90,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0},
+        {                      280,                       -45,                         8,                      0.35,                       1.5,                      0.35,                        45,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0},
         {      E_ActuatorArmAngDwn,            E_ActuatorNone,            E_ActuatorLift,            E_ActuatorNone,            E_ActuatorNone,    E_ActuatorDriveEncoder,            E_ActuatorLift,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone},
         {                     0.15,                         0,                        52,                         0,                         0,                       -10,                         5,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0}
       },
@@ -283,10 +283,25 @@ const AutonControlPlan K_AutonCommand[E_AutonOptSz] =
         {                        0,                      0.15,                         0,                       0.6,                         0,                       0.6,                         5,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0}
       },
       { // E_AutonOpt6 - Default
-        {   E_ActuatorDriveEncoder,       E_ActuatorArmAngDwn,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone},
-        {                       90,                      0.15,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0},
-        {           E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone},
-        {                        0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0}
-      }
+        {   E_ActuatorDriveEncoder,       E_ActuatorRotate,            E_ActuatorDriveEncoder,            E_ActuatorRotate,            E_ActuatorDriveEncoder,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone},
+        		{                      228,                    -90,                         	  200,                       	90,                         50,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0},
+        		{           E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone},
+        		{                        0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0}
+        		}
     };
 #endif /* SRC_ROBORIO2018_CALIBRATIONS_HPP_ */
+
+
+//{ // E_AutonOpt6 - Default
+//       {   E_ActuatorDriveEncoder,       E_ActuatorRotate,            E_ActuatorDriveEncoder,            E_ActuatorDriveEncoder,            E_ActuatorRotate,            E_ActuatorDriveEncoder,            E_ActuatorDriveEncoder,            E_ActuatorRotate,            E_ActuatorDriveEncoder,            E_ActuatorRotate,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone},
+//       {                      280,                    -45,                         	  8,                       				-8,                       -110,                         85,                         -10,                         135,                         					85,                         -90,                         0,                         0,                         0,                         0,                         0},
+//       {           E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone},
+//       {                        0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0}
+//     }
+
+//Scale Cross Over
+//{   E_ActuatorDriveEncoder,       E_ActuatorRotate,            E_ActuatorDriveEncoder,            E_ActuatorRotate,            E_ActuatorDriveEncoder,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone},
+//{                      228,                    -90,                         	  200,                       	90,                         50,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0},
+//{           E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone,            E_ActuatorNone},
+//{                        0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0,                         0}
+//}
