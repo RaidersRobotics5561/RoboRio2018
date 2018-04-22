@@ -72,6 +72,7 @@ double            V_AutonWheelDebounceTimer[E_RobotSideSz];
 double            V_AutonRotateDebounceTimer;
 double            V_AutonIntakeLiftDebounceTimer;
 bool V_AutonCrossver;
+bool V_DefaultPath;
 
 T_RoboState V_RobatState;
 T_DriveMode DriveMode;
@@ -538,7 +539,8 @@ void RobotInit()
  ******************************************************************************/
 void AutonomousInit()
   {
-
+	//Set Default Path to be default to be on the safe side
+	V_DefaultPath = false;
 
 //	_talon0->SetSelectedSensorPosition(0, K_SlotIdx, K_TimeoutMs);
 //	_talon3->SetSelectedSensorPosition(0, K_SlotIdx, K_TimeoutMs);
@@ -620,6 +622,7 @@ void AutonomousPeriodic()
   else
     {
     V_AutonStartPos = E_AutonStartPosDefault;
+    V_DefaultPath = true;
     }
 
   V_AutonPreferenceSelected = V_AutonPreference.GetSelected();
@@ -647,7 +650,8 @@ void AutonomousPeriodic()
                                     V_AutonTargetSide[1],
                                     V_AutonStartPos,
                                     V_AutonPreferenceFinal,
-									V_AutonCrossver);
+									V_AutonCrossver,
+									V_DefaultPath);
 
   L_ControlComplete[E_AutonCntrlPrimary]   = false;
   L_ControlComplete[E_AutonCntrlSecondary] = false;
@@ -712,7 +716,7 @@ void AutonomousPeriodic()
 
         switch (L_CntrlActuator)
           {
-          case E_ActuatorRotate:          if (L_AutonTarget > 0) {L_TurnSignal = E_RobotSideRight;} else {L_TurnSignal = E_RobotSideLeft;}
+          case E_ActuatorRotate:          if (L_AutonTarget > 0) {L_TurnSignal = E_RobotSideRight;} else {L_TurnSignal = E_RobotSideLeft;} break;
           case E_ActuatorDriveEncoder:
           case E_ActuatorDriveUltraSonic: L_ControlComplete[L_AutonCntrlType] = CntrlAutonDrive(L_CntrlActuator,
                                                                                                 L_AutonTarget);          break;

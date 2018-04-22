@@ -12,7 +12,8 @@ extern T_AutonOpt DtrmnAutonOption(T_RobotSide       L_AutonTargetSwitch,
                                    T_RobotSide       L_AutonTargetScale,
                                    T_AutonStartPos   L_AutonStartPos,
                                    T_AutonPreference L_AutonPreference,
-								   bool AutonCrossover);
+								   bool AutonCrossover,
+								   bool DeafultPath);
 
 extern bool DtrmnActuatorComplete(double     L_CntrlVal,
                                   double     L_MeasuredVal,
