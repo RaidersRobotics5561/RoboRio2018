@@ -46,39 +46,48 @@ double V_IntakeArmTimer;
 T_AutonOpt DtrmnAutonOption(T_RobotSide       L_AutonTargetSwitch,
                             T_RobotSide       L_AutonTargetScale,
                             T_AutonStartPos   L_AutonStartPos,
-                            T_AutonPreference L_AutonPreference)
+                            T_AutonPreference L_AutonPreference,
+							bool AutonCrossover)
   {
   T_AutonOpt L_AutonOption;
 
+  //Left side
   if (L_AutonStartPos == E_AutonStartPosLeft)
     {
+	  //Go to Scale if side is left and preference is scale
     if (((L_AutonTargetScale == E_RobotSideLeft) &&
          (L_AutonPreference == E_AutonPreferenceScale)) ||
-
+    		//Go to Scale if switch is not left and switch is preference
         ((L_AutonTargetScale  == E_RobotSideLeft) &&
          (L_AutonTargetSwitch == E_RobotSideRight)))
       {
+    	//Go to scale left path
       L_AutonOption = E_AutonOpt1;
       }
+    	//Go to switch if the switch is left and Preference is switch
     else if (((L_AutonTargetSwitch == E_RobotSideLeft) &&
              (L_AutonPreference == E_AutonPreferenceSwitch)) ||
-
+    		//Go to switch if the scale is not left and scale is preference
             ((L_AutonTargetSwitch  == E_RobotSideLeft) &&
              (L_AutonTargetScale   == E_RobotSideRight)))
       {
+    	//Go to left Switch
       L_AutonOption = E_AutonOpt0;
       }
     else
       {
+    	//Testing Path
       L_AutonOption = E_AutonOpt6; // Default
       }
     }
   else if (L_AutonStartPos == E_AutonStartPosMiddle)
     {
+	  //Go to middle Left
     if (L_AutonTargetSwitch == E_RobotSideLeft)
       {
       L_AutonOption = E_AutonOpt2;
       }
+    //Go to middle Right
     else if (L_AutonTargetSwitch == E_RobotSideRight)
       {
       L_AutonOption = E_AutonOpt3;
@@ -88,14 +97,17 @@ T_AutonOpt DtrmnAutonOption(T_RobotSide       L_AutonTargetSwitch,
       L_AutonOption = E_AutonOpt6; // Default, we don't have the time to reach the scale when in the middle position...
       }
     }
+  //Right Starting Pos
   else if (L_AutonStartPos == E_AutonStartPosRight)
     {
+	  //Go to Scale if Scale is right and Scale is preference
     if (((L_AutonTargetScale == E_RobotSideRight) &&
         (L_AutonPreference == E_AutonPreferenceScale)) ||
-
+    		//GO to scale if switch is not right and Switch is preference
        ((L_AutonTargetScale  == E_RobotSideRight) &&
         (L_AutonTargetSwitch == E_RobotSideLeft)))
       {
+    	//Go to Right scale
       L_AutonOption = E_AutonOpt4;
       }
     else if (((L_AutonTargetSwitch == E_RobotSideRight) &&
