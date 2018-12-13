@@ -7,6 +7,10 @@
 #ifndef SRC_ROBORIO2018_CONTROL_LED_H_
 #define SRC_ROBORIO2018_CONTROL_LED_H_
 
+#include "const.h"
+#include "Calibrations.hpp"
+#include "Vars.hpp"
+
 void UpdateLED_Output(T_RoboState    L_RobotState,
                       bool           L_DriverOverride,
                       double         L_Winch,

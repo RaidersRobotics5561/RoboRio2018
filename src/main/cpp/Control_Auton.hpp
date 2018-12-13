@@ -7,6 +7,9 @@
 #ifndef SRC_ROBORIO2018_CONTROL_AUTON_HPP_
 #define SRC_ROBORIO2018_CONTROL_AUTON_HPP_
 
+#include "const.h"
+#include "Calibrations.hpp"
+#include "Vars.hpp"
 
 extern T_AutonOpt DtrmnAutonOption(T_RobotSide       L_AutonTargetSwitch,
                                    T_RobotSide       L_AutonTargetScale,

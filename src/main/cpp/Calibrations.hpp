@@ -7,6 +7,7 @@
 #ifndef SRC_ROBORIO2018_CALIBRATIONS_HPP_
 #define SRC_ROBORIO2018_CALIBRATIONS_HPP_
 
+#include "Enums.hpp"
 
 /* Characterization calibrations:
  * These calibrations set the values that should be fixed (i.e. encoder pulses to revolutions).*/
