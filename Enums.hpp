@@ -151,9 +151,6 @@ typedef enum T_AutonOpt
     E_AutonOpt4,
     E_AutonOpt5,
     E_AutonOpt6,
-	E_AutonOpt7,
-	E_AutonOpt8,
-	E_AutonOpt9,
     E_AutonOptSz
   } T_AutonOpt;
 

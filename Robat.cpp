@@ -71,7 +71,6 @@ T_AutonPreference V_AutonPreferenceFinal;
 double            V_AutonWheelDebounceTimer[E_RobotSideSz];
 double            V_AutonRotateDebounceTimer;
 double            V_AutonIntakeLiftDebounceTimer;
-bool V_AutonCrossver;
 
 T_RoboState V_RobatState;
 T_DriveMode DriveMode;
@@ -96,11 +95,6 @@ class Robot: public IterativeRobot {
   const std::string C_Preference0 = "Switch";
   const std::string C_Preference1 = "Scale";
   std::string V_AutonPreferenceSelected;
-
-  frc::SendableChooser<std::string> V_AutonCrossOverPreference;
-  const std::string C_CrossoverPreference0 = "Crossover";
-  const std::string C_CrossoverPreference1 = "No Crossover";
-  std::string V_AutonCrossoverPreferenceSelected;
 
 private:
 	//left Back, SRX:left Front #1
@@ -265,10 +259,6 @@ void RobotInit()
 	V_AutonPreference.AddDefault(C_Preference0, C_Preference0);
 	V_AutonPreference.AddObject(C_Preference1, C_Preference1);
   frc::SmartDashboard::PutData("Switch Scale Preference", &V_AutonPreference);
-
-  	V_AutonCrossOverPreference.AddDefault(C_CrossoverPreference0, C_CrossoverPreference0);
-  	V_AutonCrossOverPreference.AddObject(C_CrossoverPreference1, C_CrossoverPreference1);
-    frc::SmartDashboard::PutData("Crossover Preference", &V_AutonCrossOverPreference);
 
 	Prefs = Preferences::GetInstance();
 
@@ -539,6 +529,7 @@ void RobotInit()
 void AutonomousInit()
   {
 
+
 //	_talon0->SetSelectedSensorPosition(0, K_SlotIdx, K_TimeoutMs);
 //	_talon3->SetSelectedSensorPosition(0, K_SlotIdx, K_TimeoutMs);
 //
@@ -632,21 +623,10 @@ void AutonomousPeriodic()
     V_AutonPreferenceFinal = E_AutonPreferenceScale;
     }
 
-  V_AutonCrossoverPreferenceSelected = V_AutonCrossOverPreference.GetSelected();
-
-  if(V_AutonCrossoverPreferenceSelected == C_CrossoverPreference0){
-	  //Crossover
-	  V_AutonCrossver = true;
-  } else {
-	  //No Crossover
-	  V_AutonCrossver = false;
-  }
-
   L_AutonOption =  DtrmnAutonOption(V_AutonTargetSide[0],
                                     V_AutonTargetSide[1],
                                     V_AutonStartPos,
-                                    V_AutonPreferenceFinal,
-									V_AutonCrossver);
+                                    V_AutonPreferenceFinal);
 
   L_ControlComplete[E_AutonCntrlPrimary]   = false;
   L_ControlComplete[E_AutonCntrlSecondary] = false;
@@ -716,7 +696,6 @@ void AutonomousPeriodic()
           case E_ActuatorDriveUltraSonic: L_ControlComplete[L_AutonCntrlType] = CntrlAutonDrive(L_CntrlActuator,
                                                                                                 L_AutonTarget);          break;
 
-#ifdef COMPBOT
           case E_ActuatorLift:            L_ControlComplete[L_AutonCntrlType] = CntrlAutonLift(L_CntrlActuator,
                                                                                                L_AutonTarget);           break;
 
@@ -724,10 +703,9 @@ void AutonomousPeriodic()
           case E_ActuatorArmAngUp:
           case E_ActuatorArmAngDwn:       L_ControlComplete[L_AutonCntrlType] = CntrlAutonOpenLoopTimer(L_CntrlActuator,
                                                                                                         L_AutonTarget);  break;
-#endif
-          case E_ActuatorNone:
-          default:                        L_ControlComplete[L_AutonCntrlType] = true;   break;
 
+          case E_ActuatorNone:
+          default:                        L_ControlComplete[L_AutonCntrlType] = true;                                    break;
           }
         }
       }

@@ -71,9 +71,7 @@ void DtrmnControllerMapping(Joystick *L_Joystick1,
 //    L_IntakeRollers = -K_IntakeRollers;
 //    }
 
-    L_IntakeRollers = DeadBand(L_Joystick2->GetRawAxis(5),
-                               -K_JoystickAnalogDeadband,
-                                K_JoystickAnalogDeadband);
+
 
   if(L_Joystick2->GetRawButton(4)){
    Winch = K_Winch;
@@ -83,15 +81,30 @@ void DtrmnControllerMapping(Joystick *L_Joystick1,
     Winch = -K_Winch;
     }
 
-  V_RobotUserCmndPct[E_RobotUserCmndIntakeRoller] = L_IntakeRollers;
+  L_IntakeRollers = DeadBand(L_Joystick2->GetRawAxis(5),
+                             -K_JoystickAnalogDeadband,
+                              K_JoystickAnalogDeadband);
 
   V_RobotUserCmndPct[E_RobotUserCmndIntakeArmAng] = DeadBand(L_Joystick2->GetRawAxis(1),
                                                              -K_JoystickAnalogDeadband,
                                                               K_JoystickAnalogDeadband);
 
-  V_RobotUserCmndPct[E_RobotUserCmndLift] = DeadBand((L_Joystick2->GetRawAxis(3) - L_Joystick2->GetRawAxis(2)),
+  V_RobotUserCmndPct[E_RobotUserCmndLift] = DeadBand((L_Joystick2->GetRawAxis(3) - (L_Joystick2->GetRawAxis(2)*K_LiftSpeedDropGain)),
                                                      -K_JoystickAnalogDeadband,
                                                       K_JoystickAnalogDeadband);
+
+  if ((V_RobotUserCmndPct[E_RobotUserCmndIntakeArmAng] > 0.0) ||
+      (V_RobotUserCmndPct[E_RobotUserCmndLift] > 0.0))
+    {
+    L_IntakeRollers += K_IntakeRollerAutoPullIn;
+
+    if (L_IntakeRollers > 1.0)
+      {
+      L_IntakeRollers = 1.0;
+      }
+    }
+
+  V_RobotUserCmndPct[E_RobotUserCmndIntakeRoller] = L_IntakeRollers;
 
   V_RobotUserCmndPct[E_RobotUserCmndWinch] =  Winch;
   }

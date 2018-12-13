@@ -49,27 +49,34 @@ double Control_PID(double  L_DesiredSpeed,
 
   L_Derivative = L_DerivativeGx * (*L_ErrorPrev / C_ExeTime);
 
-
-
   *L_ErrorPrev = L_Error;
 
-  if (L_Proportional > L_ProportionalUpperLimit) {
+  if (L_Proportional > L_ProportionalUpperLimit)
+    {
     L_Proportional = L_ProportionalUpperLimit;
-  } else if (L_Proportional < L_ProportionalLowerLimit) {
+    }
+  else if (L_Proportional < L_ProportionalLowerLimit)
+    {
     L_Proportional = L_ProportionalLowerLimit;
-  }
+    }
 
-  if (L_Integral > L_IntegralUpperLimit) {
+  if (L_Integral > L_IntegralUpperLimit)
+    {
     L_Integral = L_IntegralUpperLimit;
-  } else if (L_Integral < L_IntegralLowerLimit) {
+    }
+  else if (L_Integral < L_IntegralLowerLimit)
+    {
     L_Integral = L_IntegralLowerLimit;
-  }
+    }
 
-  if (L_Derivative > L_DerivativeUpperLimit) {
+  if (L_Derivative > L_DerivativeUpperLimit)
+    {
     L_Derivative = L_DerivativeUpperLimit;
-  } else if (L_Derivative < L_DerivativeLowerLimit) {
+    }
+  else if (L_Derivative < L_DerivativeLowerLimit)
+    {
     L_Derivative = L_DerivativeLowerLimit;
-  }
+    }
 
   /* Ok, lets record the integral to use next loop: */
   *L_IntegralPrev = L_Integral;
@@ -79,11 +86,14 @@ double Control_PID(double  L_DesiredSpeed,
 
   /* This is kind of redundant, but lets limit the output to the min and max
    * allowed for the controller: */
-  if (L_OutputCmnd > L_OutputUpperLimit) {
+  if (L_OutputCmnd > L_OutputUpperLimit)
+    {
     L_OutputCmnd = L_OutputUpperLimit;
-  } else if (L_OutputCmnd < L_OutputLowerLimit) {
+    }
+  else if (L_OutputCmnd < L_OutputLowerLimit)
+    {
     L_OutputCmnd = L_OutputLowerLimit;
-  }
+    }
 
   return L_OutputCmnd;
 }
